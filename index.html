@@ -3,20 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Lovable App</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="Lovable App" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
+    <link rel="icon" type="image/jpg" href="/src/assets/logo.jpg" />
+    
+    <!-- SEO Meta Tags -->
+    <title>Belly Full - First Authentic Multicuisine Restaurant & Cafe in Kishoreganj</title>
+    <meta name="description" content="Experience the finest multicuisine dining at Belly Full - Kishoreganj's first authentic restaurant and cafe. Bengali, Indian, and international flavors. Book your table today!" />
+    <meta name="keywords" content="Belly Full, Kishoreganj restaurant, multicuisine, cafe, Bengali food, Indian cuisine, family dining, best restaurant Kishoreganj" />
+    <meta name="author" content="Belly Full" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:title" content="Belly Full - Authentic Multicuisine Restaurant in Kishoreganj" />
+    <meta property="og:description" content="First authentic multicuisine restaurant & cafe in the heart of Kishoreganj. Experience flavors that fill your belly and heart." />
+    <meta property="og:site_name" content="Belly Full" />
+    <meta property="og:locale" content="en_BD" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:title" content="Belly Full - Authentic Multicuisine Restaurant" />
+    <meta name="twitter:description" content="First authentic multicuisine restaurant & cafe in the heart of Kishoreganj." />
+    
+    <!-- Local Business Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "Belly Full",
+        "telephone": "+8801863339695",
+        "email": "bellyfull2022@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "53, Opposite of Tomaltola Primary School, Rothkhola",
+          "addressLocality": "Kishoreganj",
+          "addressRegion": "Dhaka Division",
+          "postalCode": "2300",
+          "addressCountry": "BD"
+        },
+        "servesCuisine": ["Bengali", "Indian", "International", "Fast Food"],
+        "priceRange": "$$",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+            "opens": "11:00",
+            "closes": "23:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "Friday",
+            "opens": "15:00",
+            "closes": "23:00"
+          }
+        ],
+        "sameAs": [
+          "https://www.facebook.com/profile.php?id=100084966930606",
+          "https://www.instagram.com/bellyfull_2022/"
+        ]
+      }
+    </script>
   </head>
 
   <body>
