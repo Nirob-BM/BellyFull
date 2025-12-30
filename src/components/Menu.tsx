@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Flame, Leaf, Star } from "lucide-react";
+import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 import biryaniImg from "@/assets/dish-biryani.jpg";
 import butterChickenImg from "@/assets/dish-butter-chicken.jpg";
@@ -70,14 +72,38 @@ const menuItems = [
   },
 ];
 
+type MenuItem = typeof menuItems[0];
+
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { toast } = useToast();
 
   const filteredItems = activeCategory === "All" 
     ? menuItems 
     : menuItems.filter(item => item.category === activeCategory);
+
+  const handleItemClick = (item: MenuItem) => {
+    setSelectedItem(item);
+    setQuantity(1);
+    setIsDialogOpen(true);
+  };
+
+  const handleAddToOrder = () => {
+    if (selectedItem) {
+      toast({
+        title: "Added to Order! 🎉",
+        description: `${quantity}x ${selectedItem.name} - ৳${selectedItem.price * quantity}`,
+      });
+      setIsDialogOpen(false);
+      setSelectedItem(null);
+      setQuantity(1);
+    }
+  };
 
   return (
     <section id="menu" className="py-24 bg-background" ref={ref}>
@@ -181,9 +207,16 @@ const Menu = () => {
                     {item.category}
                   </span>
                 </div>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                   {item.description}
                 </p>
+                <Button 
+                  onClick={() => handleItemClick(item)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Order Now
+                </Button>
               </div>
             </motion.div>
           ))}
@@ -201,6 +234,54 @@ const Menu = () => {
           </Button>
         </motion.div>
       </div>
+
+      {/* Order Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">{selectedItem?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="space-y-4">
+              <img 
+                src={selectedItem.image} 
+                alt={selectedItem.name} 
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <p className="text-muted-foreground">{selectedItem.description}</p>
+              
+              <div className="flex items-center justify-between">
+                <span className="font-display text-2xl font-bold text-secondary">
+                  ৳{selectedItem.price * quantity}
+                </span>
+                <div className="flex items-center gap-3">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="font-semibold text-lg w-8 text-center">{quantity}</span>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <Button onClick={handleAddToOrder} className="w-full bg-primary text-primary-foreground">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Add to Order - ৳{selectedItem.price * quantity}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
