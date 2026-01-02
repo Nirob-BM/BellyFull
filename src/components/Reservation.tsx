@@ -1,14 +1,28 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Calendar, Clock, Users, Phone, User, Mail } from "lucide-react";
+import { Calendar, Clock, Users, Phone, User, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const reservationSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+  phone: z.string().trim().min(5, "Please enter a valid phone number").max(20, "Phone number is too long"),
+  email: z.string().trim().email("Please enter a valid email").max(255, "Email is too long"),
+  date: z.string().min(1, "Please select a date"),
+  time: z.string().min(1, "Please select a time"),
+  guests: z.string().min(1, "Please select number of guests"),
+  special_requests: z.string().max(500, "Special requests must be less than 500 characters").optional(),
+});
 
 const Reservation = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -17,20 +31,65 @@ const Reservation = () => {
     date: "",
     time: "",
     guests: "",
+    special_requests: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Reservation Request Sent!",
-      description: "We'll confirm your booking shortly via phone or email.",
-    });
-    setFormData({ name: "", phone: "", email: "", date: "", time: "", guests: "" });
+    
+    // Validate form data
+    const result = reservationSchema.safeParse(formData);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: "Validation Error",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const guestsValue = formData.guests === "10+" ? 10 : parseInt(formData.guests, 10);
+      
+      const { error } = await supabase.from("reservations").insert({
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        date: formData.date,
+        time: formData.time,
+        guests: guestsValue,
+        special_requests: formData.special_requests.trim() || null,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Reservation Request Sent!",
+        description: "We'll confirm your booking shortly via phone or email.",
+      });
+      setFormData({ name: "", phone: "", email: "", date: "", time: "", guests: "", special_requests: "" });
+    } catch (error) {
+      console.error("Reservation error:", error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or call us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // Get minimum date (today)
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <section id="reservation" className="py-24 bg-primary relative overflow-hidden" ref={ref}>
@@ -106,6 +165,7 @@ const Reservation = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    maxLength={100}
                     className="pl-10 h-12"
                   />
                 </div>
@@ -121,6 +181,7 @@ const Reservation = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       required
+                      maxLength={20}
                       className="pl-10 h-12"
                     />
                   </div>
@@ -132,6 +193,8 @@ const Reservation = () => {
                       placeholder="Email Address"
                       value={formData.email}
                       onChange={handleChange}
+                      required
+                      maxLength={255}
                       className="pl-10 h-12"
                     />
                   </div>
@@ -147,6 +210,7 @@ const Reservation = () => {
                       value={formData.date}
                       onChange={handleChange}
                       required
+                      min={today}
                       className="pl-10 h-12"
                     />
                   </div>
@@ -181,13 +245,27 @@ const Reservation = () => {
                   </select>
                 </div>
 
+                {/* Special Requests */}
+                <div className="relative">
+                  <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                  <Textarea
+                    name="special_requests"
+                    placeholder="Special requests (optional)"
+                    value={formData.special_requests}
+                    onChange={handleChange}
+                    maxLength={500}
+                    className="pl-10 min-h-[80px] resize-none"
+                  />
+                </div>
+
                 {/* Submit Button */}
                 <Button 
                   type="submit" 
                   size="lg" 
+                  disabled={isSubmitting}
                   className="w-full bg-gradient-gold hover:opacity-90 text-primary font-semibold h-12 text-lg mt-2"
                 >
-                  Reserve Now
+                  {isSubmitting ? "Submitting..." : "Reserve Now"}
                 </Button>
 
                 <p className="text-center text-sm text-muted-foreground">
