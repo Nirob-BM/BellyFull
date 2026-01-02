@@ -6,6 +6,34 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+// Import local dish images as fallbacks
+import dishBiryani from "@/assets/dish-biryani.jpg";
+import dishButterChicken from "@/assets/dish-butter-chicken.jpg";
+import dishFish from "@/assets/dish-fish.jpg";
+import dishVegetable from "@/assets/dish-vegetable.jpg";
+import dishCoffee from "@/assets/dish-coffee.jpg";
+import dishBurger from "@/assets/dish-burger.jpg";
+
+// Map categories/keywords to fallback images
+const getFallbackImage = (name: string, category: string): string => {
+  const lowerName = name.toLowerCase();
+  const lowerCategory = category.toLowerCase();
+  
+  if (lowerName.includes('biryani')) return dishBiryani;
+  if (lowerName.includes('butter chicken') || lowerName.includes('tikka') || lowerName.includes('paneer')) return dishButterChicken;
+  if (lowerName.includes('fish') || lowerName.includes('ilish')) return dishFish;
+  if (lowerName.includes('vegetable') || lowerName.includes('veg curry')) return dishVegetable;
+  if (lowerName.includes('coffee') || lowerName.includes('cappuccino') || lowerName.includes('lassi')) return dishCoffee;
+  if (lowerName.includes('burger')) return dishBurger;
+  
+  // Category-based fallbacks
+  if (lowerCategory.includes('beverage') || lowerCategory.includes('drink')) return dishCoffee;
+  if (lowerCategory.includes('main') || lowerCategory.includes('curry')) return dishButterChicken;
+  if (lowerCategory.includes('biryani')) return dishBiryani;
+  
+  return dishButterChicken; // Default fallback
+};
+
 interface MenuItem {
   id: string;
   name: string;
@@ -145,17 +173,11 @@ const Menu = () => {
               >
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      No Image
-                    </div>
-                  )}
+                  <img
+                    src={item.image_url || getFallbackImage(item.name, item.category)}
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   {/* Badges */}
@@ -235,17 +257,11 @@ const Menu = () => {
           </DialogHeader>
           {selectedItem && (
             <div className="space-y-4">
-              {selectedItem.image_url ? (
-                <img 
-                  src={selectedItem.image_url} 
-                  alt={selectedItem.name} 
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-              ) : (
-                <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-                  No Image
-                </div>
-              )}
+              <img 
+                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)} 
+                alt={selectedItem.name} 
+                className="w-full h-48 object-cover rounded-lg"
+              />
               <p className="text-muted-foreground">{selectedItem.description}</p>
               
               <div className="flex items-center justify-between">
