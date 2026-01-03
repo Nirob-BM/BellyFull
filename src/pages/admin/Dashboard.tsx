@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, MessageSquare, UtensilsCrossed, Clock, TrendingUp, Users, Eye } from 'lucide-react';
+import { CalendarDays, MessageSquare, UtensilsCrossed, Clock, TrendingUp, Users, Eye, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
@@ -14,6 +14,8 @@ interface Stats {
   unreadMessages: number;
   totalEvents: number;
   totalBlogPosts: number;
+  totalOrders: number;
+  pendingOrders: number;
 }
 
 interface Reservation {
@@ -48,6 +50,8 @@ const Dashboard = () => {
     unreadMessages: 0,
     totalEvents: 0,
     totalBlogPosts: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
   });
   const [recentReservations, setRecentReservations] = useState<Reservation[]>([]);
   const [reservationsByDay, setReservationsByDay] = useState<ReservationsByDay[]>([]);
@@ -71,18 +75,22 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [reservationsRes, menuRes, contactsRes, eventsRes, blogRes] = await Promise.all([
+      const [reservationsRes, menuRes, contactsRes, eventsRes, blogRes, ordersRes] = await Promise.all([
         supabase.from('reservations').select('status'),
         supabase.from('menu_items').select('id', { count: 'exact' }).eq('is_active', true),
         supabase.from('contact_submissions').select('id', { count: 'exact' }).eq('is_read', false),
         supabase.from('events').select('id', { count: 'exact' }).eq('is_active', true),
         supabase.from('blog_posts').select('id', { count: 'exact' }).eq('is_published', true),
+        supabase.from('orders').select('order_status'),
       ]);
 
       const reservations = reservationsRes.data || [];
       const pendingCount = reservations.filter(r => r.status === 'pending').length;
       const confirmedCount = reservations.filter(r => r.status === 'confirmed').length;
       const cancelledCount = reservations.filter(r => r.status === 'cancelled').length;
+
+      const orders = ordersRes.data || [];
+      const pendingOrdersCount = orders.filter(o => o.order_status === 'pending').length;
 
       setStats({
         totalReservations: reservations.length,
@@ -93,6 +101,8 @@ const Dashboard = () => {
         unreadMessages: contactsRes.count || 0,
         totalEvents: eventsRes.count || 0,
         totalBlogPosts: blogRes.count || 0,
+        totalOrders: orders.length,
+        pendingOrders: pendingOrdersCount,
       });
 
       setStatusData([
@@ -161,11 +171,11 @@ const Dashboard = () => {
   };
 
   const statCards = [
+    { title: 'Total Orders', value: stats.totalOrders, icon: Package, color: 'bg-emerald-500/10 text-emerald-500' },
+    { title: 'Pending Orders', value: stats.pendingOrders, icon: Clock, color: 'bg-yellow-500/10 text-yellow-500' },
     { title: 'Total Reservations', value: stats.totalReservations, icon: CalendarDays, color: 'bg-blue-500/10 text-blue-500' },
-    { title: 'Pending', value: stats.pendingReservations, icon: Clock, color: 'bg-orange-500/10 text-orange-500' },
     { title: 'Active Menu Items', value: stats.totalMenuItems, icon: UtensilsCrossed, color: 'bg-green-500/10 text-green-500' },
     { title: 'Unread Messages', value: stats.unreadMessages, icon: MessageSquare, color: 'bg-purple-500/10 text-purple-500' },
-    { title: 'Active Events', value: stats.totalEvents, icon: TrendingUp, color: 'bg-pink-500/10 text-pink-500' },
     { title: 'Published Posts', value: stats.totalBlogPosts, icon: Eye, color: 'bg-cyan-500/10 text-cyan-500' },
   ];
 

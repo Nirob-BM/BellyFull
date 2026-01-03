@@ -230,6 +230,57 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          created_at: string
+          id: string
+          order_status: string
+          payment_method: string
+          product_details: Json
+          rejection_reason: string | null
+          screenshot_url: string | null
+          sender_phone: string | null
+          total_amount: number
+          transaction_id: string
+          updated_at: string
+          user_email: string | null
+          user_name: string
+          user_phone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_status?: string
+          payment_method: string
+          product_details: Json
+          rejection_reason?: string | null
+          screenshot_url?: string | null
+          sender_phone?: string | null
+          total_amount: number
+          transaction_id: string
+          updated_at?: string
+          user_email?: string | null
+          user_name: string
+          user_phone: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_status?: string
+          payment_method?: string
+          product_details?: Json
+          rejection_reason?: string | null
+          screenshot_url?: string | null
+          sender_phone?: string | null
+          total_amount?: number
+          transaction_id?: string
+          updated_at?: string
+          user_email?: string | null
+          user_name?: string
+          user_phone?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

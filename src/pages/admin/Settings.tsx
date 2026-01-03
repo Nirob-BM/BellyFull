@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Globe, Palette, Search, Building } from 'lucide-react';
+import { Save, Loader2, Globe, Palette, Search, Building, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,11 @@ interface DesignSettings {
   hero_subtitle: string;
 }
 
+interface PaymentSettings {
+  bkash_number: string;
+  nagad_number: string;
+}
+
 const defaultGeneral: GeneralSettings = {
   restaurant_name: '',
   tagline: '',
@@ -62,10 +67,16 @@ const defaultDesign: DesignSettings = {
   hero_subtitle: '',
 };
 
+const defaultPayment: PaymentSettings = {
+  bkash_number: '01308697630',
+  nagad_number: '01308697630',
+};
+
 const Settings = () => {
   const [general, setGeneral] = useState<GeneralSettings>(defaultGeneral);
   const [seo, setSeo] = useState<SeoSettings>(defaultSeo);
   const [design, setDesign] = useState<DesignSettings>(defaultDesign);
+  const [payment, setPayment] = useState<PaymentSettings>(defaultPayment);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -86,12 +97,13 @@ const Settings = () => {
         if (setting.key === 'general') setGeneral({ ...defaultGeneral, ...value });
         if (setting.key === 'seo') setSeo({ ...defaultSeo, ...value });
         if (setting.key === 'design') setDesign({ ...defaultDesign, ...value });
+        if (setting.key === 'payment_settings') setPayment({ ...defaultPayment, ...value });
       });
     }
     setIsLoading(false);
   };
 
-  const saveSettings = async (key: string, value: GeneralSettings | SeoSettings | DesignSettings) => {
+  const saveSettings = async (key: string, value: GeneralSettings | SeoSettings | DesignSettings | PaymentSettings) => {
     setIsSaving(true);
 
     // First check if setting exists
@@ -139,7 +151,7 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
+        <TabsList className="grid w-full grid-cols-4 max-w-lg">
           <TabsTrigger value="general" className="gap-2">
             <Building className="h-4 w-4" />
             General
@@ -151,6 +163,10 @@ const Settings = () => {
           <TabsTrigger value="design" className="gap-2">
             <Palette className="h-4 w-4" />
             Design
+          </TabsTrigger>
+          <TabsTrigger value="payment" className="gap-2">
+            <CreditCard className="h-4 w-4" />
+            Payment
           </TabsTrigger>
         </TabsList>
 
@@ -396,6 +412,72 @@ const Settings = () => {
 
               <div className="flex justify-end">
                 <Button onClick={() => saveSettings('design', design)} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Payment Settings */}
+        <TabsContent value="payment">
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Settings</CardTitle>
+              <CardDescription>Configure your bKash and Nagad payment numbers</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
+                      <span className="text-pink-600 font-bold">bK</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">bKash</h4>
+                      <p className="text-sm text-muted-foreground">Send Money Number</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bkash_number">bKash Number</Label>
+                    <Input
+                      id="bkash_number"
+                      value={payment.bkash_number}
+                      onChange={(e) => setPayment({ ...payment, bkash_number: e.target.value })}
+                      placeholder="01XXXXXXXXX"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <span className="text-orange-600 font-bold">N</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Nagad</h4>
+                      <p className="text-sm text-muted-foreground">Send Money Number</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nagad_number">Nagad Number</Label>
+                    <Input
+                      id="nagad_number"
+                      value={payment.nagad_number}
+                      onChange={(e) => setPayment({ ...payment, nagad_number: e.target.value })}
+                      placeholder="01XXXXXXXXX"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200">
+                <p><strong>Note:</strong> These numbers will be displayed to customers during checkout for payment.</p>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={() => saveSettings('payment_settings', payment)} disabled={isSaving}>
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                   Save Changes
                 </Button>
