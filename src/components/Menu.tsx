@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
 
 // Import local dish images as fallbacks
 import dishBiryani from "@/assets/dish-biryani.jpg";
@@ -58,6 +59,7 @@ const Menu = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
+  const { addItem } = useCart();
 
   useEffect(() => {
     fetchMenuItems();
@@ -93,8 +95,16 @@ const Menu = () => {
 
   const handleAddToOrder = () => {
     if (selectedItem) {
+      for (let i = 0; i < quantity; i++) {
+        addItem({
+          id: selectedItem.id,
+          name: selectedItem.name,
+          price: selectedItem.price,
+          image_url: selectedItem.image_url || undefined
+        });
+      }
       toast({
-        title: "Added to Order! 🎉",
+        title: "Added to Cart! 🎉",
         description: `${quantity}x ${selectedItem.name} - ৳${selectedItem.price * quantity}`,
       });
       setIsDialogOpen(false);

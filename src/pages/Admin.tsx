@@ -16,6 +16,7 @@ import {
   X,
   ChefHat,
   Home,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { path: '/admin/menu', icon: UtensilsCrossed, label: 'Menu Manager' },
+  { path: '/admin/orders', icon: Package, label: 'Orders' },
   { path: '/admin/reservations', icon: CalendarDays, label: 'Reservations' },
   { path: '/admin/contacts', icon: MessageSquare, label: 'Contact Submissions' },
   { path: '/admin/hours', icon: Clock, label: 'Opening Hours' },
