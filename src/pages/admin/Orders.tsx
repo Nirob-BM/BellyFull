@@ -102,8 +102,31 @@ const Orders = () => {
     };
   }, []);
 
+  const sendNotification = async (order: Order, status: 'approved' | 'rejected', reason?: string) => {
+    try {
+      await supabase.functions.invoke('send-notification', {
+        body: {
+          type: 'order',
+          action: status,
+          recipientEmail: order.user_email,
+          recipientName: order.user_name,
+          details: {
+            orderId: order.id,
+            amount: order.total_amount,
+            rejectionReason: reason,
+          },
+        },
+      });
+      console.log('Notification sent for order:', order.id);
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+    }
+  };
+
   const updateOrderStatus = async (orderId: string, status: 'approved' | 'rejected', reason?: string) => {
     setIsUpdating(true);
+    const order = orders.find(o => o.id === orderId);
+    
     const { error } = await supabase
       .from('orders')
       .update({ 
@@ -119,6 +142,12 @@ const Orders = () => {
         title: status === 'approved' ? "Order Approved" : "Order Rejected",
         description: `Order has been ${status}`
       });
+      
+      // Send email notification
+      if (order) {
+        sendNotification(order, status, reason);
+      }
+      
       setSelectedOrder(null);
       setShowRejectDialog(false);
       setRejectionReason("");
