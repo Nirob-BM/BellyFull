@@ -47,7 +47,31 @@ const Reservations = () => {
     setIsLoading(false);
   };
 
+  const sendNotification = async (reservation: Reservation, status: string) => {
+    try {
+      await supabase.functions.invoke('send-notification', {
+        body: {
+          type: 'reservation',
+          action: status,
+          recipientEmail: reservation.email,
+          recipientName: reservation.name,
+          details: {
+            reservationId: reservation.id,
+            date: reservation.date,
+            time: reservation.time,
+            guests: reservation.guests,
+          },
+        },
+      });
+      console.log('Notification sent for reservation:', reservation.id);
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+    }
+  };
+
   const updateStatus = async (id: string, status: string) => {
+    const reservation = reservations.find(r => r.id === id);
+    
     const { error } = await supabase
       .from('reservations')
       .update({ status })
@@ -57,6 +81,12 @@ const Reservations = () => {
       toast({ title: 'Error', description: 'Failed to update reservation', variant: 'destructive' });
     } else {
       toast({ title: 'Success', description: `Reservation ${status}` });
+      
+      // Send email notification for confirmed/cancelled
+      if (reservation && (status === 'confirmed' || status === 'cancelled')) {
+        sendNotification(reservation, status);
+      }
+      
       fetchReservations();
     }
   };
