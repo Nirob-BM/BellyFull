@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -78,8 +79,9 @@ const Menu = () => {
     if (error) {
       console.error('Error fetching menu items:', error);
     } else {
-      setMenuItems(data || []);
-      // Extract unique categories
+      // Show only first 6 items on homepage (featured/new items)
+      setMenuItems((data || []).slice(0, 6));
+      // Extract unique categories from all items for filtering
       const uniqueCategories = [...new Set((data || []).map(item => item.category))];
       setCategories(["All", ...uniqueCategories]);
     }
@@ -139,37 +141,16 @@ const Menu = () => {
           className="text-center max-w-2xl mx-auto mb-12"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4">
-            Our Menu
+            Featured Items
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
             Discover Our <span className="text-secondary">Signature Dishes</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Explore our carefully crafted menu featuring the finest multicuisine selections
+            A taste of our most popular and newly added dishes
           </p>
         </motion.div>
 
-        {/* Category Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
-        >
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={activeCategory === category ? "default" : "outline"}
-              onClick={() => setActiveCategory(category)}
-              className={activeCategory === category 
-                ? "bg-primary text-primary-foreground" 
-                : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
-              }
-            >
-              {category}
-            </Button>
-          ))}
-        </motion.div>
 
         {/* Loading State */}
         {isLoading && (
@@ -277,9 +258,11 @@ const Menu = () => {
           transition={{ delay: 0.6, duration: 0.5 }}
           className="text-center mt-12"
         >
-          <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-            View Full Menu
-          </Button>
+          <Link to="/menu">
+            <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              View Full Menu
+            </Button>
+          </Link>
         </motion.div>
       </div>
 

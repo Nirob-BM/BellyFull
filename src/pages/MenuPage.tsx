@@ -1,0 +1,351 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import ImageLightbox from "@/components/ImageLightbox";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import CartButton from "@/components/CartButton";
+
+// Import local dish images as fallbacks
+import dishBiryani from "@/assets/dish-biryani.jpg";
+import dishButterChicken from "@/assets/dish-butter-chicken.jpg";
+import dishFish from "@/assets/dish-fish.jpg";
+import dishVegetable from "@/assets/dish-vegetable.jpg";
+import dishCoffee from "@/assets/dish-coffee.jpg";
+import dishBurger from "@/assets/dish-burger.jpg";
+
+// Map categories/keywords to fallback images
+const getFallbackImage = (name: string, category: string): string => {
+  const lowerName = name.toLowerCase();
+  const lowerCategory = category.toLowerCase();
+  
+  if (lowerName.includes('biryani')) return dishBiryani;
+  if (lowerName.includes('butter chicken') || lowerName.includes('tikka') || lowerName.includes('paneer')) return dishButterChicken;
+  if (lowerName.includes('fish') || lowerName.includes('ilish')) return dishFish;
+  if (lowerName.includes('vegetable') || lowerName.includes('veg curry')) return dishVegetable;
+  if (lowerName.includes('coffee') || lowerName.includes('cappuccino') || lowerName.includes('lassi')) return dishCoffee;
+  if (lowerName.includes('burger')) return dishBurger;
+  
+  // Category-based fallbacks
+  if (lowerCategory.includes('beverage') || lowerCategory.includes('drink')) return dishCoffee;
+  if (lowerCategory.includes('main') || lowerCategory.includes('curry')) return dishButterChicken;
+  if (lowerCategory.includes('biryani')) return dishBiryani;
+  
+  return dishButterChicken; // Default fallback
+};
+
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  image_url: string | null;
+  is_popular: boolean | null;
+  is_spicy: boolean | null;
+  is_veg: boolean | null;
+  is_active: boolean | null;
+}
+
+const MenuPage = () => {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const { toast } = useToast();
+  const { addItem } = useCart();
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    const { data, error } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching menu items:', error);
+    } else {
+      setMenuItems(data || []);
+      const uniqueCategories = [...new Set((data || []).map(item => item.category))];
+      setCategories(["All", ...uniqueCategories]);
+    }
+    setIsLoading(false);
+  };
+
+  const filteredItems = activeCategory === "All" 
+    ? menuItems 
+    : menuItems.filter(item => item.category === activeCategory);
+
+  const handleItemClick = (item: MenuItem) => {
+    setSelectedItem(item);
+    setQuantity(1);
+    setIsDialogOpen(true);
+  };
+
+  const handleViewImage = (item: MenuItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLightboxItem(item);
+    setIsLightboxOpen(true);
+  };
+
+  const getItemImages = (item: MenuItem): string[] => {
+    const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+    return [primaryImage];
+  };
+
+  const handleAddToOrder = () => {
+    if (selectedItem) {
+      for (let i = 0; i < quantity; i++) {
+        addItem({
+          id: selectedItem.id,
+          name: selectedItem.name,
+          price: selectedItem.price,
+          image_url: selectedItem.image_url || undefined
+        });
+      }
+      toast({
+        title: "Added to Cart! 🎉",
+        description: `${quantity}x ${selectedItem.name} - ৳${selectedItem.price * quantity}`,
+      });
+      setIsDialogOpen(false);
+      setSelectedItem(null);
+      setQuantity(1);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <CartButton />
+      
+      <main className="pt-24 pb-16">
+        <div className="container">
+          {/* Back Link */}
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+
+          {/* Page Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-2xl mx-auto mb-12"
+          >
+            <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4">
+              Full Menu
+            </span>
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+              Explore Our <span className="text-secondary">Complete Menu</span>
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Browse through all our delicious dishes and find your favorites
+            </p>
+          </motion.div>
+
+          {/* Category Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="flex flex-wrap justify-center gap-3 mb-12"
+          >
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={activeCategory === category ? "default" : "outline"}
+                onClick={() => setActiveCategory(category)}
+                className={activeCategory === category 
+                  ? "bg-primary text-primary-foreground" 
+                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
+                }
+              >
+                {category}
+              </Button>
+            ))}
+          </motion.div>
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && filteredItems.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No menu items available at the moment.</p>
+            </div>
+          )}
+
+          {/* Menu Grid */}
+          {!isLoading && filteredItems.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * index, duration: 0.5 }}
+                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg transition-all duration-300"
+                >
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    <img
+                      src={item.image_url || getFallbackImage(item.name, item.category)}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Eye Icon - View Full Image */}
+                    <button
+                      onClick={(e) => handleViewImage(item, e)}
+                      className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                      title="View full image"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
+
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      {item.is_popular && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
+                          <Star className="h-3 w-3 fill-current" />
+                          Popular
+                        </span>
+                      )}
+                      {item.is_spicy && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
+                          <Flame className="h-3 w-3" />
+                          Spicy
+                        </span>
+                      )}
+                      {item.is_veg && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium">
+                          <Leaf className="h-3 w-3" />
+                          Veg
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Price Badge */}
+                    <div className="absolute bottom-4 right-4">
+                      <span className="inline-block px-3 py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-lg font-bold text-secondary">
+                        ৳{item.price}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-secondary transition-colors">
+                        {item.name}
+                      </h3>
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                        {item.category}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {item.description}
+                    </p>
+                    <Button 
+                      onClick={() => handleItemClick(item)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      Order Now
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+
+      {/* Order Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">{selectedItem?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="space-y-4">
+              <img 
+                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)} 
+                alt={selectedItem.name} 
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <p className="text-muted-foreground">{selectedItem.description}</p>
+              
+              <div className="flex items-center justify-between">
+                <span className="font-display text-2xl font-bold text-secondary">
+                  ৳{selectedItem.price * quantity}
+                </span>
+                <div className="flex items-center gap-3">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="font-semibold text-lg w-8 text-center">{quantity}</span>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <Button onClick={handleAddToOrder} className="w-full bg-primary text-primary-foreground">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Add to Order - ৳{selectedItem.price * quantity}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Lightbox */}
+      {lightboxItem && (
+        <ImageLightbox
+          images={getItemImages(lightboxItem)}
+          isOpen={isLightboxOpen}
+          onClose={() => {
+            setIsLightboxOpen(false);
+            setLightboxItem(null);
+          }}
+          alt={lightboxItem.name}
+        />
+      )}
+    </div>
+  );
+};
+
+export default MenuPage;

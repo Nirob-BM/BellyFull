@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Checkout from "./pages/Checkout";
+import MenuPage from "./pages/MenuPage";
 import Dashboard from "./pages/admin/Dashboard";
 import MenuManager from "./pages/admin/MenuManager";
 import Reservations from "./pages/admin/Reservations";
@@ -33,6 +34,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/menu" element={<MenuPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<Admin />}>
