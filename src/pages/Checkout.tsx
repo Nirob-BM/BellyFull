@@ -153,7 +153,7 @@ const Checkout = () => {
               }`}>
                 {i + 1}
               </div>
-              {i < 3 && <div className={`w-8 h-0.5 ${['details', 'payment', 'verify', 'success'].indexOf(step) > i ? 'bg-primary' : 'bg-muted'}`} />}
+              {i < 3 && <div className={`w-12 h-0.5 ${['details', 'payment', 'verify', 'success'].indexOf(step) > i ? 'bg-primary' : 'bg-muted'}`} />}
             </div>
           ))}
         </div>
