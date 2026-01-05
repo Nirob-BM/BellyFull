@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2 } from "lucide-react";
+import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
+import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -56,6 +57,8 @@ const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [isLoading, setIsLoading] = useState(true);
+  const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
@@ -91,6 +94,18 @@ const Menu = () => {
     setSelectedItem(item);
     setQuantity(1);
     setIsDialogOpen(true);
+  };
+
+  const handleViewImage = (item: MenuItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLightboxItem(item);
+    setIsLightboxOpen(true);
+  };
+
+  const getItemImages = (item: MenuItem): string[] => {
+    const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+    // Return array of images - primary image plus category-based variety
+    return [primaryImage];
   };
 
   const handleAddToOrder = () => {
@@ -190,6 +205,15 @@ const Menu = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
+                  {/* Eye Icon - View Full Image */}
+                  <button
+                    onClick={(e) => handleViewImage(item, e)}
+                    className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                    title="View full image"
+                  >
+                    <Eye className="h-5 w-5" />
+                  </button>
+
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex gap-2">
                     {item.is_popular && (
@@ -306,6 +330,19 @@ const Menu = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      {lightboxItem && (
+        <ImageLightbox
+          images={getItemImages(lightboxItem)}
+          isOpen={isLightboxOpen}
+          onClose={() => {
+            setIsLightboxOpen(false);
+            setLightboxItem(null);
+          }}
+          alt={lightboxItem.name}
+        />
+      )}
     </section>
   );
 };
