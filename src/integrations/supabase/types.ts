@@ -159,6 +159,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           is_active: boolean | null
           is_popular: boolean | null
           is_spicy: boolean | null
@@ -174,6 +175,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           is_popular?: boolean | null
           is_spicy?: boolean | null
@@ -189,6 +191,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           is_popular?: boolean | null
           is_spicy?: boolean | null
@@ -349,6 +352,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          menu_item_id: string
+          rating: number
+          user_name: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          menu_item_id: string
+          rating: number
+          user_name: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          menu_item_id?: string
+          rating?: number
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {

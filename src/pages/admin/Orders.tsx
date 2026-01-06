@@ -11,7 +11,11 @@ import {
   Eye,
   Search,
   RefreshCw,
-  Trash2
+  Trash2,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  FileJson
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,9 +29,16 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { exportOrdersToCSV, exportOrdersToPDF, exportOrdersToJSON } from "@/lib/exportOrders";
 
 interface OrderItem {
   id: string;
@@ -217,10 +228,43 @@ const Orders = () => {
           </h1>
           <p className="text-muted-foreground">Manage customer orders</p>
         </div>
-        <Button variant="outline" onClick={fetchOrders} disabled={isLoading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={fetchOrders} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" disabled={filteredOrders.length === 0}>
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => {
+                exportOrdersToCSV(filteredOrders);
+                toast({ title: "Exported", description: "Orders exported to CSV" });
+              }}>
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                exportOrdersToPDF(filteredOrders);
+                toast({ title: "Exported", description: "Orders exported to PDF" });
+              }}>
+                <FileText className="w-4 h-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                exportOrdersToJSON(filteredOrders);
+                toast({ title: "Exported", description: "Orders exported to JSON" });
+              }}>
+                <FileJson className="w-4 h-4 mr-2" />
+                Export as JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Filters */}

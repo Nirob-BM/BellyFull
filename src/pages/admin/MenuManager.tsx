@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Star, Flame, Leaf, Search, Upload, X, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Star, Flame, Leaf, Search, Upload, X, Loader2, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +18,7 @@ interface MenuItem {
   price: number;
   category: string;
   image_url: string | null;
+  images: string[] | null;
   is_popular: boolean | null;
   is_spicy: boolean | null;
   is_veg: boolean | null;
@@ -40,55 +41,77 @@ const MenuManager = () => {
     price: '',
     category: 'Bengali',
     image_url: '',
+    images: [] as string[],
     is_popular: false,
     is_spicy: false,
     is_veg: false,
     is_active: true,
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const multiFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({ title: 'Invalid file', description: 'Please upload an image file', variant: 'destructive' });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Image must be less than 5MB', variant: 'destructive' });
-      return;
-    }
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, isMultiple: boolean = false) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `menu-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `menu-items/${fileName}`;
+      const uploadedUrls: string[] = [];
 
-      // Upload to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, file);
+      for (const file of Array.from(files)) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast({ title: 'Invalid file', description: `${file.name} is not an image`, variant: 'destructive' });
+          continue;
+        }
 
-      if (uploadError) throw uploadError;
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({ title: 'File too large', description: `${file.name} must be less than 5MB`, variant: 'destructive' });
+          continue;
+        }
 
-      // Get public URL
-      const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
-      
-      setFormData({ ...formData, image_url: urlData.publicUrl });
-      toast({ title: 'Uploaded', description: 'Image uploaded successfully' });
+        const fileExt = file.name.split('.').pop();
+        const fileName = `menu-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `menu-items/${fileName}`;
+
+        // Upload to Supabase storage
+        const { error: uploadError } = await supabase.storage
+          .from('media')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+          continue;
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
+        uploadedUrls.push(urlData.publicUrl);
+      }
+
+      if (uploadedUrls.length > 0) {
+        if (isMultiple) {
+          setFormData({ 
+            ...formData, 
+            images: [...formData.images, ...uploadedUrls],
+            image_url: formData.image_url || uploadedUrls[0] // Set first as primary if none set
+          });
+        } else {
+          setFormData({ ...formData, image_url: uploadedUrls[0] });
+        }
+        toast({ title: 'Uploaded', description: `${uploadedUrls.length} image(s) uploaded successfully` });
+      }
     } catch (error: any) {
       toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      if (multiFileInputRef.current) multiFileInputRef.current.value = '';
     }
   };
 
@@ -118,6 +141,7 @@ const MenuManager = () => {
       price: '',
       category: 'Bengali',
       image_url: '',
+      images: [],
       is_popular: false,
       is_spicy: false,
       is_veg: false,
@@ -134,6 +158,7 @@ const MenuManager = () => {
       price: item.price.toString(),
       category: item.category,
       image_url: item.image_url || '',
+      images: item.images || [],
       is_popular: item.is_popular || false,
       is_spicy: item.is_spicy || false,
       is_veg: item.is_veg || false,
@@ -151,6 +176,7 @@ const MenuManager = () => {
       price: parseFloat(formData.price),
       category: formData.category,
       image_url: formData.image_url || null,
+      images: formData.images.length > 0 ? formData.images : null,
       is_popular: formData.is_popular,
       is_spicy: formData.is_spicy,
       is_veg: formData.is_veg,
@@ -196,6 +222,37 @@ const MenuManager = () => {
       toast({ title: 'Success', description: 'Menu item deleted successfully' });
       fetchMenuItems();
     }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: newImages });
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedImageIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedImageIndex === null || draggedImageIndex === index) return;
+
+    const newImages = [...formData.images];
+    const draggedImage = newImages[draggedImageIndex];
+    newImages.splice(draggedImageIndex, 1);
+    newImages.splice(index, 0, draggedImage);
+
+    setFormData({ ...formData, images: newImages });
+    setDraggedImageIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedImageIndex(null);
+  };
+
+  const setAsPrimaryImage = (url: string) => {
+    setFormData({ ...formData, image_url: url });
+    toast({ title: 'Primary image set', description: 'This image will be shown as the main product image' });
   };
 
   const filteredItems = menuItems.filter((item) => {
@@ -269,12 +326,19 @@ const MenuManager = () => {
               <Card className={!item.is_active ? 'opacity-60' : ''}>
                 <CardContent className="p-4">
                   <div className="flex gap-4">
-                    {item.image_url && (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
+                    {(item.image_url || (item.images && item.images.length > 0)) && (
+                      <div className="relative">
+                        <img
+                          src={item.image_url || item.images?.[0]}
+                          alt={item.name}
+                          className="w-20 h-20 object-cover rounded-lg"
+                        />
+                        {item.images && item.images.length > 1 && (
+                          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
+                            +{item.images.length - 1}
+                          </span>
+                        )}
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
@@ -307,7 +371,7 @@ const MenuManager = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? 'Edit Menu Item' : 'Add Menu Item'}</DialogTitle>
           </DialogHeader>
@@ -359,70 +423,141 @@ const MenuManager = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Image</Label>
-              <div className="space-y-3">
-                {/* Image Preview */}
-                {formData.image_url && (
-                  <div className="relative inline-block">
-                    <img
-                      src={formData.image_url}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, image_url: '' })}
-                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                
-                {/* Upload Button */}
-                <div className="flex gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
+            {/* Multiple Images Section */}
+            <div className="space-y-3">
+              <Label>Product Images (up to 4)</Label>
+              
+              {/* Current Primary Image */}
+              {formData.image_url && (
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <img
+                    src={formData.image_url}
+                    alt="Primary"
+                    className="w-16 h-16 object-cover rounded-lg border-2 border-primary"
                   />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">Primary Image</span>
+                    <p className="text-xs text-muted-foreground">This is shown on menu cards</p>
+                  </div>
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="flex-1"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setFormData({ ...formData, image_url: '' })}
                   >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Image
-                      </>
-                    )}
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                {/* Or use URL */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="flex-1 border-t" />
-                  <span>or paste URL</span>
-                  <span className="flex-1 border-t" />
+              )}
+
+              {/* Gallery Images with Drag & Drop */}
+              {formData.images.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground">Gallery Images (drag to reorder)</span>
+                  <div className="grid grid-cols-4 gap-3">
+                    {formData.images.map((img, index) => (
+                      <div
+                        key={index}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={`relative group cursor-move ${
+                          draggedImageIndex === index ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`Gallery ${index + 1}`}
+                          className={`w-full aspect-square object-cover rounded-lg border-2 transition-colors ${
+                            img === formData.image_url ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                          <GripVertical className="h-4 w-4 text-white" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                        {img !== formData.image_url && (
+                          <button
+                            type="button"
+                            onClick={() => setAsPrimaryImage(img)}
+                            className="absolute bottom-1 left-1 right-1 bg-card/90 text-foreground text-xs py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            Set Primary
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
+              )}
+              
+              {/* Upload Buttons */}
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, false)}
+                  className="hidden"
+                  id="image-upload"
                 />
+                <input
+                  ref={multiFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleImageUpload(e, true)}
+                  className="hidden"
+                  id="multi-image-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex-1"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Primary
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => multiFileInputRef.current?.click()}
+                  disabled={isUploading || formData.images.length >= 4}
+                >
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Add Gallery ({formData.images.length}/4)
+                </Button>
               </div>
+              
+              {/* Or use URL */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex-1 border-t" />
+                <span>or paste URL for primary</span>
+                <span className="flex-1 border-t" />
+              </div>
+              <Input
+                value={formData.image_url}
+                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
