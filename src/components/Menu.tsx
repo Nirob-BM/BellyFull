@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -44,6 +44,7 @@ interface MenuItem {
   price: number;
   category: string;
   image_url: string | null;
+  images: string[] | null;
   is_popular: boolean | null;
   is_spicy: boolean | null;
   is_veg: boolean | null;
@@ -51,6 +52,7 @@ interface MenuItem {
 }
 
 const Menu = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -104,10 +106,20 @@ const Menu = () => {
     setIsLightboxOpen(true);
   };
 
+  const handleImageClick = (item: MenuItem) => {
+    navigate(`/product/${item.id}`);
+  };
+
   const getItemImages = (item: MenuItem): string[] => {
-    const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
-    // Return array of images - primary image plus category-based variety
-    return [primaryImage];
+    const allImages: string[] = [];
+    if (item.images && item.images.length > 0) {
+      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+    }
+    if (allImages.length === 0) {
+      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      allImages.push(primaryImage);
+    }
+    return allImages;
   };
 
   const handleAddToOrder = () => {
@@ -177,8 +189,11 @@ const Menu = () => {
                 transition={{ delay: 0.1 * index, duration: 0.5 }}
                 className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg transition-all duration-300"
               >
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                {/* Image - Click to go to product details */}
+                <div 
+                  className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer"
+                  onClick={() => handleImageClick(item)}
+                >
                   <img
                     src={item.image_url || getFallbackImage(item.name, item.category)}
                     alt={item.name}

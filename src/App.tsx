@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Checkout from "./pages/Checkout";
 import MenuPage from "./pages/MenuPage";
+import ProductDetails from "./pages/ProductDetails";
 import Dashboard from "./pages/admin/Dashboard";
 import MenuManager from "./pages/admin/MenuManager";
 import Reservations from "./pages/admin/Reservations";
@@ -35,6 +36,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/menu" element={<MenuPage />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<Admin />}>
