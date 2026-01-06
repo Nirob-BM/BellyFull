@@ -10,7 +10,8 @@ import {
   Mail,
   Eye,
   Search,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,8 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -158,6 +161,23 @@ const Orders = () => {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied!", description: `${label} copied to clipboard` });
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    setIsUpdating(true);
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete order", variant: "destructive" });
+    } else {
+      toast({ title: "Order Deleted", description: "Order has been permanently deleted" });
+      setShowDeleteDialog(false);
+      setOrderToDelete(null);
+    }
+    setIsUpdating(false);
   };
 
   const getStatusBadge = (status: string) => {
@@ -327,6 +347,19 @@ const Orders = () => {
                       </Button>
                     </>
                   )}
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      setOrderToDelete(order);
+                      setShowDeleteDialog(true);
+                    }}
+                    disabled={isUpdating}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </Button>
                 </div>
               </motion.div>
             ))}
@@ -433,6 +466,43 @@ const Orders = () => {
               disabled={isUpdating}
             >
               Reject Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowDeleteDialog(false);
+          setOrderToDelete(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete this order? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          {orderToDelete && (
+            <div className="bg-muted rounded-lg p-4 space-y-2">
+              <p><strong>Customer:</strong> {orderToDelete.user_name}</p>
+              <p><strong>Amount:</strong> ৳{orderToDelete.total_amount}</p>
+              <p><strong>Transaction ID:</strong> {orderToDelete.transaction_id}</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={() => orderToDelete && deleteOrder(orderToDelete.id)}
+              disabled={isUpdating}
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete Order
             </Button>
           </DialogFooter>
         </DialogContent>
