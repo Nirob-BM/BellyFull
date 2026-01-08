@@ -7,7 +7,7 @@ import Testimonials from "@/components/Testimonials";
 import Location from "@/components/Location";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
-import CartButton from "@/components/CartButton";
+
 
 const Index = () => {
   return (
@@ -23,7 +23,7 @@ const Index = () => {
         <FAQ />
       </main>
       <Footer />
-      <CartButton />
+      
     </div>
   );
 };
