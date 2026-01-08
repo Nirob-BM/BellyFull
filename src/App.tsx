@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
+import CartSheet from "./components/CartSheet";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Checkout from "./pages/Checkout";
@@ -33,6 +34,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <CartSheet />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/menu" element={<MenuPage />} />

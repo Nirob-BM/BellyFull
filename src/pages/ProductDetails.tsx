@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import CartButton from "@/components/CartButton";
+
 
 // Import local dish images as fallbacks
 import dishBiryani from "@/assets/dish-biryani.jpg";
@@ -230,7 +230,7 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <CartButton />
+      
       
       <main className="pt-24 pb-16">
         <div className="container max-w-6xl">

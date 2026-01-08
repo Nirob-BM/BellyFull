@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Loader2, Globe, Palette, Search, Building, CreditCard } from 'lucide-react';
+import { Save, Loader2, Globe, Palette, Search, Building, CreditCard, Truck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { BkashLogo, NagadLogo, CashOnDeliveryIcon } from '@/components/PaymentLogos';
 
 interface GeneralSettings {
   restaurant_name: string;
@@ -39,6 +40,14 @@ interface DesignSettings {
 interface PaymentSettings {
   bkash_number: string;
   nagad_number: string;
+  cod_enabled: boolean;
+}
+
+interface DeliverySettings {
+  enabled: boolean;
+  delivery_charge: number;
+  min_order_amount: number;
+  delivery_areas: string[];
 }
 
 const defaultGeneral: GeneralSettings = {
@@ -70,6 +79,14 @@ const defaultDesign: DesignSettings = {
 const defaultPayment: PaymentSettings = {
   bkash_number: '01308697630',
   nagad_number: '01308697630',
+  cod_enabled: true,
+};
+
+const defaultDelivery: DeliverySettings = {
+  enabled: true,
+  delivery_charge: 50,
+  min_order_amount: 200,
+  delivery_areas: ['Kishoreganj Sadar'],
 };
 
 const Settings = () => {
@@ -77,6 +94,7 @@ const Settings = () => {
   const [seo, setSeo] = useState<SeoSettings>(defaultSeo);
   const [design, setDesign] = useState<DesignSettings>(defaultDesign);
   const [payment, setPayment] = useState<PaymentSettings>(defaultPayment);
+  const [delivery, setDelivery] = useState<DeliverySettings>(defaultDelivery);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -98,15 +116,15 @@ const Settings = () => {
         if (setting.key === 'seo') setSeo({ ...defaultSeo, ...value });
         if (setting.key === 'design') setDesign({ ...defaultDesign, ...value });
         if (setting.key === 'payment_settings') setPayment({ ...defaultPayment, ...value });
+        if (setting.key === 'delivery_settings') setDelivery({ ...defaultDelivery, ...value });
       });
     }
     setIsLoading(false);
   };
 
-  const saveSettings = async (key: string, value: GeneralSettings | SeoSettings | DesignSettings | PaymentSettings) => {
+  const saveSettings = async (key: string, value: GeneralSettings | SeoSettings | DesignSettings | PaymentSettings | DeliverySettings) => {
     setIsSaving(true);
 
-    // First check if setting exists
     const { data: existing } = await supabase
       .from('site_settings')
       .select('id')
@@ -151,22 +169,26 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 max-w-lg">
+        <TabsList className="grid w-full grid-cols-5 max-w-2xl">
           <TabsTrigger value="general" className="gap-2">
             <Building className="h-4 w-4" />
-            General
+            <span className="hidden sm:inline">General</span>
           </TabsTrigger>
           <TabsTrigger value="seo" className="gap-2">
             <Search className="h-4 w-4" />
-            SEO
+            <span className="hidden sm:inline">SEO</span>
           </TabsTrigger>
           <TabsTrigger value="design" className="gap-2">
             <Palette className="h-4 w-4" />
-            Design
+            <span className="hidden sm:inline">Design</span>
           </TabsTrigger>
           <TabsTrigger value="payment" className="gap-2">
             <CreditCard className="h-4 w-4" />
-            Payment
+            <span className="hidden sm:inline">Payment</span>
+          </TabsTrigger>
+          <TabsTrigger value="delivery" className="gap-2">
+            <Truck className="h-4 w-4" />
+            <span className="hidden sm:inline">Delivery</span>
           </TabsTrigger>
         </TabsList>
 
@@ -425,15 +447,13 @@ const Settings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Payment Settings</CardTitle>
-              <CardDescription>Configure your bKash and Nagad payment numbers</CardDescription>
+              <CardDescription>Configure your payment methods</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                      <span className="text-pink-600 font-bold">bK</span>
-                    </div>
+                    <BkashLogo className="w-12 h-12" />
                     <div>
                       <h4 className="font-semibold">bKash</h4>
                       <p className="text-sm text-muted-foreground">Send Money Number</p>
@@ -452,9 +472,7 @@ const Settings = () => {
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                      <span className="text-orange-600 font-bold">N</span>
-                    </div>
+                    <NagadLogo className="w-12 h-12" />
                     <div>
                       <h4 className="font-semibold">Nagad</h4>
                       <p className="text-sm text-muted-foreground">Send Money Number</p>
@@ -472,12 +490,104 @@ const Settings = () => {
                 </div>
               </div>
 
+              <div className="border-t pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CashOnDeliveryIcon className="w-12 h-12" />
+                    <div>
+                      <h4 className="font-semibold">Cash on Delivery</h4>
+                      <p className="text-sm text-muted-foreground">Allow customers to pay on delivery</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={payment.cod_enabled}
+                    onCheckedChange={(checked) => setPayment({ ...payment, cod_enabled: checked })}
+                  />
+                </div>
+              </div>
+
               <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200">
                 <p><strong>Note:</strong> These numbers will be displayed to customers during checkout for payment.</p>
               </div>
 
               <div className="flex justify-end">
                 <Button onClick={() => saveSettings('payment_settings', payment)} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Save Changes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Delivery Settings */}
+        <TabsContent value="delivery">
+          <Card>
+            <CardHeader>
+              <CardTitle>Delivery Settings</CardTitle>
+              <CardDescription>Configure home delivery options for Kishoreganj Sadar</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Enable Home Delivery</Label>
+                  <p className="text-sm text-muted-foreground">Allow customers to order for home delivery</p>
+                </div>
+                <Switch
+                  checked={delivery.enabled}
+                  onCheckedChange={(checked) => setDelivery({ ...delivery, enabled: checked })}
+                />
+              </div>
+
+              {delivery.enabled && (
+                <>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="delivery_charge">Delivery Charge (৳)</Label>
+                      <Input
+                        id="delivery_charge"
+                        type="number"
+                        value={delivery.delivery_charge}
+                        onChange={(e) => setDelivery({ ...delivery, delivery_charge: parseInt(e.target.value) || 0 })}
+                        placeholder="50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="min_order_amount">Minimum Order Amount (৳)</Label>
+                      <Input
+                        id="min_order_amount"
+                        type="number"
+                        value={delivery.min_order_amount}
+                        onChange={(e) => setDelivery({ ...delivery, min_order_amount: parseInt(e.target.value) || 0 })}
+                        placeholder="200"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Delivery Areas</Label>
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <div className="flex flex-wrap gap-2">
+                        {delivery.delivery_areas.map((area, index) => (
+                          <span key={index} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Currently, home delivery is available only in Kishoreganj Sadar.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">
+                    <p><strong>Info:</strong> Orders below the minimum amount will not be eligible for home delivery. Customers can still choose pickup.</p>
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-end">
+                <Button onClick={() => saveSettings('delivery_settings', delivery)} disabled={isSaving}>
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                   Save Changes
                 </Button>
