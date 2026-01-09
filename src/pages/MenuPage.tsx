@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft } from "lucide-react";
+import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +59,8 @@ interface MenuItem {
 const MenuPage = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "newest">("default");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -89,9 +93,43 @@ const MenuPage = () => {
     setIsLoading(false);
   };
 
-  const filteredItems = activeCategory === "All" 
-    ? menuItems 
-    : menuItems.filter(item => item.category === activeCategory);
+  // Filter and sort items
+  const filteredAndSortedItems = useMemo(() => {
+    let result = [...menuItems];
+    
+    // Category filter
+    if (activeCategory !== "All") {
+      result = result.filter(item => item.category === activeCategory);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        item.description?.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query)
+      );
+    }
+    
+    // Sorting
+    switch (sortBy) {
+      case "price_low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price_high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "newest":
+        result.sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime());
+        break;
+      default:
+        // Keep original sort_order
+        break;
+    }
+    
+    return result;
+  }, [menuItems, activeCategory, searchQuery, sortBy]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedItem(item);
@@ -172,6 +210,40 @@ const MenuPage = () => {
             </p>
           </motion.div>
 
+          {/* Search and Sort Controls */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 mb-6 max-w-2xl mx-auto"
+          >
+            {/* Search Bar */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search dishes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-card border-border"
+              />
+            </div>
+            
+            {/* Sort Dropdown */}
+            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <SelectTrigger className="w-full sm:w-[180px] bg-card border-border">
+                <ArrowUpDown className="h-4 w-4 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="price_low">Price: Low to High</SelectItem>
+                <SelectItem value="price_high">Price: High to Low</SelectItem>
+                <SelectItem value="newest">Newest First</SelectItem>
+              </SelectContent>
+            </Select>
+          </motion.div>
+
           {/* Category Filters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -202,16 +274,34 @@ const MenuPage = () => {
           )}
 
           {/* Empty State */}
-          {!isLoading && filteredItems.length === 0 && (
+          {!isLoading && filteredAndSortedItems.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No menu items available at the moment.</p>
+              <p className="text-muted-foreground">
+                {searchQuery ? `No items found for "${searchQuery}"` : "No menu items available at the moment."}
+              </p>
+              {searchQuery && (
+                <Button variant="link" onClick={() => setSearchQuery("")} className="mt-2">
+                  Clear search
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Results Count */}
+          {!isLoading && filteredAndSortedItems.length > 0 && (searchQuery || activeCategory !== "All") && (
+            <div className="text-center mb-6">
+              <p className="text-sm text-muted-foreground">
+                Showing {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? 'item' : 'items'}
+                {searchQuery && ` for "${searchQuery}"`}
+                {activeCategory !== "All" && ` in ${activeCategory}`}
+              </p>
             </div>
           )}
 
           {/* Menu Grid */}
-          {!isLoading && filteredItems.length > 0 && (
+          {!isLoading && filteredAndSortedItems.length > 0 && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredItems.map((item, index) => (
+              {filteredAndSortedItems.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 30 }}
