@@ -1,11 +1,11 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Plus, Minus, Trash2, X } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 
 const CartSheet = () => {
-  const { items, totalItems, totalAmount, updateQuantity, removeItem } = useCart();
+  const { items, totalItems, totalAmount } = useCart();
   const navigate = useNavigate();
 
   if (totalItems === 0) return null;
@@ -20,7 +20,7 @@ const CartSheet = () => {
             <span className="font-bold">৳{totalAmount.toFixed(0)}</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[80vh] rounded-t-3xl">
+        <SheetContent side="bottom" className="h-auto max-h-[60vh] rounded-t-3xl">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <ShoppingCart className="w-5 h-5" />
@@ -28,50 +28,24 @@ const CartSheet = () => {
             </SheetTitle>
           </SheetHeader>
           
-          <div className="flex flex-col h-full pt-4">
-            {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto space-y-3 pb-4">
+          <div className="flex flex-col pt-4">
+            {/* Cart Items - View Only */}
+            <div className="overflow-y-auto space-y-3 pb-4 max-h-[30vh]">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 bg-muted/50 rounded-xl p-3">
                   {item.image_url && (
                     <img
                       src={item.image_url}
                       alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
+                      className="w-12 h-12 object-cover rounded-lg"
                     />
                   )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium truncate">{item.name}</h4>
-                    <p className="text-primary font-semibold">৳{item.price}</p>
+                    <p className="text-sm text-muted-foreground">৳{item.price} × {item.quantity}</p>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                    <div className="flex items-center gap-2 bg-background rounded-full px-2 py-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <Minus className="w-3 h-3" />
-                      </Button>
-                      <span className="w-6 text-center font-medium">{item.quantity}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
-                    </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-primary">৳{(item.price * item.quantity).toFixed(0)}</p>
                   </div>
                 </div>
               ))}
