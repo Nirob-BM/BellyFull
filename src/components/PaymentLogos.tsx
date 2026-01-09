@@ -2,28 +2,39 @@
 export const BkashLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="512" height="512" rx="64" fill="#E2136E"/>
-    <path d="M256 100C308.5 100 351 142.5 351 195C351 247.5 308.5 290 256 290C203.5 290 161 247.5 161 195C161 142.5 203.5 100 256 100Z" fill="white"/>
-    <path d="M256 310C320 310 372 362 372 426V412H140V426C140 362 192 310 256 310Z" fill="white"/>
-    <circle cx="256" cy="195" r="50" fill="#E2136E"/>
+    <g transform="translate(80, 100)">
+      {/* bKash "b" icon stylized */}
+      <path d="M176 0C238.7 0 290 51.3 290 114C290 155.3 268.3 191.5 236 212.5L236 312H116V212.5C83.7 191.5 62 155.3 62 114C62 51.3 113.3 0 176 0Z" fill="white"/>
+      <circle cx="176" cy="120" r="45" fill="#E2136E"/>
+      {/* bKash text */}
+      <text x="176" y="280" textAnchor="middle" fontSize="60" fill="white" fontFamily="Arial Black, sans-serif" fontWeight="bold">bKash</text>
+    </g>
   </svg>
 );
 
 export const NagadLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="512" height="512" rx="64" fill="#F6921E"/>
-    <path d="M140 256L256 140L372 256L256 372L140 256Z" fill="white"/>
-    <circle cx="256" cy="256" r="60" fill="#F6921E"/>
-    <path d="M256 196C289.1 196 316 222.9 316 256C316 289.1 289.1 316 256 316C222.9 316 196 289.1 196 256C196 222.9 222.9 196 256 196Z" fill="white" stroke="#F6921E" strokeWidth="8"/>
+    <g transform="translate(56, 100)">
+      {/* Nagad N shape */}
+      <path d="M80 0L160 0L160 180L240 0L320 0L320 220L240 220L240 40L160 220L80 220L80 0Z" fill="white"/>
+      {/* Nagad text */}
+      <text x="200" y="280" textAnchor="middle" fontSize="56" fill="white" fontFamily="Arial Black, sans-serif" fontWeight="bold">নগদ</text>
+    </g>
   </svg>
 );
 
 export const CashOnDeliveryIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="512" height="512" rx="64" fill="#22C55E"/>
-    <rect x="100" y="160" width="220" height="140" rx="12" fill="white"/>
-    <text x="210" y="245" textAnchor="middle" fontSize="48" fill="#22C55E" fontWeight="bold">৳</text>
-    <path d="M340 220L390 270L460 200" stroke="white" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round"/>
-    <rect x="140" y="330" width="140" height="20" rx="4" fill="white" opacity="0.8"/>
-    <rect x="180" y="360" width="60" height="20" rx="4" fill="white" opacity="0.6"/>
+    {/* Money/Cash icon */}
+    <rect x="80" y="140" width="260" height="160" rx="16" fill="white"/>
+    <rect x="100" y="160" width="220" height="120" rx="8" fill="#22C55E" opacity="0.2"/>
+    <circle cx="210" cy="220" r="40" fill="#22C55E"/>
+    <text x="210" y="235" textAnchor="middle" fontSize="40" fill="white" fontWeight="bold">৳</text>
+    {/* Checkmark */}
+    <path d="M340 240L380 280L440 200" stroke="white" strokeWidth="28" strokeLinecap="round" strokeLinejoin="round"/>
+    {/* COD text */}
+    <text x="256" y="380" textAnchor="middle" fontSize="40" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold">COD</text>
   </svg>
 );
