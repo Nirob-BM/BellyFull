@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, CreditCard, CheckCircle, Copy, Plus, Minus, X, MapPin, Truck, Store } from "lucide-react";
+import { ArrowLeft, CreditCard, CheckCircle, Copy, Plus, Minus, X, MapPin, Truck, Store, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -590,6 +590,20 @@ const Checkout = () => {
           </motion.div>
         )}
       </div>
+
+      {/* Floating Continue Shopping Button */}
+      {step !== 'success' && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button 
+            onClick={() => navigate('/menu')} 
+            variant="outline"
+            className="shadow-lg rounded-full px-5 gap-2 bg-background hover:bg-accent"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Continue Shopping
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
