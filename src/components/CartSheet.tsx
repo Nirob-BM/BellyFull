@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
@@ -7,12 +8,18 @@ import { useNavigate } from "react-router-dom";
 const CartSheet = () => {
   const { items, totalItems, totalAmount } = useCart();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   if (totalItems === 0) return null;
 
+  const handleCheckout = () => {
+    setOpen(false);
+    navigate('/checkout');
+  };
+
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button size="lg" className="shadow-lg rounded-full px-6 gap-3">
             <ShoppingCart className="w-5 h-5" />
@@ -60,7 +67,7 @@ const CartSheet = () => {
               <Button 
                 className="w-full" 
                 size="lg"
-                onClick={() => navigate('/checkout')}
+                onClick={handleCheckout}
               >
                 Proceed to Checkout
               </Button>
