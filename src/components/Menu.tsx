@@ -51,6 +51,14 @@ interface MenuItem {
   is_active: boolean | null;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  icon_url: string | null;
+  is_visible: boolean;
+  sort_order: number;
+}
+
 const Menu = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
@@ -58,7 +66,7 @@ const Menu = () => {
   const [quantity, setQuantity] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -68,24 +76,35 @@ const Menu = () => {
   const { addItem } = useCart();
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchData();
   }, []);
 
-  const fetchMenuItems = async () => {
-    const { data, error } = await supabase
-      .from('menu_items')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  const fetchData = async () => {
+    // Fetch categories and menu items in parallel
+    const [categoriesResult, menuResult] = await Promise.all([
+      supabase
+        .from('categories')
+        .select('*')
+        .eq('is_visible', true)
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('menu_items')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+    ]);
 
-    if (error) {
-      console.error('Error fetching menu items:', error);
+    if (categoriesResult.error) {
+      console.error('Error fetching categories:', categoriesResult.error);
+    } else {
+      setCategories(categoriesResult.data || []);
+    }
+
+    if (menuResult.error) {
+      console.error('Error fetching menu items:', menuResult.error);
     } else {
       // Show only first 6 items on homepage (featured/new items)
-      setMenuItems((data || []).slice(0, 6));
-      // Extract unique categories from all items for filtering
-      const uniqueCategories = [...new Set((data || []).map(item => item.category))];
-      setCategories(["All", ...uniqueCategories]);
+      setMenuItems((menuResult.data || []).slice(0, 6));
     }
     setIsLoading(false);
   };

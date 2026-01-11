@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Check, X, Folder } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Folder, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,6 +38,7 @@ interface Category {
   name: string;
   slug: string;
   description: string | null;
+  icon_url: string | null;
   is_visible: boolean;
   sort_order: number;
   created_at: string;
@@ -52,11 +53,14 @@ const Categories = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    icon_url: '',
     is_visible: true,
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -89,6 +93,49 @@ const Categories = () => {
       .replace(/(^-|-$)/g, '');
   };
 
+  const handleIconUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please upload an image file', variant: 'destructive' });
+      return;
+    }
+
+    // Validate file size (max 2MB for icons)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Icon must be less than 2MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `category-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `categories/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
+      setFormData({ ...formData, icon_url: urlData.publicUrl });
+      toast({ title: 'Uploaded', description: 'Icon uploaded successfully' });
+    } catch (error: any) {
+      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -110,6 +157,7 @@ const Categories = () => {
           name: formData.name.trim(),
           slug,
           description: formData.description.trim() || null,
+          icon_url: formData.icon_url || null,
           is_visible: formData.is_visible,
         })
         .eq('id', editingCategory.id);
@@ -142,6 +190,7 @@ const Categories = () => {
           name: formData.name.trim(),
           slug,
           description: formData.description.trim() || null,
+          icon_url: formData.icon_url || null,
           is_visible: formData.is_visible,
           sort_order: maxOrder,
         });
@@ -217,13 +266,14 @@ const Categories = () => {
     setFormData({
       name: category.name,
       description: category.description || '',
+      icon_url: category.icon_url || '',
       is_visible: category.is_visible,
     });
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', is_visible: true });
+    setFormData({ name: '', description: '', icon_url: '', is_visible: true });
     setEditingCategory(null);
   };
 
@@ -309,7 +359,7 @@ const Categories = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground">Category Manager</h1>
-          <p className="text-muted-foreground mt-1">Manage menu categories, visibility, and order</p>
+          <p className="text-muted-foreground mt-1">Manage menu categories, visibility, icons, and order</p>
         </div>
         <Button
           onClick={() => {
@@ -339,6 +389,7 @@ const Categories = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12"></TableHead>
+                <TableHead className="w-16">Icon</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden md:table-cell">Description</TableHead>
                 <TableHead className="w-24 text-center">Visible</TableHead>
@@ -358,6 +409,19 @@ const Categories = () => {
                 >
                   <TableCell>
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  </TableCell>
+                  <TableCell>
+                    {category.icon_url ? (
+                      <img 
+                        src={category.icon_url} 
+                        alt={category.name} 
+                        className="w-10 h-10 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                        <Folder className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
@@ -461,6 +525,55 @@ const Categories = () => {
                 rows={3}
               />
             </div>
+
+            {/* Icon Upload */}
+            <div className="space-y-2">
+              <Label>Category Icon</Label>
+              {formData.icon_url ? (
+                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <img
+                    src={formData.icon_url}
+                    alt="Category icon"
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">Current Icon</span>
+                    <p className="text-xs text-muted-foreground">Shown on menu filters</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setFormData({ ...formData, icon_url: '' })}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">Click to upload an icon</p>
+                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+                    </>
+                  )}
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleIconUpload}
+                className="hidden"
+              />
+            </div>
+
             <div className="flex items-center justify-between">
               <Label htmlFor="is_visible">Visible on Menu</Label>
               <Switch

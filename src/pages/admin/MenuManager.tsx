@@ -26,10 +26,17 @@ interface MenuItem {
   sort_order: number | null;
 }
 
-const categories = ['Bengali', 'Indian', 'Fast Food', 'Beverages', 'Appetizers', 'Desserts'];
+interface Category {
+  id: string;
+  name: string;
+  icon_url: string | null;
+  is_visible: boolean;
+  sort_order: number;
+}
 
 const MenuManager = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -39,7 +46,7 @@ const MenuManager = () => {
     name: '',
     description: '',
     price: '',
-    category: 'Bengali',
+    category: '',
     image_url: '',
     images: [] as string[],
     is_popular: false,
@@ -116,8 +123,39 @@ const MenuManager = () => {
   };
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    // Fetch categories and menu items in parallel
+    const [categoriesResult, menuResult] = await Promise.all([
+      supabase
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('menu_items')
+        .select('*')
+        .order('sort_order', { ascending: true })
+    ]);
+    
+    if (categoriesResult.error) {
+      toast({ title: 'Error', description: 'Failed to fetch categories', variant: 'destructive' });
+    } else {
+      setCategories(categoriesResult.data || []);
+      // Set default category for new items
+      if (categoriesResult.data && categoriesResult.data.length > 0 && !formData.category) {
+        setFormData(prev => ({ ...prev, category: categoriesResult.data[0].name }));
+      }
+    }
+    
+    if (menuResult.error) {
+      toast({ title: 'Error', description: 'Failed to fetch menu items', variant: 'destructive' });
+    } else {
+      setMenuItems(menuResult.data || []);
+    }
+    setIsLoading(false);
+  };
 
   const fetchMenuItems = async () => {
     const { data, error } = await supabase
@@ -130,7 +168,6 @@ const MenuManager = () => {
     } else {
       setMenuItems(data || []);
     }
-    setIsLoading(false);
   };
 
   const openAddDialog = () => {
@@ -139,7 +176,7 @@ const MenuManager = () => {
       name: '',
       description: '',
       price: '',
-      category: 'Bengali',
+      category: categories.length > 0 ? categories[0].name : '',
       image_url: '',
       images: [],
       is_popular: false,
@@ -294,12 +331,12 @@ const MenuManager = () => {
           </Button>
           {categories.map((cat) => (
             <Button
-              key={cat}
-              variant={selectedCategory === cat ? 'default' : 'outline'}
+              key={cat.id}
+              variant={selectedCategory === cat.name ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => setSelectedCategory(cat.name)}
             >
-              {cat}
+              {cat.name}
             </Button>
           ))}
         </div>
@@ -417,7 +454,7 @@ const MenuManager = () => {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 >
                   {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
               </div>

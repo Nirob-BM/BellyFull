@@ -56,6 +56,14 @@ interface MenuItem {
   is_active: boolean | null;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  icon_url: string | null;
+  is_visible: boolean;
+  sort_order: number;
+}
+
 const MenuPage = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
@@ -65,7 +73,7 @@ const MenuPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -73,22 +81,34 @@ const MenuPage = () => {
   const { addItem } = useCart();
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchData();
   }, []);
 
-  const fetchMenuItems = async () => {
-    const { data, error } = await supabase
-      .from('menu_items')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+  const fetchData = async () => {
+    // Fetch categories and menu items in parallel
+    const [categoriesResult, menuResult] = await Promise.all([
+      supabase
+        .from('categories')
+        .select('*')
+        .eq('is_visible', true)
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('menu_items')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+    ]);
 
-    if (error) {
-      console.error('Error fetching menu items:', error);
+    if (categoriesResult.error) {
+      console.error('Error fetching categories:', categoriesResult.error);
     } else {
-      setMenuItems(data || []);
-      const uniqueCategories = [...new Set((data || []).map(item => item.category))];
-      setCategories(["All", ...uniqueCategories]);
+      setCategories(categoriesResult.data || []);
+    }
+
+    if (menuResult.error) {
+      console.error('Error fetching menu items:', menuResult.error);
+    } else {
+      setMenuItems(menuResult.data || []);
     }
     setIsLoading(false);
   };
@@ -251,17 +271,34 @@ const MenuPage = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex flex-wrap justify-center gap-3 mb-12"
           >
+            <Button
+              variant={activeCategory === "All" ? "default" : "outline"}
+              onClick={() => setActiveCategory("All")}
+              className={activeCategory === "All" 
+                ? "bg-primary text-primary-foreground" 
+                : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
+              }
+            >
+              All
+            </Button>
             {categories.map((category) => (
               <Button
-                key={category}
-                variant={activeCategory === category ? "default" : "outline"}
-                onClick={() => setActiveCategory(category)}
-                className={activeCategory === category 
+                key={category.id}
+                variant={activeCategory === category.name ? "default" : "outline"}
+                onClick={() => setActiveCategory(category.name)}
+                className={`gap-2 ${activeCategory === category.name 
                   ? "bg-primary text-primary-foreground" 
                   : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
-                }
+                }`}
               >
-                {category}
+                {category.icon_url && (
+                  <img 
+                    src={category.icon_url} 
+                    alt="" 
+                    className="w-4 h-4 object-cover rounded"
+                  />
+                )}
+                {category.name}
               </Button>
             ))}
           </motion.div>
