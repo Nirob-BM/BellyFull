@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, MessageSquare, Clock, Settings, Image, FileText, Calendar, LogOut, Menu, X, ChefHat, Home, Package } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, MessageSquare, Clock, Settings, Image, FileText, Calendar, LogOut, Menu, X, ChefHat, Home, Package, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +10,10 @@ const navItems = [{
   icon: LayoutDashboard,
   label: 'Dashboard',
   exact: true
+}, {
+  path: '/admin/categories',
+  icon: Folder,
+  label: 'Categories'
 }, {
   path: '/admin/menu',
   icon: UtensilsCrossed,
