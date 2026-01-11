@@ -14,6 +14,7 @@ import MenuPage from "./pages/MenuPage";
 import ProductDetails from "./pages/ProductDetails";
 import Dashboard from "./pages/admin/Dashboard";
 import MenuManager from "./pages/admin/MenuManager";
+import Categories from "./pages/admin/Categories";
 import Reservations from "./pages/admin/Reservations";
 import Orders from "./pages/admin/Orders";
 import Contacts from "./pages/admin/Contacts";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<Admin />}>
                 <Route index element={<Dashboard />} />
+                <Route path="categories" element={<Categories />} />
                 <Route path="menu" element={<MenuManager />} />
                 <Route path="reservations" element={<Reservations />} />
                 <Route path="orders" element={<Orders />} />
