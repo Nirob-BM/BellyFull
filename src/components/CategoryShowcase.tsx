@@ -59,7 +59,7 @@ const CategoryShowcase = () => {
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-12"
         >
@@ -80,36 +80,36 @@ const CategoryShowcase = () => {
             <motion.div
               key={category.id}
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: 0.1 * index, duration: 0.4 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              transition={{ delay: 0.1 * Math.min(index, 5), duration: 0.4 }}
             >
               <Link
                 to={`/menu?category=${encodeURIComponent(category.name)}`}
-                className="group flex flex-col items-center p-6 bg-card rounded-2xl border border-border hover:border-primary/50 hover:shadow-elegant transition-all duration-300"
+                className="group flex flex-col items-center p-4 sm:p-6 bg-card rounded-2xl border border-border hover:border-primary/50 hover:shadow-elegant transition-all duration-300 h-full"
               >
                 {/* Icon Container */}
-                <div className="relative w-20 h-20 mb-4 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-3 sm:mb-4 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
                   {category.icon_url ? (
                     <img
                       src={category.icon_url}
                       alt={category.name}
-                      className="w-12 h-12 object-contain"
+                      className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                     />
                   ) : (
-                    <UtensilsCrossed className="w-8 h-8 text-primary" />
+                    <UtensilsCrossed className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   )}
                   {/* Glow effect on hover */}
                   <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full blur-md" />
                 </div>
 
                 {/* Category Name */}
-                <h3 className="font-display text-lg font-semibold text-foreground text-center group-hover:text-primary transition-colors">
+                <h3 className="font-display text-base sm:text-lg font-semibold text-foreground text-center group-hover:text-primary transition-colors line-clamp-2">
                   {category.name}
                 </h3>
 
                 {/* Description (if exists) */}
                 {category.description && (
-                  <p className="text-muted-foreground text-xs text-center mt-1 line-clamp-2">
+                  <p className="text-muted-foreground text-xs text-center mt-1 line-clamp-2 hidden sm:block">
                     {category.description}
                   </p>
                 )}
