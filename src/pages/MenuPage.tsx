@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,10 @@ interface Category {
 
 const MenuPage = () => {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl || "All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"default" | "price_low" | "price_high" | "newest">("default");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -79,6 +82,24 @@ const MenuPage = () => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { toast } = useToast();
   const { addItem } = useCart();
+
+  // Sync URL param with state
+  useEffect(() => {
+    if (categoryFromUrl && categoryFromUrl !== activeCategory) {
+      setActiveCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
+
+  // Update URL when category changes
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    if (category === "All") {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', category);
+    }
+    setSearchParams(searchParams);
+  };
 
   useEffect(() => {
     fetchData();
@@ -273,7 +294,7 @@ const MenuPage = () => {
           >
             <Button
               variant={activeCategory === "All" ? "default" : "outline"}
-              onClick={() => setActiveCategory("All")}
+              onClick={() => handleCategoryChange("All")}
               className={activeCategory === "All" 
                 ? "bg-primary text-primary-foreground" 
                 : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
@@ -285,7 +306,7 @@ const MenuPage = () => {
               <Button
                 key={category.id}
                 variant={activeCategory === category.name ? "default" : "outline"}
-                onClick={() => setActiveCategory(category.name)}
+                onClick={() => handleCategoryChange(category.name)}
                 className={`gap-2 ${activeCategory === category.name 
                   ? "bg-primary text-primary-foreground" 
                   : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
