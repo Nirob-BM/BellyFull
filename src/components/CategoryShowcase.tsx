@@ -84,75 +84,85 @@ const CategoryShowcase = () => {
   const totalItems = categories.reduce((sum, cat) => sum + cat.itemCount, 0);
 
   return (
-    <section id="categories" className="py-20 bg-muted/30" ref={ref}>
-      <div className="container">
+    <section id="categories" className="py-16 md:py-24 bg-gradient-to-b from-background via-muted/30 to-background" ref={ref}>
+      <div className="container px-4 md:px-6">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-12"
+          className="text-center max-w-3xl mx-auto mb-10 md:mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4 border border-primary/20">
+            <UtensilsCrossed className="w-4 h-4" />
             Explore Our Menu
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
             Browse by <span className="text-secondary">Category</span>
           </h2>
-          <p className="text-muted-foreground text-lg">
-            Discover {totalItems}+ delicious dishes across {categories.length} categories
+          <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+            Discover {totalItems}+ delicious dishes across {categories.length} categories, 
+            crafted with love and the finest ingredients
           </p>
         </motion.div>
 
         {/* Category Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {categories.map((category, index) => (
             <motion.div
               key={category.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-              transition={{ delay: 0.1 * Math.min(index, 5), duration: 0.4 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ delay: 0.1 * Math.min(index, 6), duration: 0.5, ease: "easeOut" }}
             >
               <Link
                 to={`/menu?category=${encodeURIComponent(category.name)}`}
-                className="group relative flex flex-col items-center p-4 sm:p-6 bg-card rounded-2xl border border-border hover:border-primary/50 hover:shadow-elegant transition-all duration-300 h-full"
+                className="group relative flex flex-col items-center p-5 sm:p-6 md:p-8 bg-card rounded-2xl md:rounded-3xl border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 h-full overflow-hidden"
               >
+                {/* Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
                 {/* Item Count Badge */}
-                <div className="absolute -top-2 -right-2 sm:top-2 sm:right-2 bg-secondary text-secondary-foreground text-xs font-bold px-2 py-1 rounded-full min-w-[24px] text-center shadow-md">
+                <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-secondary text-secondary-foreground text-xs font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center shadow-lg z-10">
                   {category.itemCount}
                 </div>
 
                 {/* Icon Container */}
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-3 sm:mb-4 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-4 md:mb-6 rounded-full bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-md">
                   {category.icon_url ? (
                     <img
                       src={category.icon_url}
                       alt={category.name}
-                      className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                      className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
                     />
                   ) : (
-                    <UtensilsCrossed className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                    <UtensilsCrossed className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />
                   )}
                   {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full blur-md" />
+                  <div className="absolute inset-0 bg-primary/25 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full blur-xl" />
                 </div>
 
                 {/* Category Name */}
-                <h3 className="font-display text-base sm:text-lg font-semibold text-foreground text-center group-hover:text-primary transition-colors line-clamp-2">
+                <h3 className="font-display text-base sm:text-lg md:text-xl font-semibold text-foreground text-center group-hover:text-primary transition-colors duration-300 line-clamp-2 relative z-10">
                   {category.name}
                 </h3>
 
                 {/* Item count text */}
-                <p className="text-muted-foreground text-xs text-center mt-1">
+                <p className="text-muted-foreground text-xs sm:text-sm text-center mt-1 md:mt-2 relative z-10">
                   {category.itemCount} {category.itemCount === 1 ? 'item' : 'items'}
                 </p>
 
                 {/* Description (if exists) */}
                 {category.description && (
-                  <p className="text-muted-foreground text-xs text-center mt-1 line-clamp-2 hidden sm:block">
+                  <p className="text-muted-foreground text-xs text-center mt-2 line-clamp-2 hidden md:block relative z-10">
                     {category.description}
                   </p>
                 )}
+
+                {/* Arrow indicator on hover */}
+                <div className="mt-3 md:mt-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <ChevronRight className="w-5 h-5 text-primary" />
+                </div>
               </Link>
             </motion.div>
           ))}
@@ -162,17 +172,16 @@ const CategoryShowcase = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="text-center mt-10"
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="text-center mt-10 md:mt-14"
         >
           <Link to="/menu">
             <Button 
-              variant="outline" 
               size="lg"
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8 py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              View All Categories
-              <ChevronRight className="h-4 w-4" />
+              View Full Menu
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </Link>
         </motion.div>
