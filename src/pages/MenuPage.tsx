@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown } from "lucide-react";
+import { 
+  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown,
+  UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish as FishIcon, Soup, IceCream, Cookie, 
+  Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
+  GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon
+} from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Button } from "@/components/ui/button";
@@ -40,6 +45,13 @@ const getFallbackImage = (name: string, category: string): string => {
   if (lowerCategory.includes('biryani')) return dishBiryani;
   
   return dishButterChicken; // Default fallback
+};
+
+// Map of preset icon names to their components
+const presetIconMap: Record<string, LucideIcon> = {
+  UtensilsCrossed, ChefHat, Pizza, Beef, Drumstick, Fish: FishIcon, Salad, Soup, Sandwich,
+  Egg, Coffee, CupSoda, Beer, Wine, GlassWater, Milk, IceCream, Cake, Cookie,
+  Croissant, Apple, Cherry, Grape, Flame, Leaf, Wheat
 };
 
 interface MenuItem {
@@ -313,11 +325,19 @@ const MenuPage = () => {
                 }`}
               >
                 {category.icon_url && (
-                  <img 
-                    src={category.icon_url} 
-                    alt="" 
-                    className="w-4 h-4 object-cover rounded"
-                  />
+                  category.icon_url.startsWith('preset:') ? (
+                    (() => {
+                      const iconName = category.icon_url.replace('preset:', '');
+                      const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
+                      return <IconComponent className="w-4 h-4" />;
+                    })()
+                  ) : (
+                    <img 
+                      src={category.icon_url} 
+                      alt="" 
+                      className="w-4 h-4 object-cover rounded"
+                    />
+                  )
                 )}
                 {category.name}
               </Button>
