@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Folder, Upload, X, Loader2 } from 'lucide-react';
+import { 
+  Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Folder, Upload, X, Loader2,
+  UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish, Soup, IceCream, Cookie, 
+  Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
+  GlassWater, CupSoda, Milk, Flame, Leaf, Wheat, ChefHat
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -58,10 +64,42 @@ const Categories = () => {
     name: '',
     description: '',
     icon_url: '',
+    icon_name: '', // For preset icons
     is_visible: true,
   });
+  const [iconTab, setIconTab] = useState<'preset' | 'upload'>('preset');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Preset icons for food categories
+  const presetIcons = [
+    { name: 'UtensilsCrossed', icon: UtensilsCrossed, label: 'Utensils' },
+    { name: 'ChefHat', icon: ChefHat, label: 'Chef Hat' },
+    { name: 'Pizza', icon: Pizza, label: 'Pizza' },
+    { name: 'Beef', icon: Beef, label: 'Meat' },
+    { name: 'Drumstick', icon: Drumstick, label: 'Chicken' },
+    { name: 'Fish', icon: Fish, label: 'Fish' },
+    { name: 'Salad', icon: Salad, label: 'Salad' },
+    { name: 'Soup', icon: Soup, label: 'Soup' },
+    { name: 'Sandwich', icon: Sandwich, label: 'Sandwich' },
+    { name: 'Egg', icon: Egg, label: 'Breakfast' },
+    { name: 'Coffee', icon: Coffee, label: 'Coffee' },
+    { name: 'CupSoda', icon: CupSoda, label: 'Drinks' },
+    { name: 'Beer', icon: Beer, label: 'Beer' },
+    { name: 'Wine', icon: Wine, label: 'Wine' },
+    { name: 'GlassWater', icon: GlassWater, label: 'Water' },
+    { name: 'Milk', icon: Milk, label: 'Dairy' },
+    { name: 'IceCream', icon: IceCream, label: 'Dessert' },
+    { name: 'Cake', icon: Cake, label: 'Cake' },
+    { name: 'Cookie', icon: Cookie, label: 'Cookies' },
+    { name: 'Croissant', icon: Croissant, label: 'Bakery' },
+    { name: 'Apple', icon: Apple, label: 'Fruits' },
+    { name: 'Cherry', icon: Cherry, label: 'Cherry' },
+    { name: 'Grape', icon: Grape, label: 'Grape' },
+    { name: 'Flame', icon: Flame, label: 'Spicy' },
+    { name: 'Leaf', icon: Leaf, label: 'Vegetarian' },
+    { name: 'Wheat', icon: Wheat, label: 'Grains' },
+  ];
 
   useEffect(() => {
     fetchCategories();
@@ -150,6 +188,11 @@ const Categories = () => {
 
     const slug = generateSlug(formData.name);
 
+    // Determine the final icon_url (either preset or uploaded)
+    const finalIconUrl = formData.icon_name 
+      ? `preset:${formData.icon_name}` 
+      : (formData.icon_url || null);
+
     if (editingCategory) {
       const { error } = await supabase
         .from('categories')
@@ -157,7 +200,7 @@ const Categories = () => {
           name: formData.name.trim(),
           slug,
           description: formData.description.trim() || null,
-          icon_url: formData.icon_url || null,
+          icon_url: finalIconUrl,
           is_visible: formData.is_visible,
         })
         .eq('id', editingCategory.id);
@@ -190,7 +233,7 @@ const Categories = () => {
           name: formData.name.trim(),
           slug,
           description: formData.description.trim() || null,
-          icon_url: formData.icon_url || null,
+          icon_url: finalIconUrl,
           is_visible: formData.is_visible,
           sort_order: maxOrder,
         });
@@ -263,18 +306,32 @@ const Categories = () => {
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
+    // Check if icon_url is a preset icon name (starts with 'preset:')
+    const isPresetIcon = category.icon_url?.startsWith('preset:');
     setFormData({
       name: category.name,
       description: category.description || '',
-      icon_url: category.icon_url || '',
+      icon_url: isPresetIcon ? '' : (category.icon_url || ''),
+      icon_name: isPresetIcon ? category.icon_url.replace('preset:', '') : '',
       is_visible: category.is_visible,
     });
+    setIconTab(isPresetIcon ? 'preset' : (category.icon_url ? 'upload' : 'preset'));
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', icon_url: '', is_visible: true });
+    setFormData({ name: '', description: '', icon_url: '', icon_name: '', is_visible: true });
     setEditingCategory(null);
+    setIconTab('preset');
+  };
+
+  const handlePresetIconSelect = (iconName: string) => {
+    setFormData({ ...formData, icon_name: iconName, icon_url: '' });
+  };
+
+  const getPresetIconComponent = (iconName: string) => {
+    const preset = presetIcons.find(p => p.name === iconName);
+    return preset ? preset.icon : null;
   };
 
   const handleDragStart = (index: number) => {
@@ -412,11 +469,26 @@ const Categories = () => {
                   </TableCell>
                   <TableCell>
                     {category.icon_url ? (
-                      <img 
-                        src={category.icon_url} 
-                        alt={category.name} 
-                        className="w-10 h-10 object-cover rounded-lg"
-                      />
+                      category.icon_url.startsWith('preset:') ? (
+                        (() => {
+                          const IconComponent = getPresetIconComponent(category.icon_url.replace('preset:', ''));
+                          return IconComponent ? (
+                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                              <IconComponent className="h-5 w-5 text-primary" />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                              <Folder className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <img 
+                          src={category.icon_url} 
+                          alt={category.name} 
+                          className="w-10 h-10 object-cover rounded-lg"
+                        />
+                      )
                     ) : (
                       <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
                         <Folder className="h-5 w-5 text-muted-foreground" />
@@ -526,52 +598,109 @@ const Categories = () => {
               />
             </div>
 
-            {/* Icon Upload */}
-            <div className="space-y-2">
+            {/* Icon Selection */}
+            <div className="space-y-3">
               <Label>Category Icon</Label>
-              {formData.icon_url ? (
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <img
-                    src={formData.icon_url}
-                    alt="Category icon"
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium">Current Icon</span>
-                    <p className="text-xs text-muted-foreground">Shown on menu filters</p>
+              <Tabs value={iconTab} onValueChange={(v) => setIconTab(v as 'preset' | 'upload')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="preset">Preset Icons</TabsTrigger>
+                  <TabsTrigger value="upload">Upload Custom</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="preset" className="space-y-3">
+                  {formData.icon_name ? (
+                    <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                      {(() => {
+                        const IconComponent = getPresetIconComponent(formData.icon_name);
+                        return IconComponent ? <IconComponent className="h-8 w-8 text-primary" /> : null;
+                      })()}
+                      <div className="flex-1">
+                        <span className="text-sm font-medium">
+                          {presetIcons.find(p => p.name === formData.icon_name)?.label || formData.icon_name}
+                        </span>
+                        <p className="text-xs text-muted-foreground">Selected preset icon</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setFormData({ ...formData, icon_name: '' })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : null}
+                  <div className="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
+                    {presetIcons.map((preset) => {
+                      const IconComponent = preset.icon;
+                      return (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => handlePresetIconSelect(preset.name)}
+                          className={`p-2 rounded-lg border transition-all flex flex-col items-center gap-1 hover:border-primary hover:bg-primary/5 ${
+                            formData.icon_name === preset.name 
+                              ? 'border-primary bg-primary/10' 
+                              : 'border-border'
+                          }`}
+                          title={preset.label}
+                        >
+                          <IconComponent className="h-5 w-5" />
+                          <span className="text-[10px] text-muted-foreground truncate w-full text-center">
+                            {preset.label}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setFormData({ ...formData, icon_url: '' })}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
-                >
-                  {isUploading ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-3">
+                  {formData.icon_url ? (
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <img
+                        src={formData.icon_url}
+                        alt="Category icon"
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <span className="text-sm font-medium">Uploaded Icon</span>
+                        <p className="text-xs text-muted-foreground">Custom image</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setFormData({ ...formData, icon_url: '' })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   ) : (
-                    <>
-                      <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">Click to upload an icon</p>
-                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
-                    </>
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                      ) : (
+                        <>
+                          <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">Click to upload an icon</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
+                        </>
+                      )}
+                    </div>
                   )}
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleIconUpload}
-                className="hidden"
-              />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleIconUpload}
+                    className="hidden"
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
 
             <div className="flex items-center justify-between">

@@ -1,9 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Loader2, UtensilsCrossed, ChevronRight } from "lucide-react";
+import { 
+  Loader2, UtensilsCrossed, ChevronRight, Coffee, Pizza, Salad, Beef, Fish, 
+  Soup, IceCream, Cookie, Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, 
+  Grape, Cake, Wine, Beer, GlassWater, CupSoda, Milk, Flame, Leaf, Wheat, ChefHat,
+  LucideIcon
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+
+// Map of preset icon names to their components
+const presetIconMap: Record<string, LucideIcon> = {
+  UtensilsCrossed, ChefHat, Pizza, Beef, Drumstick, Fish, Salad, Soup, Sandwich,
+  Egg, Coffee, CupSoda, Beer, Wine, GlassWater, Milk, IceCream, Cake, Cookie,
+  Croissant, Apple, Cherry, Grape, Flame, Leaf, Wheat
+};
 
 interface Category {
   id: string;
@@ -130,11 +142,19 @@ const CategoryShowcase = () => {
                 {/* Icon Container */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-4 md:mb-6 rounded-full bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-500 shadow-md">
                   {category.icon_url ? (
-                    <img
-                      src={category.icon_url}
-                      alt={category.name}
-                      className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
-                    />
+                    category.icon_url.startsWith('preset:') ? (
+                      (() => {
+                        const iconName = category.icon_url.replace('preset:', '');
+                        const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
+                        return <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />;
+                      })()
+                    ) : (
+                      <img
+                        src={category.icon_url}
+                        alt={category.name}
+                        className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
+                      />
+                    )
                   ) : (
                     <UtensilsCrossed className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />
                   )}
