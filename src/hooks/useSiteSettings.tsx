@@ -39,7 +39,7 @@ const defaultSettings: SiteSettings = {
     phone: "01863-339695",
     email: "bellyfull2022@gmail.com",
     address: "53, Opposite of Tomaltola Primary School, Rothkhola, Kishoreganj 2300, Dhaka Division, Bangladesh",
-    googleMapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3631.7!2d90.785!3d24.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDI1JzQ4LjAiTiA5MMKwNDcnMDYuMCJF!5e0!3m2!1sen!2sbd!4v1640000000000!5m2!1sen!2sbd",
+    googleMapsUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d912.9099878665849!2d90.78452089999999!3d24.4368456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x375468e04c4a3477%3A0x63e2c10c4e7f88fd!2sBelly%20Full!5e1!3m2!1sen!2sbd!4v1705000000000!5m2!1sen!2sbd",
     facebookUrl: "https://www.facebook.com/profile.php?id=100084966930606",
     instagramUrl: "https://www.instagram.com/bellyfull_2022/",
   },
