@@ -35,7 +35,7 @@ const CategoryShowcase = () => {
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "100px" });
 
   useEffect(() => {
     fetchCategoriesWithCounts();
