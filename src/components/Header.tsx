@@ -41,7 +41,7 @@ const Header = () => {
             alt="Belly Full Logo"
             className="h-12 w-12 rounded-lg object-cover transition-transform group-hover:scale-105"
           />
-          <span className="font-display text-xl font-semibold text-primary">
+          <span className={`font-display text-xl font-semibold transition-colors duration-300 ${isScrolled ? 'text-primary' : 'text-white'}`}>
             Belly Full
           </span>
         </a>
@@ -52,7 +52,7 @@ const Header = () => {
             <a
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+              className={`text-sm font-medium transition-colors relative group ${isScrolled ? 'text-muted-foreground hover:text-primary' : 'text-white/80 hover:text-white'}`}
             >
               {link.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full" />
@@ -62,7 +62,7 @@ const Header = () => {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex items-center gap-4">
-          <a href="tel:+8801863339695" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+          <a href="tel:+8801863339695" className={`flex items-center gap-2 text-sm transition-colors ${isScrolled ? 'text-muted-foreground hover:text-primary' : 'text-white/80 hover:text-white'}`}>
             <Phone className="h-4 w-4" />
             01863-339695
           </a>
@@ -74,7 +74,7 @@ const Header = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2 text-primary"
+          className={`lg:hidden p-2 transition-colors duration-300 ${isScrolled ? 'text-primary' : 'text-white'}`}
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
