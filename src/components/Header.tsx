@@ -33,7 +33,7 @@ const Header = () => {
           : "bg-transparent py-4"
       }`}
     >
-      <div className="container flex items-center justify-between">
+      <div className={`container flex items-center justify-between ${!isScrolled ? '[text-shadow:_0_1px_8px_rgba(0,0,0,0.5)]' : ''}`}>
         {/* Logo */}
         <a href="#home" className="flex items-center gap-3 group">
           <img
