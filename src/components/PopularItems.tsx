@@ -63,7 +63,6 @@ const PopularItems = () => {
       id: item.id,
       name: item.name,
       price: item.price,
-      quantity: 1,
       image_url: item.image_url,
     });
     toast({ title: "Added to cart", description: `${item.name} added successfully` });
