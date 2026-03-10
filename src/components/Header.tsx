@@ -62,7 +62,7 @@ const Header = () => {
 
         {/* CTA Buttons */}
         <div className="hidden lg:flex items-center gap-4">
-          <a href="tel:+8801863339695" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+          <a href="tel:+8801863339695" className={`flex items-center gap-2 text-sm transition-colors ${isScrolled ? 'text-muted-foreground hover:text-primary' : 'text-white/80 hover:text-white'}`}>
             <Phone className="h-4 w-4" />
             01863-339695
           </a>
