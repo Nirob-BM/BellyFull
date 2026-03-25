@@ -47,6 +47,22 @@ const PopularItems = () => {
     fetchPopular();
   }, []);
 
+  // Auto-play: scroll every 4 seconds
+  useEffect(() => {
+    if (items.length === 0) return;
+    const interval = setInterval(() => {
+      if (!scrollRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      if (scrollLeft + clientWidth >= scrollWidth - 10) {
+        scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        const cardWidth = scrollRef.current.firstElementChild?.clientWidth ?? 280;
+        scrollRef.current.scrollBy({ left: cardWidth + 24, behavior: "smooth" });
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [items]);
+
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const cardWidth = scrollRef.current.firstElementChild?.clientWidth ?? 280;
