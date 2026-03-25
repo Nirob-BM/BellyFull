@@ -101,7 +101,7 @@ const CategoryShowcase = () => {
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-10 md:mb-16"
         >
@@ -124,7 +124,7 @@ const CategoryShowcase = () => {
             <motion.div
               key={category.id}
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.1 * Math.min(index, 6), duration: 0.5, ease: "easeOut" }}
             >
               <Link
@@ -191,7 +191,7 @@ const CategoryShowcase = () => {
         {/* View All Menu CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
           className="text-center mt-10 md:mt-14"
         >
