@@ -47,20 +47,25 @@ const PopularItems = () => {
     fetchPopular();
   }, []);
 
-  // Auto-play: scroll every 4 seconds
+  // Continuous slow auto-scroll loop
   useEffect(() => {
-    if (items.length === 0) return;
-    const interval = setInterval(() => {
+    if (items.length === 0 || !scrollRef.current) return;
+    let animationId: number;
+    const speed = 0.5; // pixels per frame — slow and smooth
+
+    const step = () => {
       if (!scrollRef.current) return;
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      if (scrollLeft + clientWidth >= scrollWidth - 10) {
-        scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      if (scrollLeft + clientWidth >= scrollWidth - 1) {
+        scrollRef.current.scrollLeft = 0;
       } else {
-        const cardWidth = scrollRef.current.firstElementChild?.clientWidth ?? 280;
-        scrollRef.current.scrollBy({ left: cardWidth + 24, behavior: "smooth" });
+        scrollRef.current.scrollLeft += speed;
       }
-    }, 4000);
-    return () => clearInterval(interval);
+      animationId = requestAnimationFrame(step);
+    };
+
+    animationId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationId);
   }, [items]);
 
   const scroll = (direction: "left" | "right") => {
