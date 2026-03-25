@@ -27,7 +27,7 @@ const PopularItems = () => {
   const [scrollIndex, setScrollIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "100px" });
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const { addItem } = useCart();
   const { toast } = useToast();
 
