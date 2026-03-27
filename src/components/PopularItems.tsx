@@ -54,17 +54,22 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
 
     const step = () => {
       if (!scrollRef.current) return;
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      if (scrollLeft + clientWidth >= scrollWidth - 1) {
-        scrollRef.current.scrollLeft = 0;
-      } else {
-        scrollRef.current.scrollLeft += speed;
+      if (!paused.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 1) {
+          scrollRef.current.scrollLeft = 0;
+        } else {
+          scrollRef.current.scrollLeft += speed;
+        }
       }
       animationId = requestAnimationFrame(step);
     };
 
     animationId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationId);
+      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    };
   }, [items]);
 
   const scroll = (direction: "left" | "right") => {
