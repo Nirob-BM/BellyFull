@@ -25,6 +25,8 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
   const [items, setItems] = useState<PopularItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const paused = useRef(false);
+  const resumeTimeout = useRef<ReturnType<typeof setTimeout>>();
   const { addItem } = useCart();
   const { toast } = useToast();
 
@@ -52,21 +54,33 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
 
     const step = () => {
       if (!scrollRef.current) return;
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      if (scrollLeft + clientWidth >= scrollWidth - 1) {
-        scrollRef.current.scrollLeft = 0;
-      } else {
-        scrollRef.current.scrollLeft += speed;
+      if (!paused.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 1) {
+          scrollRef.current.scrollLeft = 0;
+        } else {
+          scrollRef.current.scrollLeft += speed;
+        }
       }
       animationId = requestAnimationFrame(step);
     };
 
     animationId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationId);
+      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    };
   }, [items]);
+
+  const pauseAutoScroll = (duration = 2000) => {
+    paused.current = true;
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    resumeTimeout.current = setTimeout(() => { paused.current = false; }, duration);
+  };
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
+    pauseAutoScroll();
     const cardWidth = scrollRef.current.firstElementChild?.clientWidth ?? 280;
     const gap = 24;
     const scrollAmount = cardWidth + gap;
@@ -150,6 +164,8 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             ref={scrollRef}
             className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 -mx-4 px-4"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            onMouseEnter={() => { paused.current = true; if (resumeTimeout.current) clearTimeout(resumeTimeout.current); }}
+            onMouseLeave={() => { paused.current = false; }}
           >
             {items.map((item, index) => (
               <motion.div
