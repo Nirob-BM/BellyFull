@@ -25,6 +25,8 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
   const [items, setItems] = useState<PopularItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const paused = useRef(false);
+  const resumeTimeout = useRef<ReturnType<typeof setTimeout>>();
   const { addItem } = useCart();
   const { toast } = useToast();
 
