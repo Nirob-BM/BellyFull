@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Star, Flame, Leaf, ShoppingBag, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,13 +21,10 @@ interface PopularItem {
   is_veg: boolean | null;
 }
 
-const PopularItems = () => {
+const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
   const [items, setItems] = useState<PopularItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollIndex, setScrollIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const { addItem } = useCart();
   const { toast } = useToast();
 
@@ -102,7 +99,10 @@ const PopularItems = () => {
   if (items.length === 0) return null;
 
   return (
-    <section ref={ref} className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/20 overflow-hidden">
+    <section
+      ref={forwardedRef}
+      className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/20 overflow-hidden"
+    >
       <div className="container px-4 md:px-6">
         {/* Header */}
         <motion.div
@@ -250,6 +250,8 @@ const PopularItems = () => {
       </div>
     </section>
   );
-};
+});
+
+PopularItems.displayName = "PopularItems";
 
 export default PopularItems;
