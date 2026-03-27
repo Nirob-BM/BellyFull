@@ -72,8 +72,15 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
     };
   }, [items]);
 
+  const pauseAutoScroll = (duration = 2000) => {
+    paused.current = true;
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    resumeTimeout.current = setTimeout(() => { paused.current = false; }, duration);
+  };
+
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
+    pauseAutoScroll();
     const cardWidth = scrollRef.current.firstElementChild?.clientWidth ?? 280;
     const gap = 24;
     const scrollAmount = cardWidth + gap;
