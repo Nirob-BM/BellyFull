@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Star } from "lucide-react";
-import coverImage from "@/assets/cover.jpg";
+import coverImage from "@/assets/cover-opt.jpg";
 
 const Hero = () => {
   return (
