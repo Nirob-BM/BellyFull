@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Utensils, Heart, Users, Award } from "lucide-react";
-import coverImage from "@/assets/cover.jpg";
+import coverImage from "@/assets/cover-opt.jpg";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const features = [
