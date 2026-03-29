@@ -162,7 +162,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
         >
           <div
             ref={scrollRef}
-            className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 -mx-4 px-4"
+            className="flex gap-5 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             onMouseEnter={() => { paused.current = true; if (resumeTimeout.current) clearTimeout(resumeTimeout.current); }}
             onMouseLeave={() => { paused.current = false; }}
