@@ -125,7 +125,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex items-end justify-between mb-10 md:mb-14"
+          className="flex items-end justify-between mb-8 md:mb-10"
         >
           <div>
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/15 text-secondary-foreground text-sm font-medium mb-4 border border-secondary/30">
