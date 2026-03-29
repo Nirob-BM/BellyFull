@@ -172,13 +172,13 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             {[...items, ...items, ...items].map((item, index) => (
               <div
                 key={`${item.id}-${index}`}
-                className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0"
+                className="min-w-[230px] sm:min-w-[250px] md:min-w-[260px] flex-shrink-0"
               >
                 <Link
                   to={`/product/${item.id}`}
                   className="group block bg-card rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                  <div className="relative aspect-[3/2] overflow-hidden">
                     <img
                       src={item.image_url || dishButterChicken}
                       alt={item.name}
@@ -203,20 +203,20 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 md:p-5">
+                  <div className="p-3 md:p-4">
                     <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
                       {item.category}
                     </p>
-                    <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="font-display text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                       {item.name}
                     </h3>
                     {item.description && (
-                      <p className="text-muted-foreground text-sm mt-1 line-clamp-2">
+                      <p className="text-muted-foreground text-sm mt-0.5 line-clamp-1">
                         {item.description}
                       </p>
                     )}
-                    <div className="flex items-center justify-between mt-4">
-                      <span className="text-xl font-bold text-primary">
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-lg font-bold text-primary">
                         ৳{item.price}
                       </span>
                       <Button
