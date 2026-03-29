@@ -46,21 +46,24 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
     fetchPopular();
   }, []);
 
-  // Continuous slow auto-scroll loop
+  // Continuous slow auto-scroll loop with seamless infinite wrap
   useEffect(() => {
     if (items.length === 0 || !scrollRef.current) return;
     let animationId: number;
-    const speed = 0.5; // pixels per frame — slow and smooth
+    const speed = 0.5;
 
     const step = () => {
-      if (!scrollRef.current) return;
+      const el = scrollRef.current;
+      if (!el) return;
       if (!paused.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-        if (scrollLeft + clientWidth >= scrollWidth - 1) {
-          scrollRef.current.scrollLeft = 0;
-        } else {
-          scrollRef.current.scrollLeft += speed;
+        // The content is duplicated: [items][items]
+        // Half the scrollable width is one full set of cards
+        const halfScroll = (el.scrollWidth - el.clientWidth) / 2;
+        if (el.scrollLeft >= halfScroll) {
+          // Jump back to the start of the first set — seamless because content is identical
+          el.scrollLeft -= halfScroll;
         }
+        el.scrollLeft += speed;
       }
       animationId = requestAnimationFrame(step);
     };
@@ -167,19 +170,15 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             onMouseEnter={() => { paused.current = true; if (resumeTimeout.current) clearTimeout(resumeTimeout.current); }}
             onMouseLeave={() => { paused.current = false; }}
           >
-            {items.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * Math.min(index, 5), duration: 0.5 }}
-                className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] snap-start"
+            {[...items, ...items].map((item, index) => (
+              <div
+                key={`${item.id}-${index}`}
+                className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0"
               >
                 <Link
                   to={`/product/${item.id}`}
                   className="group block bg-card rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300"
                 >
-                  {/* Image */}
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img
                       src={item.image_url || dishButterChicken}
@@ -187,7 +186,6 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
-                    {/* Badges */}
                     <div className="absolute top-3 left-3 flex gap-1.5">
                       {item.is_spicy && (
                         <span className="bg-destructive/90 text-destructive-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
@@ -200,15 +198,12 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                         </span>
                       )}
                     </div>
-                    {/* Popular badge */}
                     <div className="absolute top-3 right-3">
                       <span className="bg-secondary/90 text-secondary-foreground text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
                         <Star className="w-3 h-3 fill-current" /> Popular
                       </span>
                     </div>
                   </div>
-
-                  {/* Content */}
                   <div className="p-4 md:p-5">
                     <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
                       {item.category}
@@ -240,7 +235,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </motion.div>
