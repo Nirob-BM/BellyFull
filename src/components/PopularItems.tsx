@@ -56,12 +56,11 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
       const el = scrollRef.current;
       if (!el) return;
       if (!paused.current) {
-        // The content is duplicated: [items][items]
-        // Half the scrollable width is one full set of cards
-        const halfScroll = (el.scrollWidth - el.clientWidth) / 2;
-        if (el.scrollLeft >= halfScroll) {
-          // Jump back to the start of the first set — seamless because content is identical
-          el.scrollLeft -= halfScroll;
+        // Content is tripled: [items][items][items]
+        // One set width = total scrollable / 3 (approximately)
+        const oneSetWidth = el.scrollWidth / 3;
+        if (el.scrollLeft >= oneSetWidth * 2) {
+          el.scrollLeft -= oneSetWidth;
         }
         el.scrollLeft += speed;
       }
@@ -170,7 +169,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             onMouseEnter={() => { paused.current = true; if (resumeTimeout.current) clearTimeout(resumeTimeout.current); }}
             onMouseLeave={() => { paused.current = false; }}
           >
-            {[...items, ...items].map((item, index) => (
+            {[...items, ...items, ...items].map((item, index) => (
               <div
                 key={`${item.id}-${index}`}
                 className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0"
