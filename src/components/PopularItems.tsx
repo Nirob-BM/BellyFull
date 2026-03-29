@@ -117,7 +117,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
   return (
     <section
       ref={forwardedRef}
-      className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/20 overflow-hidden"
+      className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/20 overflow-hidden"
     >
       <div className="container px-4 md:px-6">
         {/* Header */}
