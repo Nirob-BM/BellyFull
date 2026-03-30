@@ -244,16 +244,16 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="text-center mt-10"
+          className="text-center mt-6"
         >
           <Link to="/menu">
             <Button
-              size="lg"
+              size="default"
               variant="outline"
-              className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2 px-8 py-6 text-base transition-all duration-300"
+              className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground gap-2 px-6 py-4 text-sm transition-all duration-300"
             >
               View All Dishes
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
         </motion.div>
