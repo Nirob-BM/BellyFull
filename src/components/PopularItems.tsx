@@ -172,7 +172,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             {[...items, ...items, ...items].map((item, index) => (
               <div
                 key={`${item.id}-${index}`}
-                className="min-w-[230px] sm:min-w-[250px] md:min-w-[260px] flex-shrink-0"
+                className="min-w-[200px] sm:min-w-[230px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
               >
                 <Link
                   to={`/product/${item.id}`}
@@ -185,50 +185,50 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
-                    <div className="absolute top-3 left-3 flex gap-1.5">
+                    <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5">
                       {item.is_spicy && (
-                        <span className="bg-destructive/90 text-destructive-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
-                          <Flame className="w-3 h-3" /> Spicy
+                        <span className="bg-destructive/90 text-destructive-foreground text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full backdrop-blur-sm flex items-center gap-0.5 sm:gap-1">
+                          <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Spicy
                         </span>
                       )}
                       {item.is_veg && (
-                        <span className="bg-primary/90 text-primary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
-                          <Leaf className="w-3 h-3" /> Veg
+                        <span className="bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full backdrop-blur-sm flex items-center gap-0.5 sm:gap-1">
+                          <Leaf className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Veg
                         </span>
                       )}
                     </div>
-                    <div className="absolute top-3 right-3">
-                      <span className="bg-secondary/90 text-secondary-foreground text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-current" /> Popular
+                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                      <span className="bg-secondary/90 text-secondary-foreground text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full backdrop-blur-sm flex items-center gap-0.5 sm:gap-1">
+                        <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" /> Popular
                       </span>
                     </div>
                   </div>
-                  <div className="p-3 md:p-4">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
+                  <div className="p-2.5 sm:p-3 md:p-4">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5 sm:mb-1">
                       {item.category}
                     </p>
-                    <h3 className="font-display text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="font-display text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                       {item.name}
                     </h3>
                     {item.description && (
-                      <p className="text-muted-foreground text-sm mt-0.5 line-clamp-1">
+                      <p className="text-muted-foreground text-xs sm:text-sm mt-0.5 line-clamp-1">
                         {item.description}
                       </p>
                     )}
-                    <div className="flex items-center justify-between mt-3">
-                      <span className="text-lg font-bold text-primary">
+                    <div className="flex items-center justify-between mt-2 sm:mt-3">
+                      <span className="text-base sm:text-lg font-bold text-primary">
                         ৳{item.price}
                       </span>
                       <Button
                         size="sm"
-                        className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5"
+                        className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-1 sm:gap-1.5 text-xs sm:text-sm h-7 sm:h-8 px-2.5 sm:px-3"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           handleAddToCart(item);
                         }}
                       >
-                        <ShoppingBag className="w-4 h-4" />
+                        <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4" />
                         Add
                       </Button>
                     </div>
