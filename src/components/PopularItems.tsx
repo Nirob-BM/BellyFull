@@ -172,7 +172,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             {[...items, ...items, ...items].map((item, index) => (
               <div
                 key={`${item.id}-${index}`}
-                className="min-w-[200px] sm:min-w-[230px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
+                className="min-w-[170px] sm:min-w-[190px] md:min-w-[220px] lg:min-w-[240px] flex-shrink-0"
               >
                 <Link
                   to={`/product/${item.id}`}
