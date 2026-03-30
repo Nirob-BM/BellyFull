@@ -117,7 +117,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
   return (
     <section
       ref={forwardedRef}
-      className="py-12 md:py-16 bg-gradient-to-b from-background to-muted/20 overflow-hidden"
+      className="py-8 md:py-10 bg-gradient-to-b from-background to-muted/20 overflow-hidden"
     >
       <div className="container px-4 md:px-6">
         {/* Header */}
@@ -125,14 +125,14 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="flex items-end justify-between mb-8 md:mb-10"
+          className="flex items-end justify-between mb-5 md:mb-6"
         >
           <div>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/15 text-secondary-foreground text-sm font-medium mb-4 border border-secondary/30">
-              <Star className="w-4 h-4 fill-secondary text-secondary" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/15 text-secondary-foreground text-xs font-medium mb-2 border border-secondary/30">
+              <Star className="w-3.5 h-3.5 fill-secondary text-secondary" />
               Customer Favorites
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
               Popular <span className="text-secondary">Dishes</span>
             </h2>
           </div>
