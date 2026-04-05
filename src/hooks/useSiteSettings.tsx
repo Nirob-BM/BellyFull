@@ -86,7 +86,16 @@ export const useSiteSettings = () => {
           data.forEach((setting) => {
             const key = setting.key as keyof SiteSettings;
             if (key === 'general') {
-              merged.general = { ...merged.general, ...(setting.value as Partial<SiteSettings['general']>) };
+              const raw = setting.value as Record<string, string>;
+              merged.general = {
+                ...merged.general,
+                ...(raw as Partial<SiteSettings['general']>),
+                // Map snake_case DB keys to camelCase interface keys
+                ...(raw.google_maps_url ? { googleMapsUrl: raw.google_maps_url } : {}),
+                ...(raw.restaurant_name || raw.restaurantName ? { restaurantName: raw.restaurantName || raw.restaurant_name } : {}),
+                ...(raw.facebook_url || raw.facebook ? { facebookUrl: raw.facebook_url || raw.facebook || raw.facebookUrl } : {}),
+                ...(raw.instagram_url || raw.instagram ? { instagramUrl: raw.instagram_url || raw.instagram || raw.instagramUrl } : {}),
+              };
             } else if (key === 'seo') {
               merged.seo = { ...merged.seo, ...(setting.value as Partial<SiteSettings['seo']>) };
             } else if (key === 'design') {
