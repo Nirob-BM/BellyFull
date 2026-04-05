@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
