@@ -9,6 +9,7 @@ import Testimonials from "@/components/Testimonials";
 import Location from "@/components/Location";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Index = () => {
   return (
