@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MessageCircle, ShoppingBag, HelpCircle } from "lucide-react";
+import { X, ShoppingBag, HelpCircle, MessageCircle } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const WHATSAPP_NUMBER = "8801308697630";
 
@@ -24,6 +25,8 @@ const options = [
 
 const WhatsAppButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { totalItems } = useCart();
+  const hasCart = totalItems > 0;
 
   const handleOption = (message: string) => {
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -32,7 +35,11 @@ const WhatsAppButton = () => {
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-3">
+    <div
+      className={`fixed right-4 z-50 flex flex-col items-end gap-3 transition-all duration-300 ${
+        hasCart ? "bottom-24" : "bottom-6"
+      }`}
+    >
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -41,7 +48,9 @@ const WhatsAppButton = () => {
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             className="bg-card rounded-2xl shadow-elegant-lg border border-border p-3 w-56 space-y-1"
           >
-            <p className="text-xs font-semibold text-muted-foreground px-2 pb-1">Chat with us on WhatsApp</p>
+            <p className="text-xs font-semibold text-muted-foreground px-2 pb-1">
+              Chat with us on WhatsApp
+            </p>
             {options.map((opt) => (
               <button
                 key={opt.label}
