@@ -31,7 +31,7 @@ const Location = () => {
         </motion.div>
 
         {/* Top row: Map + Opening Hours side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Map */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
