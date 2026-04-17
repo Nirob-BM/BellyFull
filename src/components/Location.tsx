@@ -31,7 +31,7 @@ const Location = () => {
         </motion.div>
 
         {/* Top row: Contact + Address side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6 text-left">
           {/* Contact Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
