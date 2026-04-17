@@ -252,7 +252,8 @@ const ProductDetails = () => {
                   src={images[activeImageIndex]}
                   alt={item.name}
                   className="w-full h-full object-cover"
-                />
+            loading="lazy"
+            decoding="async"/>
                 
                 {images.length > 1 && (
                   <>
@@ -307,7 +308,9 @@ const ProductDetails = () => {
                           : 'border-transparent hover:border-muted-foreground/30'
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt="" className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"/>
                     </button>
                   ))}
                 </div>

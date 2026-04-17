@@ -45,7 +45,8 @@ const CartSheet = () => {
                       src={item.image_url}
                       alt={item.name}
                       className="w-12 h-12 object-cover rounded-lg"
-                    />
+            loading="lazy"
+            decoding="async"/>
                   )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium truncate">{item.name}</h4>

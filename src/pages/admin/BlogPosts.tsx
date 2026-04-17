@@ -215,7 +215,8 @@ const BlogPosts = () => {
                         src={post.featured_image}
                         alt={post.title}
                         className="w-full lg:w-32 h-24 object-cover rounded-lg"
-                      />
+            loading="lazy"
+            decoding="async"/>
                     )}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

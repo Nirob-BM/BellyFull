@@ -12,7 +12,8 @@ const Hero = () => {
           src={coverImage}
           alt="Belly Full Restaurant Interior"
           className="w-full h-full object-cover"
-        />
+            loading="lazy"
+            decoding="async"/>
         <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
       </div>
 
