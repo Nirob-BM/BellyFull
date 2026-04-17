@@ -35,7 +35,8 @@ const Footer = () => {
                 src={logo}
                 alt={`${settings.general.restaurantName} Logo`}
                 className="h-14 w-14 rounded-lg object-cover"
-              />
+            loading="lazy"
+            decoding="async"/>
               <span className="font-display text-2xl font-bold">{settings.general.restaurantName}</span>
             </a>
             <p className="text-primary-foreground/80 leading-relaxed mb-6">

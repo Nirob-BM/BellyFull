@@ -369,7 +369,8 @@ const MenuManager = () => {
                           src={item.image_url || item.images?.[0]}
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-lg"
-                        />
+            loading="lazy"
+            decoding="async"/>
                         {item.images && item.images.length > 1 && (
                           <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full">
                             +{item.images.length - 1}
@@ -471,7 +472,8 @@ const MenuManager = () => {
                     src={formData.image_url}
                     alt="Primary"
                     className="w-16 h-16 object-cover rounded-lg border-2 border-primary"
-                  />
+            loading="lazy"
+            decoding="async"/>
                   <div className="flex-1">
                     <span className="text-sm font-medium">Primary Image</span>
                     <p className="text-xs text-muted-foreground">This is shown on menu cards</p>
@@ -509,7 +511,8 @@ const MenuManager = () => {
                           className={`w-full aspect-square object-cover rounded-lg border-2 transition-colors ${
                             img === formData.image_url ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'
                           }`}
-                        />
+            loading="lazy"
+            decoding="async"/>
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                           <GripVertical className="h-4 w-4 text-white" />
                         </div>

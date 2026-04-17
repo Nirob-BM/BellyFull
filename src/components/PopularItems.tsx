@@ -184,7 +184,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
-                    />
+            decoding="async"/>
                     <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5">
                       {item.is_spicy && (
                         <span className="bg-destructive/90 text-destructive-foreground text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full backdrop-blur-sm flex items-center gap-0.5 sm:gap-1">

@@ -49,7 +49,8 @@ const About = () => {
                 src={coverImage}
                 alt={settings.general.restaurantName}
                 className="w-full aspect-[4/3] object-cover"
-              />
+            loading="lazy"
+            decoding="async"/>
               <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
             </div>
             {/* Floating Card */}

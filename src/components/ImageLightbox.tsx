@@ -49,7 +49,8 @@ const ImageLightbox = ({
             src={images[currentIndex]}
             alt={`${alt} ${currentIndex + 1}`}
             className="max-w-full max-h-[70vh] object-contain rounded-lg"
-          />
+            loading="lazy"
+            decoding="async"/>
 
           {/* Navigation Arrows */}
           {images.length > 1 && (
@@ -91,7 +92,8 @@ const ImageLightbox = ({
                   src={img}
                   alt={`${alt} thumbnail ${idx + 1}`}
                   className="w-full h-full object-cover"
-                />
+            loading="lazy"
+            decoding="async"/>
               </button>
             ))}
           </div>

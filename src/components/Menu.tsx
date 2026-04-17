@@ -217,7 +217,8 @@ const Menu = () => {
                     src={item.image_url || getFallbackImage(item.name, item.category)}
                     alt={item.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+            loading="lazy"
+            decoding="async"/>
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   {/* Eye Icon - View Full Image */}
@@ -313,7 +314,8 @@ const Menu = () => {
                 src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)} 
                 alt={selectedItem.name} 
                 className="w-full h-48 object-cover rounded-lg"
-              />
+            loading="lazy"
+            decoding="async"/>
               <p className="text-muted-foreground">{selectedItem.description}</p>
               
               <div className="flex items-center justify-between">

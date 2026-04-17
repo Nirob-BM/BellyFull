@@ -230,7 +230,7 @@ const Media = () => {
                       alt={item.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
-                    />
+            decoding="async"/>
                   ) : (
                     <IconComponent className="h-12 w-12 text-muted-foreground" />
                   )}
@@ -273,7 +273,9 @@ const Media = () => {
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded bg-muted flex items-center justify-center overflow-hidden">
                             {item.type === 'image' ? (
-                              <img src={item.url} alt="" className="w-full h-full object-cover" />
+                              <img src={item.url} alt="" className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"/>
                             ) : (
                               <IconComponent className="h-5 w-5 text-muted-foreground" />
                             )}

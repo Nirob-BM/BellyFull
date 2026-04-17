@@ -8,7 +8,8 @@ export const BkashLogo = ({ className = "w-12 h-12" }: { className?: string }) =
     src={bkashLogo} 
     alt="bKash" 
     className={className}
-  />
+            loading="lazy"
+            decoding="async"/>
 );
 
 export const NagadLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
@@ -16,7 +17,8 @@ export const NagadLogo = ({ className = "w-12 h-12" }: { className?: string }) =
     src={nagadLogo} 
     alt="Nagad" 
     className={className}
-  />
+            loading="lazy"
+            decoding="async"/>
 );
 
 export const CashOnDeliveryIcon = ({ className = "w-12 h-12" }: { className?: string }) => (
@@ -24,5 +26,6 @@ export const CashOnDeliveryIcon = ({ className = "w-12 h-12" }: { className?: st
     src={codIcon} 
     alt="Cash on Delivery" 
     className={className}
-  />
+            loading="lazy"
+            decoding="async"/>
 );

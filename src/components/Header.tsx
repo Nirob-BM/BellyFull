@@ -40,7 +40,9 @@ const Header = () => {
             src={logo}
             alt="Belly Full Logo"
             className="h-12 w-12 rounded-lg object-cover transition-transform group-hover:scale-105"
-          />
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"/>
           <span className={`font-display text-xl font-semibold transition-colors duration-300 ${isScrolled ? 'text-primary' : 'text-white'}`}>
             Belly Full
           </span>

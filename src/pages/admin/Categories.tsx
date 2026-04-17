@@ -487,7 +487,8 @@ const Categories = () => {
                           src={category.icon_url} 
                           alt={category.name} 
                           className="w-10 h-10 object-cover rounded-lg"
-                        />
+            loading="lazy"
+            decoding="async"/>
                       )
                     ) : (
                       <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
@@ -662,7 +663,8 @@ const Categories = () => {
                         src={formData.icon_url}
                         alt="Category icon"
                         className="w-16 h-16 object-cover rounded-lg"
-                      />
+            loading="lazy"
+            decoding="async"/>
                       <div className="flex-1">
                         <span className="text-sm font-medium">Uploaded Icon</span>
                         <p className="text-xs text-muted-foreground">Custom image</p>
