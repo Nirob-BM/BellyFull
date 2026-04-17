@@ -30,74 +30,13 @@ const Location = () => {
           </p>
         </motion.div>
 
-        {/* Top row: Contact + Address side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6 text-left">
-          {/* Contact Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border"
-          >
-            <div className="flex items-start gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Phone className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-display text-lg md:text-xl font-semibold text-foreground mb-2">Contact Us</h3>
-                <div className="space-y-2">
-                  <a 
-                    href={`tel:+88${settings.general.phone.replace(/[^0-9]/g, '')}`}
-                    className="flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-secondary transition-colors"
-                  >
-                    <Phone className="h-4 w-4 flex-shrink-0" />
-                    {settings.general.phone}
-                  </a>
-                  <a 
-                    href={`mailto:${settings.general.email}`}
-                    className="flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-secondary transition-colors break-all"
-                  >
-                    <Mail className="h-4 w-4 flex-shrink-0" />
-                    {settings.general.email}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Address Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border"
-          >
-            <div className="flex items-start gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <MapPin className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-display text-lg md:text-xl font-semibold text-foreground mb-2">Our Address</h3>
-                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                  {settings.general.address.split(",").map((line, i, arr) => (
-                    <span key={i}>
-                      {line.trim()}
-                      {i < arr.length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Bottom row: Map + Opening Hours side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Top row: Map + Opening Hours side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Map */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
             className="rounded-2xl overflow-hidden shadow-elegant-lg border border-border"
           >
             <iframe
@@ -117,7 +56,7 @@ const Location = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border"
           >
             <div className="flex items-start gap-3 md:gap-4">
@@ -151,6 +90,67 @@ const Location = () => {
                     </>
                   )}
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Bottom row: Contact + Address side by side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 text-left">
+          {/* Contact Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border"
+          >
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Phone className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-display text-lg md:text-xl font-semibold text-foreground mb-2">Contact Us</h3>
+                <div className="space-y-2">
+                  <a 
+                    href={`tel:+88${settings.general.phone.replace(/[^0-9]/g, '')}`}
+                    className="flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-secondary transition-colors"
+                  >
+                    <Phone className="h-4 w-4 flex-shrink-0" />
+                    {settings.general.phone}
+                  </a>
+                  <a 
+                    href={`mailto:${settings.general.email}`}
+                    className="flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-secondary transition-colors break-all"
+                  >
+                    <Mail className="h-4 w-4 flex-shrink-0" />
+                    {settings.general.email}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Address Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border"
+          >
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <MapPin className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-display text-lg md:text-xl font-semibold text-foreground mb-2">Our Address</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  {settings.general.address.split(",").map((line, i, arr) => (
+                    <span key={i}>
+                      {line.trim()}
+                      {i < arr.length - 1 && <br />}
+                    </span>
+                  ))}
+                </p>
               </div>
             </div>
           </motion.div>
