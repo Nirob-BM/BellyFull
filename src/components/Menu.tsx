@@ -199,7 +199,7 @@ const Menu = () => {
 
         {/* Menu Grid */}
         {!isLoading && filteredItems.length > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
             {filteredItems.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -230,53 +230,54 @@ const Menu = () => {
                   </button>
 
                   {/* Badges */}
-                  <div className="absolute top-4 left-4 flex gap-2">
+                  <div className="absolute top-2 left-2 md:top-4 md:left-4 flex flex-wrap gap-1 md:gap-2">
                     {item.is_popular && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
-                        <Star className="h-3 w-3 fill-current" />
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] md:text-xs font-medium">
+                        <Star className="h-2.5 w-2.5 md:h-3 md:w-3 fill-current" />
                         Popular
                       </span>
                     )}
                     {item.is_spicy && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
-                        <Flame className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full bg-destructive text-destructive-foreground text-[10px] md:text-xs font-medium">
+                        <Flame className="h-2.5 w-2.5 md:h-3 md:w-3" />
                         Spicy
                       </span>
                     )}
                     {item.is_veg && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium">
-                        <Leaf className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full bg-green-500 text-white text-[10px] md:text-xs font-medium">
+                        <Leaf className="h-2.5 w-2.5 md:h-3 md:w-3" />
                         Veg
                       </span>
                     )}
                   </div>
 
                   {/* Price Badge */}
-                  <div className="absolute bottom-4 right-4">
-                    <span className="inline-block px-3 py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-lg font-bold text-secondary">
+                  <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
+                    <span className="inline-block px-2 py-1 md:px-3 md:py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-sm md:text-lg font-bold text-secondary">
                       ৳{item.price}
                     </span>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-secondary transition-colors">
+                <div className="p-3 md:p-6">
+                  <div className="flex items-start justify-between gap-2 md:gap-4 mb-2">
+                    <h3 className="font-display text-sm md:text-xl font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-2">
                       {item.name}
                     </h3>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    <span className="hidden md:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded whitespace-nowrap">
                       {item.category}
                     </span>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                  <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-3 md:mb-4 line-clamp-2">
                     {item.description}
                   </p>
                   <Button 
                     onClick={() => handleItemClick(item)}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    size="sm"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs md:text-sm"
                   >
-                    <ShoppingBag className="h-4 w-4 mr-2" />
+                    <ShoppingBag className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                     Order Now
                   </Button>
                 </div>
