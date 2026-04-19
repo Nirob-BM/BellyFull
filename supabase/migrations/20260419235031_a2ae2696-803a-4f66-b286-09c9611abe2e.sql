@@ -1,0 +1,1 @@
+DELETE FROM public.orders WHERE transaction_id IN ('T1-VALID','TEST-NO-RET','TEST-TXN-OK-1','TEST-BAD','TEST-EMPTY','TEST-LONG','TEST-HUGE');
