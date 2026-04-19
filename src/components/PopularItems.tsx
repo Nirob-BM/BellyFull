@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import BlurImage from "@/components/ui/blur-image";
 
 import dishButterChicken from "@/assets/dish-butter-chicken.jpg";
 
@@ -179,12 +180,12 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                   className="group block bg-card rounded-2xl border border-border overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300"
                 >
                   <div className="relative aspect-[3/2] overflow-hidden">
-                    <img
+                    <BlurImage
                       src={item.image_url || dishButterChicken}
                       alt={item.name}
+                      wrapperClassName="absolute inset-0 w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-            decoding="async"/>
+                    />
                     <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-1 sm:gap-1.5">
                       {item.is_spicy && (
                         <span className="bg-destructive/90 text-destructive-foreground text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full backdrop-blur-sm flex items-center gap-0.5 sm:gap-1">
