@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BlurImage from "@/components/ui/blur-image";
 
 
 // Import local dish images as fallbacks
@@ -248,12 +249,12 @@ const ProductDetails = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
-                <img
+                <BlurImage
                   src={images[activeImageIndex]}
                   alt={item.name}
+                  wrapperClassName="absolute inset-0 w-full h-full"
                   className="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"/>
+                />
                 
                 {images.length > 1 && (
                   <>
@@ -308,9 +309,7 @@ const ProductDetails = () => {
                           : 'border-transparent hover:border-muted-foreground/30'
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"/>
+                      <BlurImage src={img} alt="" wrapperClassName="block w-full h-full" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
