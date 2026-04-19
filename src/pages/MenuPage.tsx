@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BlurImage from "@/components/ui/blur-image";
 
 
 // Import local dish images as fallbacks
@@ -393,12 +394,12 @@ const MenuPage = () => {
                     className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer"
                     onClick={() => handleImageClick(item)}
                   >
-                    <img
+                    <BlurImage
                       src={item.image_url || getFallbackImage(item.name, item.category)}
                       alt={item.name}
+                      wrapperClassName="absolute inset-0 w-full h-full"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
-            decoding="async"/>
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
                     {/* Eye Icon - View Full Image */}
@@ -478,12 +479,12 @@ const MenuPage = () => {
           </DialogHeader>
           {selectedItem && (
             <div className="space-y-4">
-              <img 
-                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)} 
-                alt={selectedItem.name} 
+              <BlurImage
+                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)}
+                alt={selectedItem.name}
+                wrapperClassName="block w-full h-48 rounded-lg"
                 className="w-full h-48 object-cover rounded-lg"
-            loading="lazy"
-            decoding="async"/>
+              />
               <p className="text-muted-foreground">{selectedItem.description}</p>
               
               <div className="flex items-center justify-between">

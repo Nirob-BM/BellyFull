@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Utensils, Heart, Users, Award } from "lucide-react";
 import coverImage from "@/assets/cover-opt.jpg";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import BlurImage from "@/components/ui/blur-image";
 
 const features = [
   {
@@ -45,12 +46,12 @@ const About = () => {
             className="relative"
           >
             <div className="relative rounded-2xl overflow-hidden shadow-elegant-lg">
-              <img
+              <BlurImage
                 src={coverImage}
                 alt={settings.general.restaurantName}
-                className="w-full aspect-[4/3] object-cover"
-            loading="lazy"
-            decoding="async"/>
+                wrapperClassName="block w-full aspect-[4/3]"
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
             </div>
             {/* Floating Card */}
