@@ -167,7 +167,7 @@ const Checkout = () => {
       }
 
       const transactionId = paymentMethod === 'cod' 
-        ? `COD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        ? `COD-${crypto.randomUUID()}`
         : formData.transactionId;
 
       const { error } = await supabase.from('orders').insert([{

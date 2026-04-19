@@ -69,10 +69,15 @@ const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isLoading) return;
+    if (!user) {
       navigate('/auth');
+      return;
     }
-  }, [user, isLoading, navigate]);
+    if (!isAdmin) {
+      navigate('/');
+    }
+  }, [user, isAdmin, isLoading, navigate]);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -103,7 +108,7 @@ const Admin = () => {
     );
   }
 
-  if (!user) {
+  if (!user || !isAdmin) {
     return null;
   }
 

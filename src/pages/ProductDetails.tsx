@@ -162,8 +162,20 @@ const ProductDetails = () => {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewName.trim()) {
-      toast({ title: "Error", description: "Please enter your name", variant: "destructive" });
+
+    const trimmedName = reviewName.trim();
+    const trimmedComment = reviewComment.trim();
+
+    if (trimmedName.length < 2 || trimmedName.length > 100) {
+      toast({ title: "Invalid name", description: "Name must be 2-100 characters", variant: "destructive" });
+      return;
+    }
+    if (trimmedComment.length > 1000) {
+      toast({ title: "Comment too long", description: "Please keep comments under 1000 characters", variant: "destructive" });
+      return;
+    }
+    if (reviewRating < 1 || reviewRating > 5) {
+      toast({ title: "Invalid rating", description: "Rating must be between 1 and 5", variant: "destructive" });
       return;
     }
 
@@ -172,9 +184,9 @@ const ProductDetails = () => {
       .from('reviews')
       .insert([{
         menu_item_id: id,
-        user_name: reviewName,
+        user_name: trimmedName,
         rating: reviewRating,
-        comment: reviewComment || null
+        comment: trimmedComment || null
       }]);
 
     if (error) {
