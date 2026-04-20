@@ -2,3 +2,6 @@ project_id = "wzaxkzjxcgxnpyccjdqo"
 
 [functions.send-notification]
 verify_jwt = true
+
+[functions.get-payment-info]
+verify_jwt = false

@@ -66,14 +66,9 @@ const Checkout = () => {
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const { data: paymentData } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'payment_settings')
-        .maybeSingle();
-      
-      if (paymentData?.value) {
-        setPaymentSettings(prev => ({ ...prev, ...paymentData.value as object }));
+      const { data: paymentData, error: paymentErr } = await supabase.functions.invoke('get-payment-info');
+      if (!paymentErr && paymentData) {
+        setPaymentSettings(prev => ({ ...prev, ...(paymentData as object) }));
       }
 
       const { data: deliveryData } = await supabase
@@ -190,9 +185,10 @@ const Checkout = () => {
       setStep('success');
       clearCart();
     } catch (error: any) {
+      console.error("Order submission error:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to place order",
+        description: "Failed to place order. Please try again or contact us.",
         variant: "destructive"
       });
     } finally {
