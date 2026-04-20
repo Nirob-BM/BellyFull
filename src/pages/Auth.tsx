@@ -72,10 +72,11 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
+          console.error('Login error:', error);
           if (error.message.includes('Invalid login credentials')) {
             toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
           } else {
-            toast({ title: 'Login Failed', description: error.message, variant: 'destructive' });
+            toast({ title: 'Login Failed', description: 'Unable to sign in. Please try again later.', variant: 'destructive' });
           }
         } else {
           toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
@@ -84,10 +85,11 @@ const Auth = () => {
       } else {
         const { error } = await signUp(formData.email, formData.password, formData.fullName);
         if (error) {
+          console.error('Signup error:', error);
           if (error.message.includes('already registered')) {
             toast({ title: 'Sign Up Failed', description: 'This email is already registered. Please log in instead.', variant: 'destructive' });
           } else {
-            toast({ title: 'Sign Up Failed', description: error.message, variant: 'destructive' });
+            toast({ title: 'Sign Up Failed', description: 'Unable to create account. Please try again later.', variant: 'destructive' });
           }
         } else {
           toast({ title: 'Account Created!', description: 'Welcome to Belly Full admin panel.' });
