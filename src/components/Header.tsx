@@ -45,11 +45,14 @@ const Header = () => {
   const goToHash = (hash: string) => {
     setIsMobileMenuOpen(false);
     if (location.pathname === "/") {
-      const el = document.getElementById(hash);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        history.replaceState(null, "", `#${hash}`);
-      }
+      // Defer until after the menu close re-enables body scroll
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.replaceState(null, "", `#${hash}`);
+        }
+      }, 50);
     } else {
       navigate(`/#${hash}`);
     }
