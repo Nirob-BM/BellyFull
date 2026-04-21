@@ -225,10 +225,11 @@ const Menu = () => {
                   {/* Eye Icon - View Full Image */}
                   <button
                     onClick={(e) => handleViewImage(item, e)}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     title="View full image"
+                    aria-label={`View full image of ${item.name}`}
                   >
-                    <Eye className="h-5 w-5" />
+                    <Eye className="h-5 w-5" aria-hidden="true" />
                   </button>
 
                   {/* Badges */}
@@ -329,16 +330,18 @@ const Menu = () => {
                     variant="outline"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                  <span className="font-semibold text-lg w-8 text-center">{quantity}</span>
+                  <span className="font-semibold text-lg w-8 text-center" aria-live="polite" aria-atomic="true">{quantity}</span>
                   <Button
                     size="icon"
                     variant="outline"
                     onClick={() => setQuantity(quantity + 1)}
+                    aria-label="Increase quantity"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

@@ -38,6 +38,7 @@ const ImageLightbox = ({
           variant="ghost"
           size="icon"
           onClick={onClose}
+          aria-label="Close image viewer"
           className="absolute top-4 right-4 z-50 bg-background/80 hover:bg-background text-foreground"
         >
           <X className="h-5 w-5" />
@@ -59,6 +60,7 @@ const ImageLightbox = ({
                 variant="ghost"
                 size="icon"
                 onClick={handlePrevious}
+                aria-label="Previous image"
                 className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground h-12 w-12"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -67,6 +69,7 @@ const ImageLightbox = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleNext}
+                aria-label="Next image"
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground h-12 w-12"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -82,7 +85,9 @@ const ImageLightbox = ({
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                aria-label={`View image ${idx + 1}`}
+                aria-current={idx === currentIndex}
+                className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   idx === currentIndex 
                     ? "border-secondary ring-2 ring-secondary/30" 
                     : "border-transparent hover:border-muted-foreground/50"
