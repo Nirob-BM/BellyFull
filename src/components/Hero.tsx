@@ -112,16 +112,17 @@ const Hero = () => {
       {/* Scroll Indicator */}
       <motion.a
         href="#about"
+        aria-label="Scroll to About section"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/60 hover:text-primary-foreground transition-colors"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-full"
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown className="h-8 w-8" />
+          <ChevronDown className="h-8 w-8" aria-hidden="true" />
         </motion.div>
       </motion.a>
     </section>

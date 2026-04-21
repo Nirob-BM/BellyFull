@@ -141,6 +141,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             <Button
               variant="outline"
               size="icon"
+              aria-label="Scroll popular dishes left"
               className="rounded-full border-border hover:bg-primary hover:text-primary-foreground transition-colors"
               onClick={() => scroll("left")}
             >
@@ -149,6 +150,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
             <Button
               variant="outline"
               size="icon"
+              aria-label="Scroll popular dishes right"
               className="rounded-full border-border hover:bg-primary hover:text-primary-foreground transition-colors"
               onClick={() => scroll("right")}
             >
