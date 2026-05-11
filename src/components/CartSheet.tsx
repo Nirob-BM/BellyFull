@@ -40,13 +40,15 @@ const CartSheet = () => {
             <div className="overflow-y-auto space-y-3 pb-4 max-h-[30vh]">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 bg-muted/50 rounded-xl p-3">
-                  {item.image_url && (
+                  {item.image_url && !item.image_url.startsWith("/src/") && (
                     <img
                       src={item.image_url}
                       alt={item.name}
                       className="w-12 h-12 object-cover rounded-lg"
-            loading="lazy"
-            decoding="async"/>
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
                   )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium truncate">{item.name}</h4>
