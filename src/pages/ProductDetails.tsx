@@ -129,15 +129,18 @@ const ProductDetails = () => {
     if (!item) return [];
     
     const allImages: string[] = [];
-    
+
     // Add images from images array
     if (item.images && item.images.length > 0) {
-      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+      const cleaned = item.images
+        .map((img) => sanitizeImageUrl(img))
+        .filter((img): img is string => Boolean(img));
+      allImages.push(...cleaned);
     }
-    
+
     // If no images, use image_url or fallback
     if (allImages.length === 0) {
-      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      const primaryImage = sanitizeImageUrl(item.image_url) || getFallbackImage(item.name, item.category);
       allImages.push(primaryImage);
     }
     
