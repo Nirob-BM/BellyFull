@@ -18,6 +18,7 @@ import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
+import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
 
 
 // Import local dish images as fallbacks
