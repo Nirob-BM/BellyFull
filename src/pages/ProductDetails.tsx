@@ -267,6 +267,7 @@ const ProductDetails = () => {
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
                 <BlurImage
                   src={images[activeImageIndex]}
+                  fallbackSrc={getFallbackImage(item.name, item.category)}
                   alt={item.name}
                   wrapperClassName="absolute inset-0 w-full h-full"
                   className="w-full h-full object-cover"
