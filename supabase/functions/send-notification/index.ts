@@ -27,6 +27,15 @@ const CREAM_BG = "#fdfbf7";
 const SUCCESS_COLOR = "#059669";
 const ERROR_COLOR = "#dc2626";
 
+// Escape user-supplied strings before injecting into HTML email templates
+const esc = (s: unknown): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const sendEmail = async (to: string, subject: string, html: string) => {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -325,7 +334,7 @@ const getOrderEmailContent = (
           </div>
           
           <div class="content">
-            <h2 class="greeting">Hello, ${name}!</h2>
+            <h2 class="greeting">Hello, ${esc(name)}!</h2>
             
             <p class="message">
               ${isApproved 
@@ -354,7 +363,7 @@ const getOrderEmailContent = (
             ${!isApproved && details.rejectionReason ? `
               <div class="rejection-box">
                 <h4 class="rejection-title">📝 Reason for Rejection</h4>
-                <p class="rejection-text">${details.rejectionReason}</p>
+                <p class="rejection-text">${esc(details.rejectionReason)}</p>
               </div>
             ` : ''}
 
@@ -428,7 +437,7 @@ const getReservationEmailContent = (
           </div>
           
           <div class="content">
-            <h2 class="greeting">Hello, ${name}!</h2>
+            <h2 class="greeting">Hello, ${esc(name)}!</h2>
             
             <p class="message">
               ${isConfirmed 
@@ -440,15 +449,15 @@ const getReservationEmailContent = (
               <h3 class="info-title">📅 Reservation Details</h3>
               <div class="info-row">
                 <span class="label">Date</span>
-                <span class="value">${details.date}</span>
+                <span class="value">${esc(details.date)}</span>
               </div>
               <div class="info-row">
                 <span class="label">Time</span>
-                <span class="value">${details.time}</span>
+                <span class="value">${esc(details.time)}</span>
               </div>
               <div class="info-row">
                 <span class="label">Party Size</span>
-                <span class="value">${details.guests} ${details.guests === 1 ? 'Guest' : 'Guests'}</span>
+                <span class="value">${Number(details.guests) || 0} ${details.guests === 1 ? 'Guest' : 'Guests'}</span>
               </div>
               <div class="info-row">
                 <span class="label">Status</span>
