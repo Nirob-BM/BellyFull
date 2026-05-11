@@ -449,15 +449,15 @@ const getReservationEmailContent = (
               <h3 class="info-title">📅 Reservation Details</h3>
               <div class="info-row">
                 <span class="label">Date</span>
-                <span class="value">${details.date}</span>
+                <span class="value">${esc(details.date)}</span>
               </div>
               <div class="info-row">
                 <span class="label">Time</span>
-                <span class="value">${details.time}</span>
+                <span class="value">${esc(details.time)}</span>
               </div>
               <div class="info-row">
                 <span class="label">Party Size</span>
-                <span class="value">${details.guests} ${details.guests === 1 ? 'Guest' : 'Guests'}</span>
+                <span class="value">${Number(details.guests) || 0} ${details.guests === 1 ? 'Guest' : 'Guests'}</span>
               </div>
               <div class="info-row">
                 <span class="label">Status</span>
