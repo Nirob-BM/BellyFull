@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Media is viewable by everyone" ON public.media_library;
+CREATE POLICY "Admins can view media" ON public.media_library FOR SELECT TO authenticated USING (has_role(auth.uid(), 'admin'::app_role));
