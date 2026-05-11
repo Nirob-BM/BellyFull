@@ -363,7 +363,7 @@ const getOrderEmailContent = (
             ${!isApproved && details.rejectionReason ? `
               <div class="rejection-box">
                 <h4 class="rejection-title">📝 Reason for Rejection</h4>
-                <p class="rejection-text">${details.rejectionReason}</p>
+                <p class="rejection-text">${esc(details.rejectionReason)}</p>
               </div>
             ` : ''}
 
