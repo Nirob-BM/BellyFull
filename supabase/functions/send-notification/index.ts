@@ -437,7 +437,7 @@ const getReservationEmailContent = (
           </div>
           
           <div class="content">
-            <h2 class="greeting">Hello, ${name}!</h2>
+            <h2 class="greeting">Hello, ${esc(name)}!</h2>
             
             <p class="message">
               ${isConfirmed 
