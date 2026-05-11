@@ -148,13 +148,20 @@ const CategoryShowcase = () => {
                         const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
                         return <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />;
                       })()
+                    ) : category.icon_url.startsWith('/src/') ? (
+                      <UtensilsCrossed className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />
                     ) : (
                       <img
                         src={category.icon_url}
                         alt={category.name}
                         className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
-            loading="lazy"
-            decoding="async"/>
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          const t = e.currentTarget as HTMLImageElement;
+                          t.style.display = 'none';
+                        }}
+                      />
                     )
                   ) : (
                     <UtensilsCrossed className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-primary" />

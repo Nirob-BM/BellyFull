@@ -18,6 +18,7 @@ import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
+import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
 
 
 // Import local dish images as fallbacks
@@ -204,10 +205,13 @@ const MenuPage = () => {
   const getItemImages = (item: MenuItem): string[] => {
     const allImages: string[] = [];
     if (item.images && item.images.length > 0) {
-      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+      const cleaned = item.images
+        .map((img) => sanitizeImageUrl(img))
+        .filter((img): img is string => Boolean(img));
+      allImages.push(...cleaned);
     }
     if (allImages.length === 0) {
-      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      const primaryImage = sanitizeImageUrl(item.image_url) || getFallbackImage(item.name, item.category);
       allImages.push(primaryImage);
     }
     return allImages;
@@ -395,7 +399,8 @@ const MenuPage = () => {
                     onClick={() => handleImageClick(item)}
                   >
                     <BlurImage
-                      src={item.image_url || getFallbackImage(item.name, item.category)}
+                      src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
+                      fallbackSrc={getFallbackImage(item.name, item.category)}
                       alt={item.name}
                       wrapperClassName="absolute inset-0 w-full h-full"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -480,7 +485,8 @@ const MenuPage = () => {
           {selectedItem && (
             <div className="space-y-4">
               <BlurImage
-                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)}
+                src={resolveImageUrl(selectedItem.image_url, getFallbackImage(selectedItem.name, selectedItem.category))}
+                fallbackSrc={getFallbackImage(selectedItem.name, selectedItem.category)}
                 alt={selectedItem.name}
                 wrapperClassName="block w-full h-48 rounded-lg"
                 className="w-full h-48 object-cover rounded-lg"

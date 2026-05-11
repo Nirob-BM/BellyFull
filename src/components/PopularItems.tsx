@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import BlurImage from "@/components/ui/blur-image";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 import dishButterChicken from "@/assets/dish-butter-chicken.jpg";
 
@@ -183,7 +184,8 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                 >
                   <div className="relative aspect-[3/2] overflow-hidden">
                     <BlurImage
-                      src={item.image_url || dishButterChicken}
+                      src={resolveImageUrl(item.image_url, dishButterChicken)}
+                      fallbackSrc={dishButterChicken}
                       alt={item.name}
                       wrapperClassName="absolute inset-0 w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

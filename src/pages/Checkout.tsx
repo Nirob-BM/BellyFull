@@ -251,10 +251,15 @@ const Checkout = () => {
                 {items.map(item => (
                   <div key={item.id} className="flex justify-between items-center">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      {item.image_url && (
-                        <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-lg"
-            loading="lazy"
-            decoding="async"/>
+                      {item.image_url && !item.image_url.startsWith("/src/") && (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded-lg"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                        />
                       )}
                       <div className="min-w-0">
                         <p className="font-medium truncate">{item.name}</p>

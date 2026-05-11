@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
+import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
 
 // Import local dish images as fallbacks
 import dishBiryani from "@/assets/dish-biryani.jpg";
@@ -133,10 +134,13 @@ const Menu = () => {
   const getItemImages = (item: MenuItem): string[] => {
     const allImages: string[] = [];
     if (item.images && item.images.length > 0) {
-      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+      const cleaned = item.images
+        .map((img) => sanitizeImageUrl(img))
+        .filter((img): img is string => Boolean(img));
+      allImages.push(...cleaned);
     }
     if (allImages.length === 0) {
-      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      const primaryImage = sanitizeImageUrl(item.image_url) || getFallbackImage(item.name, item.category);
       allImages.push(primaryImage);
     }
     return allImages;
@@ -215,7 +219,8 @@ const Menu = () => {
                   onClick={() => handleImageClick(item)}
                 >
                   <BlurImage
-                    src={item.image_url || getFallbackImage(item.name, item.category)}
+                    src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
+                    fallbackSrc={getFallbackImage(item.name, item.category)}
                     alt={item.name}
                     wrapperClassName="absolute inset-0 w-full h-full"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -313,7 +318,8 @@ const Menu = () => {
           {selectedItem && (
             <div className="space-y-4">
               <BlurImage
-                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)}
+                src={resolveImageUrl(selectedItem.image_url, getFallbackImage(selectedItem.name, selectedItem.category))}
+                fallbackSrc={getFallbackImage(selectedItem.name, selectedItem.category)}
                 alt={selectedItem.name}
                 wrapperClassName="block w-full h-48 rounded-lg"
                 className="w-full h-48 object-cover rounded-lg"

@@ -23,6 +23,7 @@ import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
+import { sanitizeImageUrl } from "@/lib/imageUrl";
 
 
 // Import local dish images as fallbacks
@@ -128,15 +129,18 @@ const ProductDetails = () => {
     if (!item) return [];
     
     const allImages: string[] = [];
-    
+
     // Add images from images array
     if (item.images && item.images.length > 0) {
-      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+      const cleaned = item.images
+        .map((img) => sanitizeImageUrl(img))
+        .filter((img): img is string => Boolean(img));
+      allImages.push(...cleaned);
     }
-    
+
     // If no images, use image_url or fallback
     if (allImages.length === 0) {
-      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      const primaryImage = sanitizeImageUrl(item.image_url) || getFallbackImage(item.name, item.category);
       allImages.push(primaryImage);
     }
     
@@ -263,6 +267,7 @@ const ProductDetails = () => {
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
                 <BlurImage
                   src={images[activeImageIndex]}
+                  fallbackSrc={getFallbackImage(item.name, item.category)}
                   alt={item.name}
                   wrapperClassName="absolute inset-0 w-full h-full"
                   className="w-full h-full object-cover"
