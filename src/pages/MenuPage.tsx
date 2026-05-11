@@ -205,10 +205,13 @@ const MenuPage = () => {
   const getItemImages = (item: MenuItem): string[] => {
     const allImages: string[] = [];
     if (item.images && item.images.length > 0) {
-      allImages.push(...item.images.filter(img => img && img.trim() !== ''));
+      const cleaned = item.images
+        .map((img) => sanitizeImageUrl(img))
+        .filter((img): img is string => Boolean(img));
+      allImages.push(...cleaned);
     }
     if (allImages.length === 0) {
-      const primaryImage = item.image_url || getFallbackImage(item.name, item.category);
+      const primaryImage = sanitizeImageUrl(item.image_url) || getFallbackImage(item.name, item.category);
       allImages.push(primaryImage);
     }
     return allImages;
