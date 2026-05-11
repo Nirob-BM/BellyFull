@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, ChefHat } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -13,22 +13,13 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const signUpSchema = loginSchema.extend({
-  fullName: z.string().min(2, 'Name must be at least 2 characters'),
-});
-
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    fullName: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -48,11 +39,7 @@ const Auth = () => {
     setErrors({});
 
     try {
-      if (isLogin) {
-        loginSchema.parse(formData);
-      } else {
-        signUpSchema.parse(formData);
-      }
+      loginSchema.parse(formData);
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -69,32 +56,14 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
-        const { error } = await signIn(formData.email, formData.password);
-        if (error) {
-          console.error('Login error:', error);
-          if (error.message.includes('Invalid login credentials')) {
-            toast({ title: 'Login Failed', description: 'Invalid email or password.', variant: 'destructive' });
-          } else {
-            toast({ title: 'Login Failed', description: 'Unable to sign in. Please try again later.', variant: 'destructive' });
-          }
-        } else {
-          toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
-          navigate('/admin');
-        }
+      const { error } = await signIn(formData.email, formData.password);
+      if (error) {
+        console.error('Login error:', error);
+        // Generic message to prevent account enumeration
+        toast({ title: 'Login Failed', description: 'Invalid credentials or unable to sign in.', variant: 'destructive' });
       } else {
-        const { error } = await signUp(formData.email, formData.password, formData.fullName);
-        if (error) {
-          console.error('Signup error:', error);
-          if (error.message.includes('already registered')) {
-            toast({ title: 'Sign Up Failed', description: 'This email is already registered. Please log in instead.', variant: 'destructive' });
-          } else {
-            toast({ title: 'Sign Up Failed', description: 'Unable to create account. Please try again later.', variant: 'destructive' });
-          }
-        } else {
-          toast({ title: 'Account Created!', description: 'Welcome to Belly Full admin panel.' });
-          navigate('/admin');
-        }
+        toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
+        navigate('/admin');
       }
     } finally {
       setIsSubmitting(false);
@@ -109,35 +78,15 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <div className="bg-card rounded-2xl shadow-elegant-lg p-8">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
               <ChefHat className="w-8 h-8 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-bold text-foreground">Belly Full Admin</h1>
-            <p className="text-muted-foreground mt-2">
-              {isLogin ? 'Sign in to manage your restaurant' : 'Create your admin account'}
-            </p>
+            <p className="text-muted-foreground mt-2">Sign in to manage your restaurant</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-1">
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    name="fullName"
-                    placeholder="Full Name"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="pl-10 h-12"
-                  />
-                </div>
-                {errors.fullName && <p className="text-destructive text-sm">{errors.fullName}</p>}
-              </div>
-            )}
-
             <div className="space-y-1">
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -148,6 +97,7 @@ const Auth = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="pl-10 h-12"
+                  autoComplete="email"
                 />
               </div>
               {errors.email && <p className="text-destructive text-sm">{errors.email}</p>}
@@ -163,9 +113,11 @@ const Auth = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="pl-10 pr-10 h-12"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
@@ -181,21 +133,14 @@ const Auth = () => {
               className="w-full bg-primary text-primary-foreground h-12"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+              {isSubmitting ? 'Please wait...' : 'Sign In'}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setErrors({});
-              }}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
+            <p className="text-xs text-muted-foreground">
+              Admin accounts are provisioned by the restaurant owner.
+            </p>
           </div>
 
           <div className="mt-4 text-center">
