@@ -27,6 +27,15 @@ const CREAM_BG = "#fdfbf7";
 const SUCCESS_COLOR = "#059669";
 const ERROR_COLOR = "#dc2626";
 
+// Escape user-supplied strings before injecting into HTML email templates
+const esc = (s: unknown): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 const sendEmail = async (to: string, subject: string, html: string) => {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
