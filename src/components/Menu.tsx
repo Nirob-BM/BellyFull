@@ -215,7 +215,8 @@ const Menu = () => {
                   onClick={() => handleImageClick(item)}
                 >
                   <BlurImage
-                    src={item.image_url || getFallbackImage(item.name, item.category)}
+                    src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
+                    fallbackSrc={getFallbackImage(item.name, item.category)}
                     alt={item.name}
                     wrapperClassName="absolute inset-0 w-full h-full"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
