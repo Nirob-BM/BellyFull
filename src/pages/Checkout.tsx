@@ -142,45 +142,39 @@ const Checkout = () => {
 
       setIsSubmitting(true);
 
-      // Check for duplicate transaction ID (only for bKash/Nagad)
-      if (paymentMethod !== 'cod' && formData.transactionId) {
-        const { data: existing } = await supabase
-          .from('orders')
-          .select('id')
-          .eq('transaction_id', formData.transactionId)
-          .maybeSingle();
+      // Server computes the authoritative total from menu_items prices
+      // and enforces a unique transaction_id at the DB level.
+      const { error } = await supabase.rpc('create_order', {
+        _user_name: formData.fullName,
+        _user_phone: formData.phone,
+        _user_email: formData.email || '',
+        _payment_method: paymentMethod!,
+        _transaction_id: paymentMethod === 'cod' ? '' : formData.transactionId,
+        _sender_phone: formData.senderPhone || '',
+        _delivery_type: deliveryType,
+        _delivery_address: deliveryType === 'delivery' ? formData.deliveryAddress : '',
+        _delivery_area: deliveryType === 'delivery' ? formData.deliveryArea : '',
+        _cart_items: items.map(i => ({ id: i.id, quantity: i.quantity })),
+      });
 
-        if (existing) {
-          toast({
-            title: "Duplicate Transaction",
-            description: "This transaction ID has already been used",
-            variant: "destructive"
-          });
-          setIsSubmitting(false);
-          return;
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        let description = "Failed to place order. Please try again or contact us.";
+        if (msg.includes('duplicate_transaction') || msg.includes('orders_transaction_id_unique')) {
+          description = "This transaction ID has already been used.";
+        } else if (msg.includes('item_unavailable')) {
+          description = "One of the items in your cart is no longer available.";
+        } else if (msg.includes('below_min_order')) {
+          description = `Minimum order for delivery is ৳${deliverySettings.min_order_amount}.`;
+        } else if (msg.includes('address_required')) {
+          description = "Please enter your delivery address.";
+        } else if (msg.includes('transaction_id_required')) {
+          description = "Please enter your transaction ID.";
         }
+        toast({ title: "Error", description, variant: "destructive" });
+        setIsSubmitting(false);
+        return;
       }
-
-      const transactionId = paymentMethod === 'cod' 
-        ? `COD-${crypto.randomUUID()}`
-        : formData.transactionId;
-
-      const { error } = await supabase.from('orders').insert([{
-        user_name: formData.fullName,
-        user_phone: formData.phone,
-        user_email: formData.email || null,
-        product_details: JSON.parse(JSON.stringify(items)),
-        total_amount: finalTotal,
-        payment_method: paymentMethod!,
-        transaction_id: transactionId,
-        sender_phone: formData.senderPhone || null,
-        order_status: 'pending',
-        delivery_type: deliveryType,
-        delivery_address: deliveryType === 'delivery' ? formData.deliveryAddress : null,
-        delivery_area: deliveryType === 'delivery' ? formData.deliveryArea : null,
-      }]);
-
-      if (error) throw error;
 
       setStep('success');
       clearCart();
