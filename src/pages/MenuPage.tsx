@@ -485,7 +485,8 @@ const MenuPage = () => {
           {selectedItem && (
             <div className="space-y-4">
               <BlurImage
-                src={selectedItem.image_url || getFallbackImage(selectedItem.name, selectedItem.category)}
+                src={resolveImageUrl(selectedItem.image_url, getFallbackImage(selectedItem.name, selectedItem.category))}
+                fallbackSrc={getFallbackImage(selectedItem.name, selectedItem.category)}
                 alt={selectedItem.name}
                 wrapperClassName="block w-full h-48 rounded-lg"
                 className="w-full h-48 object-cover rounded-lg"
