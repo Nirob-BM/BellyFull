@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
+import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
 
 // Import local dish images as fallbacks
 import dishBiryani from "@/assets/dish-biryani.jpg";
