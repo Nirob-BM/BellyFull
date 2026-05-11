@@ -11,21 +11,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Use the anon key (NOT the service role key) — the SECURITY DEFINER
+    // RPC `get_public_payment_info` returns only the four safe payment fields.
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_ANON_KEY")!
     );
 
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "payment_settings")
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("get_public_payment_info");
 
     if (error) throw error;
 
-    // Only expose the public-facing fields needed at checkout
-    const value = (data?.value as Record<string, unknown>) || {};
+    const value = (data as Record<string, unknown>) || {};
     const safe = {
       bkash_number: value.bkash_number ?? "",
       nagad_number: value.nagad_number ?? "",
