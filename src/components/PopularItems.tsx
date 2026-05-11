@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import BlurImage from "@/components/ui/blur-image";
+import { resolveImageUrl } from "@/lib/imageUrl";
 
 import dishButterChicken from "@/assets/dish-butter-chicken.jpg";
 
