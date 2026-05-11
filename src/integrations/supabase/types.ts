@@ -480,6 +480,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_order: {
+        Args: {
+          _cart_items: Json
+          _delivery_address: string
+          _delivery_area: string
+          _delivery_type: string
+          _payment_method: string
+          _sender_phone: string
+          _transaction_id: string
+          _user_email: string
+          _user_name: string
+          _user_phone: string
+        }
+        Returns: Json
+      }
       get_public_payment_info: { Args: never; Returns: Json }
       has_role: {
         Args: {
