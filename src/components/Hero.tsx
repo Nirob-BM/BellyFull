@@ -42,16 +42,13 @@ const Hero = () => {
             <span className="text-sm font-medium text-primary-foreground">First Authentic Multicuisine Experience in Kishoreganj</span>
           </motion.div>
 
-          {/* Main Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
+          {/* Main Heading - no initial animation so it paints immediately for LCP */}
+          <h1
             className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-6 leading-tight"
           >
             Where Every Meal Becomes a{" "}
             <span className="text-secondary">Cherished Memory</span>
-          </motion.h1>
+          </h1>
 
           {/* Subheading */}
           <motion.p
