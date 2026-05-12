@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, MessageSquare, UtensilsCrossed, Clock, TrendingUp, Users, Eye, Package } from 'lucide-react';
+import { CalendarDays, MessageSquare, UtensilsCrossed, Clock, TrendingUp, Users, Eye, Package, Search, Globe, FileCode, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 
