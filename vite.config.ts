@@ -15,4 +15,28 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split heavy vendor libs into separate chunks so the initial route
+        // doesn't have to parse/execute code it doesn't yet need. This reduces
+        // "unused JavaScript" on first load without changing any behavior.
+        manualChunks: (id) => {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("framer-motion")) return "vendor-motion";
+          if (id.includes("@supabase")) return "vendor-supabase";
+          if (id.includes("@radix-ui")) return "vendor-radix";
+          if (id.includes("@tanstack")) return "vendor-query";
+          if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
+          if (id.includes("embla-carousel")) return "vendor-carousel";
+          if (id.includes("date-fns") || id.includes("react-day-picker")) return "vendor-date";
+          if (id.includes("lucide-react")) return "vendor-icons";
+          if (id.includes("react-hook-form") || id.includes("zod") || id.includes("@hookform"))
+            return "vendor-forms";
+          if (id.includes("react-router")) return "vendor-router";
+          if (id.includes("react-dom") || /[\\/]react[\\/]/.test(id)) return "vendor-react";
+        },
+      },
+    },
+  },
 }));
