@@ -68,7 +68,7 @@ const Media = () => {
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('media')
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: '2592000' });
 
       if (uploadError) {
         toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
