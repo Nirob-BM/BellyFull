@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, MessageSquare, Clock, Settings, Image, FileText, Calendar, LogOut, Menu, X, ChefHat, Home, Package, Folder } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, CalendarDays, MessageSquare, Clock, Settings, Image, FileText, Calendar, LogOut, Menu, X, ChefHat, Home, Package, Folder, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -52,6 +52,10 @@ const navItems = [{
   path: '/admin/settings',
   icon: Settings,
   label: 'Site Settings'
+}, {
+  path: '/admin/seo',
+  icon: Search,
+  label: 'SEO Health'
 }];
 
 const Admin = () => {
