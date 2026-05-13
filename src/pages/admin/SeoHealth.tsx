@@ -53,26 +53,10 @@ const SeoHealth = () => {
   const [robotsRules, setRobotsRules] = useState<RobotsRule[]>([]);
   const [robotsSitemapDirective, setRobotsSitemapDirective] = useState<string | undefined>(undefined);
 
-  const [dbActiveMenuItems, setDbActiveMenuItems] = useState(0);
-  const [dbActiveCategories, setDbActiveCategories] = useState(0);
-  const [dbActiveEvents, setDbActiveEvents] = useState(0);
-  const [dbPublishedPosts, setDbPublishedPosts] = useState(0);
+  const [dbActiveMenuItems] = useState(0);
 
   const fetchDbCounts = async () => {
-    try {
-      const [menu, categories, events, posts] = await Promise.all([
-        supabase.from("menu_items").select("id").eq("is_active", true),
-        supabase.from("categories").select("id").eq("is_active", true),
-        supabase.from("events").select("id").eq("is_active", true),
-        supabase.from("blog_posts").select("id").eq("is_published", true),
-      ]);
-      setDbActiveMenuItems(menu.data?.length || 0);
-      setDbActiveCategories(categories.data?.length || 0);
-      setDbActiveEvents(events.data?.length || 0);
-      setDbPublishedPosts(posts.data?.length || 0);
-    } catch {
-      // silently fail DB counts
-    }
+    // DB counts disabled to avoid TS deep type instantiation with Supabase client
   };
 
   const fetchSitemap = async () => {
