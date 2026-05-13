@@ -72,17 +72,17 @@ const SeoHealth = () => {
 
   const fetchDbCounts = async () => {
     try {
-      const menu: any = await supabase.from("menu_items").select("id", { count: "exact" }).eq("is_active", true);
-      const categories: any = await supabase.from("categories").select("id", { count: "exact" }).eq("is_active", true);
-      const events: any = await supabase.from("events").select("id", { count: "exact" }).eq("is_active", true);
-      const posts: any = await supabase.from("blog_posts").select("id", { count: "exact" }).eq("is_published", true);
+      const menu = await supabase.from("menu_items").select("id").eq("is_active", true);
+      const categories = await supabase.from("categories").select("id").eq("is_active", true);
+      const events = await supabase.from("events").select("id").eq("is_active", true);
+      const posts = await supabase.from("blog_posts").select("id").eq("is_published", true);
       setHealth((prev: HealthState) => ({
         ...prev,
         dbCounts: {
-          activeMenuItems: menu.count || 0,
-          activeCategories: categories.count || 0,
-          activeEvents: events.count || 0,
-          publishedPosts: posts.count || 0,
+          activeMenuItems: menu.data?.length || 0,
+          activeCategories: categories.data?.length || 0,
+          activeEvents: events.data?.length || 0,
+          publishedPosts: posts.data?.length || 0,
         },
       }));
     } catch {
