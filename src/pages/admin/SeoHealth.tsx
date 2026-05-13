@@ -72,13 +72,11 @@ const SeoHealth = () => {
 
   const fetchDbCounts = async () => {
     try {
-      const [menu, categories, events, posts] = await Promise.all([
-        supabase.from("menu_items").select("id", { count: "exact" }).eq("is_active", true),
-        supabase.from("categories").select("id", { count: "exact" }).eq("is_active", true),
-        supabase.from("events").select("id", { count: "exact" }).eq("is_active", true),
-        supabase.from("blog_posts").select("id", { count: "exact" }).eq("is_published", true),
-      ]);
-      setHealth((prev) => ({
+      const menu = await supabase.from("menu_items").select("id", { count: "exact" }).eq("is_active", true);
+      const categories = await supabase.from("categories").select("id", { count: "exact" }).eq("is_active", true);
+      const events = await supabase.from("events").select("id", { count: "exact" }).eq("is_active", true);
+      const posts = await supabase.from("blog_posts").select("id", { count: "exact" }).eq("is_published", true);
+      setHealth((prev: HealthState) => ({
         ...prev,
         dbCounts: {
           activeMenuItems: menu.count || 0,
