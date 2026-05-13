@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
 
 interface SitemapUrl {
   loc: string;
