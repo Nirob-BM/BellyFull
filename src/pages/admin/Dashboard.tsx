@@ -373,11 +373,20 @@ const Dashboard = () => {
             SEO & Indexing
           </CardTitle>
           <CardDescription>
-            Submit your sitemap to search engines so your menu and pages get indexed.
+            Monitor and submit your sitemap to search engines.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid sm:grid-cols-3 gap-3">
+            <Button asChild variant="outline" className="h-auto py-3 justify-start">
+              <Link to="/admin/seo">
+                <FileCode className="h-4 w-4 mr-2 shrink-0" />
+                <span className="flex-1 text-left">
+                  <span className="block font-medium">SEO Health Check</span>
+                  <span className="block text-xs text-muted-foreground">Sitemap & robots.txt status</span>
+                </span>
+              </Link>
+            </Button>
             <Button asChild variant="outline" className="h-auto py-3 justify-start">
               <a
                 href="https://search.google.com/search-console/sitemaps?resource_id=https%3A%2F%2Fbellyfull.lovable.app%2F"
@@ -406,24 +415,7 @@ const Dashboard = () => {
                 <ExternalLink className="h-3 w-3 ml-2 shrink-0 opacity-60" />
               </a>
             </Button>
-            <Button asChild variant="outline" className="h-auto py-3 justify-start">
-              <a
-                href="https://bellyfull.lovable.app/sitemap.xml"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FileCode className="h-4 w-4 mr-2 shrink-0" />
-                <span className="flex-1 text-left">
-                  <span className="block font-medium">View sitemap.xml</span>
-                  <span className="block text-xs text-muted-foreground">Live preview</span>
-                </span>
-                <ExternalLink className="h-3 w-3 ml-2 shrink-0 opacity-60" />
-              </a>
-            </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            Use sitemap path <code className="px-1 py-0.5 rounded bg-muted">sitemap.xml</code> when prompted. Publish your latest changes first so the sitemap is up to date.
-          </p>
         </CardContent>
       </Card>
     </div>
