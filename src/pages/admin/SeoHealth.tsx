@@ -33,30 +33,23 @@ interface RobotsRule {
   disallows: string[];
 }
 
-interface HealthState {
-  sitemap: {
-    loaded: boolean;
-    error?: string;
-    urls: SitemapUrl[];
-    total: number;
-    staticCount: number;
-    dynamicCount: number;
-    oldestLastmod: string;
-    newestLastmod: string;
-  };
-  robots: {
-    loaded: boolean;
-    error?: string;
-    raw: string;
-    rules: RobotsRule[];
-    sitemapDirective?: string;
-  };
-  dbCounts: {
-    activeMenuItems: number;
-    activeCategories: number;
-    activeEvents: number;
-    publishedPosts: number;
-  };
+interface SitemapHealth {
+  loaded: boolean;
+  error?: string;
+  urls: SitemapUrl[];
+  total: number;
+  staticCount: number;
+  dynamicCount: number;
+  oldestLastmod: string;
+  newestLastmod: string;
+}
+
+interface RobotsHealth {
+  loaded: boolean;
+  error?: string;
+  raw: string;
+  rules: RobotsRule[];
+  sitemapDirective?: string;
 }
 
 const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
@@ -64,10 +57,26 @@ const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 const SeoHealth = () => {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
-  const [health, setHealth] = useState<HealthState>({
-    sitemap: { loaded: false, urls: [], total: 0, staticCount: 0, dynamicCount: 0, oldestLastmod: "", newestLastmod: "" },
-    robots: { loaded: false, raw: "", rules: [], sitemapDirective: undefined },
-    dbCounts: { activeMenuItems: 0, activeCategories: 0, activeEvents: 0, publishedPosts: 0 },
+  const [sitemap, setSitemap] = useState<SitemapHealth>({
+    loaded: false,
+    urls: [],
+    total: 0,
+    staticCount: 0,
+    dynamicCount: 0,
+    oldestLastmod: "",
+    newestLastmod: "",
+  });
+  const [robots, setRobots] = useState<RobotsHealth>({
+    loaded: false,
+    raw: "",
+    rules: [],
+    sitemapDirective: undefined,
+  });
+  const [dbCounts, setDbCounts] = useState({
+    activeMenuItems: 0,
+    activeCategories: 0,
+    activeEvents: 0,
+    publishedPosts: 0,
   });
 
   const fetchDbCounts = async () => {
