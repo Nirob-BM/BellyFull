@@ -66,6 +66,7 @@ const App = () => (
                   <Route path="events" element={<Events />} />
                   <Route path="media" element={<Media />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="seo" element={<SeoHealth />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
