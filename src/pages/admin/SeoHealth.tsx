@@ -143,7 +143,7 @@ const SeoHealth = () => {
 
   const runChecks = useCallback(async () => {
     setLoading(true);
-    await Promise.all([fetchSitemap(), fetchRobots(), fetchDbCounts()]);
+    await Promise.all([fetchSitemap(), fetchRobots()]);
     setLoading(false);
   }, []);
 
@@ -163,11 +163,6 @@ const SeoHealth = () => {
 
   const sitemapWarnings: string[] = [];
   if (sitemapLoaded && !sitemapError) {
-    if (sitemapDynamicCount !== dbActiveMenuItems) {
-      sitemapWarnings.push(
-        `Sitemap has ${sitemapDynamicCount} product URLs, but database shows ${dbActiveMenuItems} active menu items.`
-      );
-    }
     if (sitemapTotal < 3) {
       sitemapWarnings.push("Sitemap has very few entries.");
     }
