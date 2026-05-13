@@ -27,6 +27,7 @@ const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
 const Events = lazy(() => import("./pages/admin/Events"));
 const Media = lazy(() => import("./pages/admin/Media"));
 const Settings = lazy(() => import("./pages/admin/Settings"));
+const SeoHealth = lazy(() => import("./pages/admin/SeoHealth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
