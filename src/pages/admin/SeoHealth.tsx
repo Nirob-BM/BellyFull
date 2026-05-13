@@ -9,7 +9,6 @@ import {
   RefreshCw,
   ExternalLink,
   Search,
-  Clock,
   MapPin,
   BarChart3,
 } from "lucide-react";
@@ -33,51 +32,31 @@ interface RobotsRule {
   disallows: string[];
 }
 
-interface SitemapHealth {
-  loaded: boolean;
-  error?: string;
-  urls: SitemapUrl[];
-  total: number;
-  staticCount: number;
-  dynamicCount: number;
-  oldestLastmod: string;
-  newestLastmod: string;
-}
-
-interface RobotsHealth {
-  loaded: boolean;
-  error?: string;
-  raw: string;
-  rules: RobotsRule[];
-  sitemapDirective?: string;
-}
-
 const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
 const SeoHealth = () => {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
-  const [sitemap, setSitemap] = useState<SitemapHealth>({
-    loaded: false,
-    urls: [],
-    total: 0,
-    staticCount: 0,
-    dynamicCount: 0,
-    oldestLastmod: "",
-    newestLastmod: "",
-  });
-  const [robots, setRobots] = useState<RobotsHealth>({
-    loaded: false,
-    raw: "",
-    rules: [],
-    sitemapDirective: undefined,
-  });
-  const [dbCounts, setDbCounts] = useState({
-    activeMenuItems: 0,
-    activeCategories: 0,
-    activeEvents: 0,
-    publishedPosts: 0,
-  });
+
+  const [sitemapLoaded, setSitemapLoaded] = useState(false);
+  const [sitemapError, setSitemapError] = useState<string | undefined>(undefined);
+  const [sitemapUrls, setSitemapUrls] = useState<SitemapUrl[]>([]);
+  const [sitemapTotal, setSitemapTotal] = useState(0);
+  const [sitemapStaticCount, setSitemapStaticCount] = useState(0);
+  const [sitemapDynamicCount, setSitemapDynamicCount] = useState(0);
+  const [sitemapOldestLastmod, setSitemapOldestLastmod] = useState("");
+  const [sitemapNewestLastmod, setSitemapNewestLastmod] = useState("");
+
+  const [robotsLoaded, setRobotsLoaded] = useState(false);
+  const [robotsError, setRobotsError] = useState<string | undefined>(undefined);
+  const [robotsRaw, setRobotsRaw] = useState("");
+  const [robotsRules, setRobotsRules] = useState<RobotsRule[]>([]);
+  const [robotsSitemapDirective, setRobotsSitemapDirective] = useState<string | undefined>(undefined);
+
+  const [dbActiveMenuItems, setDbActiveMenuItems] = useState(0);
+  const [dbActiveCategories, setDbActiveCategories] = useState(0);
+  const [dbActiveEvents, setDbActiveEvents] = useState(0);
+  const [dbPublishedPosts, setDbPublishedPosts] = useState(0);
 
   const fetchDbCounts = async () => {
     try {
@@ -85,15 +64,10 @@ const SeoHealth = () => {
       const categories = await supabase.from("categories").select("id").eq("is_active", true);
       const events = await supabase.from("events").select("id").eq("is_active", true);
       const posts = await supabase.from("blog_posts").select("id").eq("is_published", true);
-      setHealth((prev: HealthState) => ({
-        ...prev,
-        dbCounts: {
-          activeMenuItems: menu.data?.length || 0,
-          activeCategories: categories.data?.length || 0,
-          activeEvents: events.data?.length || 0,
-          publishedPosts: posts.data?.length || 0,
-        },
-      }));
+      setDbActiveMenuItems(menu.data?.length || 0);
+      setDbActiveCategories(categories.data?.length || 0);
+      setDbActiveEvents(events.data?.length || 0);
+      setDbPublishedPosts(posts.data?.length || 0);
     } catch {
       // silently fail DB counts
     }
@@ -101,6 +75,7 @@ const SeoHealth = () => {
 
   const fetchSitemap = async () => {
     try {
+      setSitemapError(undefined);
       const res = await fetch(`${baseUrl}/sitemap.xml?cb=${Date.now()}`, {
         cache: "no-store",
       });
@@ -124,28 +99,22 @@ const SeoHealth = () => {
       });
 
       const lastmods = urls.map((u) => u.lastmod).filter(Boolean).sort();
-      setHealth((prev) => ({
-        ...prev,
-        sitemap: {
-          loaded: true,
-          urls,
-          total: urls.length,
-          staticCount: urls.filter((u) => u.isStatic).length,
-          dynamicCount: urls.filter((u) => !u.isStatic).length,
-          oldestLastmod: lastmods[0] || "",
-          newestLastmod: lastmods[lastmods.length - 1] || "",
-        },
-      }));
+      setSitemapUrls(urls);
+      setSitemapTotal(urls.length);
+      setSitemapStaticCount(urls.filter((u) => u.isStatic).length);
+      setSitemapDynamicCount(urls.filter((u) => !u.isStatic).length);
+      setSitemapOldestLastmod(lastmods[0] || "");
+      setSitemapNewestLastmod(lastmods[lastmods.length - 1] || "");
+      setSitemapLoaded(true);
     } catch (err: any) {
-      setHealth((prev) => ({
-        ...prev,
-        sitemap: { ...prev.sitemap, loaded: true, error: err.message },
-      }));
+      setSitemapError(err.message);
+      setSitemapLoaded(true);
     }
   };
 
   const fetchRobots = async () => {
     try {
+      setRobotsError(undefined);
       const res = await fetch(`${baseUrl}/robots.txt?cb=${Date.now()}`, {
         cache: "no-store",
       });
@@ -177,20 +146,13 @@ const SeoHealth = () => {
       }
       if (currentRule) rules.push(currentRule);
 
-      setHealth((prev) => ({
-        ...prev,
-        robots: {
-          loaded: true,
-          raw: text,
-          rules,
-          sitemapDirective,
-        },
-      }));
+      setRobotsRaw(text);
+      setRobotsRules(rules);
+      setRobotsSitemapDirective(sitemapDirective);
+      setRobotsLoaded(true);
     } catch (err: any) {
-      setHealth((prev) => ({
-        ...prev,
-        robots: { ...prev.robots, loaded: true, error: err.message },
-      }));
+      setRobotsError(err.message);
+      setRobotsLoaded(true);
     }
   };
 
@@ -207,32 +169,31 @@ const SeoHealth = () => {
   const handleRegenerate = async () => {
     setRegenerating(true);
     try {
-      const res = await fetch(`${baseUrl}/sitemap.xml?cb=${Date.now()}`, { cache: "reload" });
-      if (!res.ok) throw new Error("Failed to refresh");
+      await fetch(`${baseUrl}/sitemap.xml?cb=${Date.now()}`, { cache: "reload" });
       await runChecks();
     } finally {
       setRegenerating(false);
     }
   };
 
-  const sitemapWarnings = [];
-  if (health.sitemap.loaded && !health.sitemap.error) {
-    if (health.sitemap.dynamicCount !== health.dbCounts.activeMenuItems) {
+  const sitemapWarnings: string[] = [];
+  if (sitemapLoaded && !sitemapError) {
+    if (sitemapDynamicCount !== dbActiveMenuItems) {
       sitemapWarnings.push(
-        `Sitemap has ${health.sitemap.dynamicCount} product URLs, but database shows ${health.dbCounts.activeMenuItems} active menu items.`
+        `Sitemap has ${sitemapDynamicCount} product URLs, but database shows ${dbActiveMenuItems} active menu items.`
       );
     }
-    if (health.sitemap.total < 3) {
+    if (sitemapTotal < 3) {
       sitemapWarnings.push("Sitemap has very few entries.");
     }
   }
 
-  const robotsWarnings = [];
-  if (health.robots.loaded && !health.robots.error) {
-    if (!health.robots.sitemapDirective) {
+  const robotsWarnings: string[] = [];
+  if (robotsLoaded && !robotsError) {
+    if (!robotsSitemapDirective) {
       robotsWarnings.push("No Sitemap directive found in robots.txt.");
     }
-    const wildcard = health.robots.rules.find((r) => r.userAgent === "*");
+    const wildcard = robotsRules.find((r) => r.userAgent === "*");
     if (!wildcard) {
       robotsWarnings.push("No catch-all User-agent: * block found.");
     }
@@ -273,12 +234,12 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${health.sitemap.error ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
-                  {health.sitemap.error ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                <div className={`p-2 rounded-lg ${sitemapError ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
+                  {sitemapError ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : health.sitemap.total}
+                    {loading ? "..." : sitemapTotal}
                   </p>
                   <p className="text-xs text-muted-foreground">Sitemap URLs</p>
                 </div>
@@ -291,12 +252,12 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${health.robots.error ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
-                  {health.robots.error ? <AlertCircle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                <div className={`p-2 rounded-lg ${robotsError ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
+                  {robotsError ? <AlertCircle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : health.robots.rules.length}
+                    {loading ? "..." : robotsRules.length}
                   </p>
                   <p className="text-xs text-muted-foreground">Robots Rules</p>
                 </div>
@@ -314,7 +275,7 @@ const SeoHealth = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : health.dbCounts.activeMenuItems}
+                    {loading ? "..." : dbActiveMenuItems}
                   </p>
                   <p className="text-xs text-muted-foreground">Active Menu Items</p>
                 </div>
@@ -332,7 +293,7 @@ const SeoHealth = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : health.sitemap.newestLastmod || "—"}
+                    {loading ? "..." : sitemapNewestLastmod || "—"}
                   </p>
                   <p className="text-xs text-muted-foreground">Newest Lastmod</p>
                 </div>
@@ -356,34 +317,34 @@ const SeoHealth = () => {
                   {baseUrl}/sitemap.xml
                 </CardDescription>
               </div>
-              <Badge variant={health.sitemap.error ? "destructive" : "default"}>
-                {health.sitemap.error ? "Error" : `${health.sitemap.total} URLs`}
+              <Badge variant={sitemapError ? "destructive" : "default"}>
+                {sitemapError ? "Error" : `${sitemapTotal} URLs`}
               </Badge>
             </CardHeader>
             <CardContent className="space-y-4">
-              {health.sitemap.error ? (
+              {sitemapError ? (
                 <div className="flex items-start gap-2 text-destructive bg-destructive/10 p-3 rounded-lg">
                   <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                  <p className="text-sm">{health.sitemap.error}</p>
+                  <p className="text-sm">{sitemapError}</p>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Static Pages</p>
-                      <p className="font-semibold">{health.sitemap.staticCount}</p>
+                      <p className="font-semibold">{sitemapStaticCount}</p>
                     </div>
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Product Pages</p>
-                      <p className="font-semibold">{health.sitemap.dynamicCount}</p>
+                      <p className="font-semibold">{sitemapDynamicCount}</p>
                     </div>
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Oldest Lastmod</p>
-                      <p className="font-semibold">{health.sitemap.oldestLastmod || "—"}</p>
+                      <p className="font-semibold">{sitemapOldestLastmod || "—"}</p>
                     </div>
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Newest Lastmod</p>
-                      <p className="font-semibold">{health.sitemap.newestLastmod || "—"}</p>
+                      <p className="font-semibold">{sitemapNewestLastmod || "—"}</p>
                     </div>
                   </div>
 
@@ -401,7 +362,7 @@ const SeoHealth = () => {
                   <Separator />
 
                   <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
-                    {health.sitemap.urls.map((url, idx) => (
+                    {sitemapUrls.map((url, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 text-sm">
                         <div className="flex items-center gap-2 min-w-0">
                           {url.isStatic ? (
@@ -441,15 +402,15 @@ const SeoHealth = () => {
                   {baseUrl}/robots.txt
                 </CardDescription>
               </div>
-              <Badge variant={health.robots.error ? "destructive" : "default"}>
-                {health.robots.error ? "Error" : `${health.robots.rules.length} Agents`}
+              <Badge variant={robotsError ? "destructive" : "default"}>
+                {robotsError ? "Error" : `${robotsRules.length} Agents`}
               </Badge>
             </CardHeader>
             <CardContent className="space-y-4">
-              {health.robots.error ? (
+              {robotsError ? (
                 <div className="flex items-start gap-2 text-destructive bg-destructive/10 p-3 rounded-lg">
                   <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                  <p className="text-sm">{health.robots.error}</p>
+                  <p className="text-sm">{robotsError}</p>
                 </div>
               ) : (
                 <>
@@ -457,14 +418,14 @@ const SeoHealth = () => {
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Sitemap Directive</p>
                       <p className="font-semibold truncate">
-                        {health.robots.sitemapDirective ? (
+                        {robotsSitemapDirective ? (
                           <a
-                            href={health.robots.sitemapDirective}
+                            href={robotsSitemapDirective}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline"
                           >
-                            {health.robots.sitemapDirective.replace(baseUrl, "")}
+                            {robotsSitemapDirective.replace(baseUrl, "")}
                           </a>
                         ) : (
                           <span className="text-destructive">None</span>
@@ -474,7 +435,7 @@ const SeoHealth = () => {
                     <div className="bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Blocked Paths (Wildcard)</p>
                       <p className="font-semibold">
-                        {health.robots.rules.find((r) => r.userAgent === "*")?.disallows.length || 0}
+                        {robotsRules.find((r) => r.userAgent === "*")?.disallows.length || 0}
                       </p>
                     </div>
                   </div>
@@ -493,7 +454,7 @@ const SeoHealth = () => {
                   <Separator />
 
                   <div className="space-y-4 max-h-[280px] overflow-y-auto pr-1">
-                    {health.robots.rules.map((rule, idx) => (
+                    {robotsRules.map((rule, idx) => (
                       <div key={idx} className="space-y-1.5">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                           User-agent: {rule.userAgent}
@@ -568,7 +529,7 @@ const SeoHealth = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Clock className="h-4 w-4 mr-2 shrink-0" />
+                  <Globe className="h-4 w-4 mr-2 shrink-0" />
                   <span className="flex-1 text-left">
                     <span className="block font-medium">SEO Best Practices</span>
                     <span className="block text-xs text-muted-foreground">Read the guide</span>
