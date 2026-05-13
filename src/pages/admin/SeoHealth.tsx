@@ -60,10 +60,12 @@ const SeoHealth = () => {
 
   const fetchDbCounts = async () => {
     try {
-      const menu = await supabase.from("menu_items").select("id").eq("is_active", true);
-      const categories = await supabase.from("categories").select("id").eq("is_active", true);
-      const events = await supabase.from("events").select("id").eq("is_active", true);
-      const posts = await supabase.from("blog_posts").select("id").eq("is_published", true);
+      const [menu, categories, events, posts] = await Promise.all([
+        supabase.from("menu_items").select("id").eq("is_active", true),
+        supabase.from("categories").select("id").eq("is_active", true),
+        supabase.from("events").select("id").eq("is_active", true),
+        supabase.from("blog_posts").select("id").eq("is_published", true),
+      ]);
       setDbActiveMenuItems(menu.data?.length || 0);
       setDbActiveCategories(categories.data?.length || 0);
       setDbActiveEvents(events.data?.length || 0);
