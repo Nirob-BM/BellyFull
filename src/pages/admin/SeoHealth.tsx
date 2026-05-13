@@ -255,9 +255,9 @@ const SeoHealth = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : dbActiveMenuItems}
+                    {loading ? "..." : sitemapDynamicCount}
                   </p>
-                  <p className="text-xs text-muted-foreground">Active Menu Items</p>
+                  <p className="text-xs text-muted-foreground">Product URLs</p>
                 </div>
               </div>
             </CardContent>
