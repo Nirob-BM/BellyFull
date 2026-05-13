@@ -52,6 +52,10 @@ const navItems = [{
   path: '/admin/settings',
   icon: Settings,
   label: 'Site Settings'
+}, {
+  path: '/admin/seo',
+  icon: Search,
+  label: 'SEO Health'
 }];
 
 const Admin = () => {
