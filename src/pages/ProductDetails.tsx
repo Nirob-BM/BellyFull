@@ -24,6 +24,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
 import { sanitizeImageUrl } from "@/lib/imageUrl";
+import { Helmet } from "react-helmet-async";
 
 
 // Import local dish images as fallbacks
@@ -244,8 +245,31 @@ const ProductDetails = () => {
     );
   }
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: item.name,
+    description: item.description ?? undefined,
+    category: item.category,
+    image: images,
+    offers: { "@type": "Offer", price: item.price, priceCurrency: "BDT", availability: "https://schema.org/InStock" },
+    ...(averageRating
+      ? { aggregateRating: { "@type": "AggregateRating", ratingValue: averageRating, reviewCount: reviews.length } }
+      : {}),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{`${item.name} — Belly Full`}</title>
+        <meta name="description" content={(item.description ?? `${item.name} at Belly Full restaurant, Kishoreganj.`).slice(0, 155)} />
+        <link rel="canonical" href={`https://bellyfull.lovable.app/product/${item.id}`} />
+        <meta property="og:title" content={`${item.name} — Belly Full`} />
+        <meta property="og:description" content={(item.description ?? `${item.name} at Belly Full.`).slice(0, 155)} />
+        <meta property="og:url" content={`https://bellyfull.lovable.app/product/${item.id}`} />
+        <meta property="og:type" content="product" />
+        <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
+      </Helmet>
       <Header />
       
       

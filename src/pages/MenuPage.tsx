@@ -19,6 +19,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
 import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
+import { Helmet } from "react-helmet-async";
 
 
 // Import local dish images as fallbacks
@@ -237,8 +238,35 @@ const MenuPage = () => {
     }
   };
 
+  const menuSchema = {
+    "@context": "https://schema.org",
+    "@type": "Menu",
+    name: "Belly Full Menu",
+    hasMenuSection: categories.map((c) => ({
+      "@type": "MenuSection",
+      name: c.name,
+      hasMenuItem: menuItems
+        .filter((m) => m.category === c.name)
+        .map((m) => ({
+          "@type": "MenuItem",
+          name: m.name,
+          description: m.description ?? undefined,
+          offers: { "@type": "Offer", price: m.price, priceCurrency: "BDT" },
+        })),
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Menu — Belly Full Restaurant, Kishoreganj</title>
+        <meta name="description" content="Browse Belly Full's full multicuisine menu — Bengali, Indian and international dishes with prices, photos and online ordering." />
+        <link rel="canonical" href="https://bellyfull.lovable.app/menu" />
+        <meta property="og:title" content="Menu — Belly Full Restaurant" />
+        <meta property="og:description" content="Browse our full menu of Bengali, Indian and international dishes." />
+        <meta property="og:url" content="https://bellyfull.lovable.app/menu" />
+        <script type="application/ld+json">{JSON.stringify(menuSchema)}</script>
+      </Helmet>
       <Header />
       
       

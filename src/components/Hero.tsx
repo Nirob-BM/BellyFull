@@ -11,10 +11,13 @@ const Hero = () => {
         <img
           src={coverImage}
           alt="Belly Full Restaurant Interior"
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"/>
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
       </div>
 
