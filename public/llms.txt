@@ -1,0 +1,12 @@
+# Belly Full
+
+> Belly Full is Kishoreganj's first authentic multicuisine restaurant and cafe, serving Bengali, Indian, and international dishes with table reservations and online ordering.
+
+## Pages
+
+- [Home](/): Restaurant overview, popular dishes, reservations, location, and FAQs.
+- [Menu](/menu): Full menu with categories, search, and sorting across all dishes.
+
+## Optional
+
+- [Product details](/product/): Per-dish pages with photos, description, price, and customer reviews.
