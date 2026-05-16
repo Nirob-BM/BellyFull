@@ -600,7 +600,7 @@ const Checkout = () => {
             </Button>
           </motion.div>
         )}
-      </div>
+      </main>
 
       {/* Floating Continue Shopping Button */}
       {step !== 'success' && (
