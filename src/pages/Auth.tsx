@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { z } from 'zod';
+import { Helmet } from 'react-helmet-async';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -72,6 +73,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+      <Helmet>
+        <title>Sign In — Belly Full Admin</title>
+        <meta name="description" content="Sign in to manage Belly Full restaurant — orders, reservations, menu and site settings." />
+        <meta name="robots" content="noindex,nofollow" />
+        <link rel="canonical" href="https://bellyfull.lovable.app/auth" />
+        <meta property="og:title" content="Sign In — Belly Full Admin" />
+        <meta property="og:description" content="Restricted admin sign-in for Belly Full staff." />
+        <meta property="og:url" content="https://bellyfull.lovable.app/auth" />
+      </Helmet>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { BkashLogo, NagadLogo, CashOnDeliveryIcon } from "@/components/PaymentLogos";
+import { Helmet } from "react-helmet-async";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -206,14 +207,24 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto p-4 py-8">
+      <Helmet>
+        <title>Checkout — Belly Full</title>
+        <meta name="description" content="Review your order and complete checkout securely with bKash, Nagad or cash on delivery at Belly Full Kishoreganj." />
+        <meta name="robots" content="noindex,nofollow" />
+        <link rel="canonical" href="https://bellyfull.lovable.app/checkout" />
+        <meta property="og:title" content="Checkout — Belly Full" />
+        <meta property="og:description" content="Complete your Belly Full order — pickup or delivery in Kishoreganj." />
+        <meta property="og:url" content="https://bellyfull.lovable.app/checkout" />
+      </Helmet>
+      <main className="max-w-2xl mx-auto p-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl font-bold">Checkout</h1>
         </div>
+        <h2 className="sr-only">Your order</h2>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-8">
@@ -267,6 +278,7 @@ const Checkout = () => {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          aria-label={`Decrease quantity of ${item.name}`}
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
@@ -276,6 +288,7 @@ const Checkout = () => {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          aria-label={`Increase quantity of ${item.name}`}
                         >
                           <Plus className="w-3 h-3" />
                         </Button>
@@ -284,6 +297,7 @@ const Checkout = () => {
                           size="icon"
                           className="h-8 w-8 text-destructive"
                           onClick={() => removeItem(item.id)}
+                          aria-label={`Remove ${item.name} from cart`}
                         >
                           <X className="w-4 h-4" />
                         </Button>
