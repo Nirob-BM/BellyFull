@@ -216,7 +216,7 @@ const Checkout = () => {
         <meta property="og:description" content="Complete your Belly Full order — pickup or delivery in Kishoreganj." />
         <meta property="og:url" content="https://bellyfull.lovable.app/checkout" />
       </Helmet>
-      <main className="max-w-2xl mx-auto p-4 py-8">
+      <main className="max-w-2xl mx-auto p-4 py-8" id="checkout-main">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
