@@ -301,12 +301,14 @@ const ProductDetails = () => {
                   <>
                     <button
                       onClick={prevImage}
+                      aria-label="Previous image"
                       className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-card transition-colors"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                       onClick={nextImage}
+                      aria-label="Next image"
                       className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-card transition-colors"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -407,6 +409,7 @@ const ProductDetails = () => {
                     variant="outline"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -415,6 +418,7 @@ const ProductDetails = () => {
                     size="icon"
                     variant="outline"
                     onClick={() => setQuantity(quantity + 1)}
+                    aria-label="Increase quantity"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -464,6 +468,8 @@ const ProductDetails = () => {
                           key={star}
                           type="button"
                           onClick={() => setReviewRating(star)}
+                          aria-label={`Rate ${star} ${star === 1 ? 'star' : 'stars'}`}
+                          aria-pressed={star <= reviewRating}
                           className="p-1"
                         >
                           <Star 

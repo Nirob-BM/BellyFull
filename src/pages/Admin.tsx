@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Helmet } from 'react-helmet-async';
 
 const navItems = [{
   path: '/admin',
@@ -125,6 +126,15 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <Helmet>
+        <title>Admin Dashboard — Belly Full</title>
+        <meta name="description" content="Belly Full admin dashboard — manage menu, orders, reservations, blog and site settings." />
+        <meta name="robots" content="noindex,nofollow" />
+        <link rel="canonical" href="https://bellyfull.lovable.app/admin" />
+        <meta property="og:title" content="Belly Full Admin" />
+        <meta property="og:description" content="Internal admin dashboard for Belly Full restaurant." />
+        <meta property="og:url" content="https://bellyfull.lovable.app/admin" />
+      </Helmet>
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-card/95 backdrop-blur-md border-b border-border z-50 flex items-center justify-between px-4 shadow-sm">
         <div className="flex items-center gap-2.5">
