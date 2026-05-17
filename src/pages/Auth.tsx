@@ -104,6 +104,7 @@ const Auth = () => {
                   type="email"
                   name="email"
                   placeholder="Email Address"
+                  aria-label="Email address"
                   value={formData.email}
                   onChange={handleChange}
                   className="pl-10 h-12"
@@ -120,6 +121,7 @@ const Auth = () => {
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="Password"
+                  aria-label="Password"
                   value={formData.password}
                   onChange={handleChange}
                   className="pl-10 pr-10 h-12"

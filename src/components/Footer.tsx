@@ -49,9 +49,10 @@ const Footer = () => {
                   href={settings.general.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`${settings.general.restaurantName} on Facebook`}
                   className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
                 >
-                  <Facebook className="h-5 w-5" />
+                  <Facebook className="h-5 w-5" aria-hidden="true" />
                 </a>
               )}
               {settings.general.instagramUrl && (
@@ -59,9 +60,10 @@ const Footer = () => {
                   href={settings.general.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`${settings.general.restaurantName} on Instagram`}
                   className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-5 w-5" aria-hidden="true" />
                 </a>
               )}
             </div>

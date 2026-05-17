@@ -260,16 +260,24 @@ const ProductDetails = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>{`${item.name} — Belly Full`}</title>
-        <meta name="description" content={(item.description ?? `${item.name} at Belly Full restaurant, Kishoreganj.`).slice(0, 155)} />
-        <link rel="canonical" href={`https://bellyfull.lovable.app/product/${item.id}`} />
-        <meta property="og:title" content={`${item.name} — Belly Full`} />
-        <meta property="og:description" content={(item.description ?? `${item.name} at Belly Full.`).slice(0, 155)} />
-        <meta property="og:url" content={`https://bellyfull.lovable.app/product/${item.id}`} />
-        <meta property="og:type" content="product" />
-        <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
-      </Helmet>
+      {(() => {
+        const baseDesc = (item.description && item.description.trim().length >= 50)
+          ? item.description.trim()
+          : `Order ${item.name} from Belly Full restaurant in Kishoreganj — authentic ${item.category} prepared fresh with quality ingredients. Dine in, takeaway or delivery available.`;
+        const metaDesc = baseDesc.slice(0, 155);
+        return (
+          <Helmet>
+            <title>{`${item.name} — Belly Full`}</title>
+            <meta name="description" content={metaDesc} />
+            <link rel="canonical" href={`https://bellyfull.lovable.app/product/${item.id}`} />
+            <meta property="og:title" content={`${item.name} — Belly Full`} />
+            <meta property="og:description" content={metaDesc} />
+            <meta property="og:url" content={`https://bellyfull.lovable.app/product/${item.id}`} />
+            <meta property="og:type" content="product" />
+            <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
+          </Helmet>
+        );
+      })()}
       <Header />
       
       
