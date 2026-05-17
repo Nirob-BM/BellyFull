@@ -157,11 +157,12 @@ const Reservation = () => {
               <div className="grid gap-5">
                 {/* Name */}
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <Input
                     type="text"
                     name="name"
                     placeholder="Your Name"
+                    aria-label="Your full name"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -173,11 +174,12 @@ const Reservation = () => {
                 {/* Phone & Email */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     <Input
                       type="tel"
                       name="phone"
                       placeholder="Phone Number"
+                      aria-label="Phone number"
                       value={formData.phone}
                       onChange={handleChange}
                       required
@@ -186,11 +188,12 @@ const Reservation = () => {
                     />
                   </div>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     <Input
                       type="email"
                       name="email"
                       placeholder="Email Address"
+                      aria-label="Email address"
                       value={formData.email}
                       onChange={handleChange}
                       required
@@ -203,10 +206,11 @@ const Reservation = () => {
                 {/* Date & Time */}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     <Input
                       type="date"
                       name="date"
+                      aria-label="Reservation date"
                       value={formData.date}
                       onChange={handleChange}
                       required
@@ -215,10 +219,11 @@ const Reservation = () => {
                     />
                   </div>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                     <Input
                       type="time"
                       name="time"
+                      aria-label="Reservation time"
                       value={formData.time}
                       onChange={handleChange}
                       required
@@ -229,9 +234,10 @@ const Reservation = () => {
 
                 {/* Guests */}
                 <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <select
                     name="guests"
+                    aria-label="Number of guests"
                     value={formData.guests}
                     onChange={handleChange}
                     required
@@ -251,6 +257,7 @@ const Reservation = () => {
                   <Textarea
                     name="special_requests"
                     placeholder="Special requests (optional)"
+                    aria-label="Special requests"
                     value={formData.special_requests}
                     onChange={handleChange}
                     maxLength={500}

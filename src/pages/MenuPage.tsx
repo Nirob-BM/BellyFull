@@ -309,6 +309,7 @@ const MenuPage = () => {
               <Input
                 type="text"
                 placeholder="Search dishes..."
+                aria-label="Search menu dishes"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-card border-border"
@@ -412,6 +413,10 @@ const MenuPage = () => {
 
           {/* Menu Grid */}
           {!isLoading && filteredAndSortedItems.length > 0 && (
+            <>
+            <h2 className="sr-only">
+              {activeCategory === "All" ? "All Dishes" : `${activeCategory} Dishes`}
+            </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredAndSortedItems.map((item, index) => (
                 <motion.div
@@ -499,6 +504,7 @@ const MenuPage = () => {
                 </motion.div>
               ))}
             </div>
+            </>
           )}
         </div>
       </main>
@@ -532,14 +538,16 @@ const MenuPage = () => {
                     variant="outline"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
+                    aria-label={`Decrease quantity of ${selectedItem?.name ?? 'item'}`}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="font-semibold text-lg w-8 text-center">{quantity}</span>
+                  <span className="font-semibold text-lg w-8 text-center" aria-live="polite">{quantity}</span>
                   <Button
                     size="icon"
                     variant="outline"
                     onClick={() => setQuantity(quantity + 1)}
+                    aria-label={`Increase quantity of ${selectedItem?.name ?? 'item'}`}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
