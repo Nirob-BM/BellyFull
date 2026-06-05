@@ -274,6 +274,7 @@ const ProductDetails = () => {
             <meta property="og:description" content={metaDesc} />
             <meta property="og:url" content={`https://bellyfull.lovable.app/product/${item.id}`} />
             <meta property="og:type" content="product" />
+            {images[0] && <meta property="og:image" content={images[0]} />}
             <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
           </Helmet>
         );
