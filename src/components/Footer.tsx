@@ -172,6 +172,7 @@ const Footer = () => {
           </p>
         </div>
       </div>
+      <AppDownloadModal open={appModalOpen} onOpenChange={setAppModalOpen} />
     </footer>
   );
 };
