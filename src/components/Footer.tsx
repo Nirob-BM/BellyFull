@@ -1,8 +1,11 @@
-import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, Phone, Smartphone } from "lucide-react";
+import { useState } from "react";
 import logo from "@/assets/logo.jpg";
 import { useSiteSettings, useOpeningHours } from "@/hooks/useSiteSettings";
+import AppDownloadModal from "./AppDownloadModal";
 
 const Footer = () => {
+  const [appModalOpen, setAppModalOpen] = useState(false);
   const { settings } = useSiteSettings();
   const { hours: openingHours } = useOpeningHours();
 
