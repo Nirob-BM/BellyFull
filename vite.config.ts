@@ -27,7 +27,9 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@supabase")) return "vendor-supabase";
           if (id.includes("@radix-ui")) return "vendor-radix";
           if (id.includes("@tanstack")) return "vendor-query";
-          if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
+          // Note: do NOT split recharts/d3 into a separate chunk — their
+          // internal circular deps break when isolated, causing
+          // "Cannot access 'P' before initialization" at runtime.
           if (id.includes("embla-carousel")) return "vendor-carousel";
           if (id.includes("date-fns") || id.includes("react-day-picker")) return "vendor-date";
           if (id.includes("lucide-react")) return "vendor-icons";
