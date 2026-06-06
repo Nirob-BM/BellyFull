@@ -69,6 +69,13 @@ const Footer = () => {
                   <Instagram className="h-5 w-5" aria-hidden="true" />
                 </a>
               )}
+              <button
+                onClick={() => setAppModalOpen(true)}
+                aria-label="Download the Belly Full app"
+                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+              >
+                <Smartphone className="h-5 w-5" aria-hidden="true" />
+              </button>
             </div>
           </div>
 
