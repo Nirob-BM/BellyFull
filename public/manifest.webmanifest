@@ -1,0 +1,28 @@
+{
+  "name": "Belly Full — Multicuisine Restaurant",
+  "short_name": "Belly Full",
+  "description": "Kishoreganj's first authentic multicuisine restaurant & cafe. Order online, book tables, and explore our menu.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d3b3a",
+  "theme_color": "#0d3b3a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["food", "restaurant", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}
