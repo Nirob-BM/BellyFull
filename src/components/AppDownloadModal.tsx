@@ -1,6 +1,12 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Smartphone, QrCode } from "lucide-react";
+import { Download, Smartphone, QrCode, Info } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -15,29 +21,54 @@ interface AppDownloadModalProps {
 
 const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://bellyfull.lovable.app";
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(siteUrl)}&bgcolor=ffffff&color=0d3b3a&margin=10`;
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  const siteUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://bellyfull.lovable.app";
+
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
+    siteUrl
+  )}&bgcolor=ffffff&color=0d3b3a&margin=10`;
 
   useEffect(() => {
+    // Detect if already running as installed PWA
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
     };
+
+    const installedHandler = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+    };
+
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installedHandler);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installedHandler);
+    };
   }, []);
 
   const handleInstall = async () => {
-    if (installPrompt) {
-      await installPrompt.prompt();
-      await installPrompt.userChoice;
-      setInstallPrompt(null);
-      onOpenChange(false);
-    } else {
-      // Fallback: instructions
-      alert("To install: open your browser menu and tap 'Add to Home Screen'.");
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") {
+      setIsInstalled(true);
     }
+    setInstallPrompt(null);
+    onOpenChange(false);
   };
+
+  const installAvailable = !!installPrompt && !isInstalled;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,10 +79,12 @@ const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
               <Smartphone className="h-7 w-7 text-secondary" />
             </div>
             <DialogTitle className="font-display text-2xl sm:text-3xl text-primary-foreground">
-              Get the Belly Full App
+              {isInstalled ? "You're All Set!" : "Get the Belly Full App"}
             </DialogTitle>
             <DialogDescription className="text-primary-foreground/70 text-sm sm:text-base">
-              Enjoy a faster, seamless ordering experience right from your phone.
+              {isInstalled
+                ? "The Belly Full app is installed on your device. Enjoy ordering!"
+                : "Enjoy a faster, seamless ordering experience right from your phone."}
             </DialogDescription>
           </DialogHeader>
 
@@ -61,14 +94,42 @@ const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
               <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center mb-3">
                 <Download className="h-5 w-5 text-secondary" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-primary-foreground/60 mb-1">Mobile</p>
-              <p className="text-sm text-primary-foreground/80 mb-4">Install directly to your home screen</p>
-              <Button
-                onClick={handleInstall}
-                className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold"
-              >
-                Install Now
-              </Button>
+              <p className="text-xs uppercase tracking-wider text-primary-foreground/60 mb-1">
+                Mobile
+              </p>
+
+              {isInstalled ? (
+                <>
+                  <p className="text-sm text-primary-foreground/80 mb-4">
+                    App is already installed
+                  </p>
+                  <div className="w-full py-2 rounded-md bg-secondary/20 text-secondary font-semibold text-sm">
+                    Installed
+                  </div>
+                </>
+              ) : installAvailable ? (
+                <>
+                  <p className="text-sm text-primary-foreground/80 mb-4">
+                    Install directly to your home screen
+                  </p>
+                  <Button
+                    onClick={handleInstall}
+                    className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold"
+                  >
+                    Install Now
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-primary-foreground/80 mb-4">
+                    Open your browser menu and tap "Add to Home Screen"
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-primary-foreground/50">
+                    <Info className="h-3.5 w-3.5" />
+                    <span>Not available on this browser</span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Desktop */}
@@ -76,11 +137,20 @@ const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
               <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center mb-3">
                 <QrCode className="h-5 w-5 text-secondary" />
               </div>
-              <p className="text-xs uppercase tracking-wider text-primary-foreground/60 mb-1">Desktop</p>
+              <p className="text-xs uppercase tracking-wider text-primary-foreground/60 mb-1">
+                Desktop
+              </p>
               <div className="bg-white rounded-lg p-2 my-2">
-                <img src={qrSrc} alt="QR code to install Belly Full" className="w-28 h-28" loading="lazy" />
+                <img
+                  src={qrSrc}
+                  alt="QR code to install Belly Full"
+                  className="w-28 h-28"
+                  loading="lazy"
+                />
               </div>
-              <p className="text-sm text-primary-foreground/80">Scan to install on your device</p>
+              <p className="text-sm text-primary-foreground/80">
+                Scan to install on your device
+              </p>
             </div>
           </div>
 
