@@ -55,7 +55,11 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
     const showPrompt = () => {
       const updateSW = async (reload = true) => {
         const waiting = new Promise<void>((resolve) => {
-          wb.addEventListener("controlling", () => resolve(), { once: true });
+          const onControlling = () => {
+            wb.removeEventListener("controlling", onControlling);
+            resolve();
+          };
+          wb.addEventListener("controlling", onControlling);
         });
         wb.messageSkipWaiting();
         await waiting;
@@ -65,7 +69,6 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
     };
 
     wb.addEventListener("waiting", showPrompt);
-    wb.addEventListener("externalwaiting", showPrompt);
 
     await wb.register();
   } catch (err) {

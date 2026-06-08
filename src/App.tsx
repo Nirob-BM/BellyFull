@@ -9,6 +9,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
 import CartSheet from "./components/CartSheet";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 
 // Lazy-loaded routes — keeps initial bundle small
 const Auth = lazy(() => import("./pages/Auth"));
@@ -47,6 +48,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <CartSheet />
+            <PWAUpdatePrompt />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />
