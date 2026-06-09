@@ -5,7 +5,7 @@ import coverImage from "@/assets/cover-opt.jpg";
 
 const Hero = () => {
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
@@ -27,27 +27,30 @@ const Hero = () => {
         <div className="absolute bottom-40 right-20 w-48 h-48 bg-secondary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
       </div>
 
-      <div className="relative container z-10 text-center pt-20">
+      <div className="relative container z-10 text-center px-4 sm:px-6 pt-24 pb-28 sm:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto"
+          className="max-w-4xl mx-auto flex flex-col items-center gap-y-5 sm:gap-y-6"
         >
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 backdrop-blur-sm border border-secondary/30 mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-secondary/20 backdrop-blur-sm border border-secondary/30 max-w-[92vw]"
           >
-            <Star className="h-4 w-4 text-secondary fill-secondary" />
-            <span className="text-sm font-medium text-primary-foreground">First Authentic Multicuisine Experience in Kishoreganj</span>
+            <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-secondary fill-secondary shrink-0" />
+            <span className="text-[11px] sm:text-sm font-medium text-primary-foreground leading-tight text-center">
+              First Authentic Multicuisine Experience in Kishoreganj
+            </span>
           </motion.div>
 
-          {/* Main Heading - no initial animation so it paints immediately for LCP */}
+          {/* Main Heading */}
           <h1
-            className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-6 leading-tight"
+            className="font-display font-bold text-primary-foreground leading-tight"
+            style={{ fontSize: "clamp(1.875rem, 7vw, 4.5rem)" }}
           >
             Belly Full — Multicuisine Restaurant in{" "}
             <span className="text-secondary">Kishoreganj</span>
@@ -58,9 +61,9 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-lg md:text-xl text-primary-foreground/90 max-w-2xl mx-auto mb-10"
+            className="text-base sm:text-lg md:text-xl text-primary-foreground/90 max-w-md md:max-w-2xl mx-auto"
           >
-            Experience the finest multicuisine dining in the heart of Kishoreganj. 
+            Experience the finest multicuisine dining in the heart of Kishoreganj.
             From traditional Bengali delights to international flavors, every dish tells a story.
           </motion.p>
 
@@ -69,19 +72,19 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-2"
           >
-            <Button 
-              size="lg" 
-              className="bg-gradient-gold hover:opacity-90 text-primary font-semibold text-lg px-8 py-6 shadow-elegant-lg"
+            <Button
+              size="lg"
+              className="bg-gradient-gold hover:opacity-90 text-primary font-semibold text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 shadow-elegant-lg"
               asChild
             >
               <a href="#reservation">Book Your Table</a>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-secondary/50 text-secondary hover:bg-secondary/10 text-lg px-8 py-6"
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-secondary/50 text-secondary hover:bg-secondary/10 text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6"
               asChild
             >
               <a href="#menu">Explore Our Menu</a>
@@ -93,16 +96,16 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.8 }}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
+            className="mt-8 sm:mt-12 w-full flex flex-wrap justify-around items-center gap-y-4 max-w-lg mx-auto"
           >
             {[
               { value: "50+", label: "Dishes" },
               { value: "2K+", label: "Happy Guests" },
               { value: "5★", label: "Rating" },
             ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="font-display text-3xl md:text-4xl font-bold text-secondary">{stat.value}</div>
-                <div className="text-sm text-primary-foreground/70">{stat.label}</div>
+              <div key={stat.label} className="text-center min-w-[80px]">
+                <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-secondary">{stat.value}</div>
+                <div className="text-xs sm:text-sm text-primary-foreground/70">{stat.label}</div>
               </div>
             ))}
           </motion.div>
