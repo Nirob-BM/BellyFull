@@ -18,7 +18,13 @@ export default defineConfig(({ mode }) => ({
       injectRegister: null,
       filename: "sw.js",
       devOptions: { enabled: false },
-      includeAssets: ["favicon.ico", "og-image.jpg", "manifest.webmanifest"],
+      includeAssets: [
+        "favicon.ico",
+        "og-image.jpg",
+        "offline.html",
+        "icon-192-maskable.png",
+        "icon-512-maskable.png",
+      ],
       manifest: false,
       workbox: {
         navigateFallback: "/index.html",
@@ -31,6 +37,7 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: "html-cache",
               networkTimeoutSeconds: 5,
+              precacheFallback: { fallbackURL: "/offline.html" },
             },
           },
           {
