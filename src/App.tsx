@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
 import CartSheet from "./components/CartSheet";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import InstallBanner from "./components/InstallBanner";
 
 // Lazy-loaded routes — keeps initial bundle small
 const Auth = lazy(() => import("./pages/Auth"));
@@ -49,6 +50,7 @@ const App = () => (
           <BrowserRouter>
             <CartSheet />
             <PWAUpdatePrompt />
+            <InstallBanner />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />
