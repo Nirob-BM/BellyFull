@@ -22,12 +22,13 @@ const Hero = () => {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-secondary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-40 right-20 w-48 h-48 bg-secondary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-16 left-4 sm:top-20 sm:left-10 w-20 h-20 sm:w-32 sm:h-32 bg-secondary/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-32 right-6 sm:bottom-40 sm:right-20 w-28 h-28 sm:w-48 sm:h-48 bg-secondary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
       </div>
 
-      <div className="relative container z-10 text-center px-4 sm:px-6 pt-24 pb-28 sm:pb-20">
+      <div className="relative container z-10 text-center px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-24 sm:pb-20">
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,20 +50,22 @@ const Hero = () => {
 
           {/* Main Heading */}
           <h1
-            className="font-display font-bold text-primary-foreground leading-tight"
-            style={{ fontSize: "clamp(1.875rem, 7vw, 4.5rem)" }}
+            className="font-display font-bold text-primary-foreground leading-tight px-2"
+            style={{ fontSize: "clamp(1.75rem, 6vw + 0.5rem, 4.5rem)" }}
           >
             Belly Full — Multicuisine Restaurant in{" "}
             <span className="text-secondary">Kishoreganj</span>
           </h1>
+
 
           {/* Subheading */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-base sm:text-lg md:text-xl text-primary-foreground/90 max-w-md md:max-w-2xl mx-auto"
+            className="text-sm sm:text-lg md:text-xl text-primary-foreground/90 max-w-md md:max-w-2xl mx-auto px-2"
           >
+
             Experience the finest multicuisine dining in the heart of Kishoreganj.
             From traditional Bengali delights to international flavors, every dish tells a story.
           </motion.p>
@@ -119,13 +122,14 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-full"
+        className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-full"
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown className="h-8 w-8" aria-hidden="true" />
+          <ChevronDown className="h-6 w-6 sm:h-8 sm:w-8" aria-hidden="true" />
+
         </motion.div>
       </motion.a>
     </section>
