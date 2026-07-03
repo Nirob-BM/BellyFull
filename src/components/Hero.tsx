@@ -22,12 +22,13 @@ const Hero = () => {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-secondary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-40 right-20 w-48 h-48 bg-secondary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-16 left-4 sm:top-20 sm:left-10 w-20 h-20 sm:w-32 sm:h-32 bg-secondary/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-32 right-6 sm:bottom-40 sm:right-20 w-28 h-28 sm:w-48 sm:h-48 bg-secondary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
       </div>
 
-      <div className="relative container z-10 text-center px-4 sm:px-6 pt-24 pb-28 sm:pb-20">
+      <div className="relative container z-10 text-center px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-24 sm:pb-20">
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
