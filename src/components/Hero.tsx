@@ -2,24 +2,34 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Star } from "lucide-react";
 import coverImage from "@/assets/cover-opt.jpg";
+import coverAvif from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=avif&as=srcset";
+import coverWebp from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=webp&as=srcset";
+import coverJpeg from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=jpeg&as=srcset";
 
 const Hero = () => {
   return (
     <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
-        <img
-          src={coverImage}
-          alt="Belly Full Restaurant Interior"
-          width={1920}
-          height={1080}
-          className="w-full h-full object-cover"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
+        <picture>
+          <source type="image/avif" srcSet={coverAvif} sizes="100vw" />
+          <source type="image/webp" srcSet={coverWebp} sizes="100vw" />
+          <img
+            src={coverImage}
+            srcSet={coverJpeg}
+            sizes="100vw"
+            alt="Belly Full Restaurant Interior"
+            width={1920}
+            height={1080}
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
       </div>
+
 
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
