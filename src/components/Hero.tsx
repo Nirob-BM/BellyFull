@@ -50,12 +50,13 @@ const Hero = () => {
 
           {/* Main Heading */}
           <h1
-            className="font-display font-bold text-primary-foreground leading-tight"
-            style={{ fontSize: "clamp(1.875rem, 7vw, 4.5rem)" }}
+            className="font-display font-bold text-primary-foreground leading-tight px-2"
+            style={{ fontSize: "clamp(1.75rem, 6vw + 0.5rem, 4.5rem)" }}
           >
             Belly Full — Multicuisine Restaurant in{" "}
             <span className="text-secondary">Kishoreganj</span>
           </h1>
+
 
           {/* Subheading */}
           <motion.p
