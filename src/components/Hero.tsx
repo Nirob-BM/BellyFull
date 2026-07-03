@@ -122,13 +122,14 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-full"
+        className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-full"
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown className="h-8 w-8" aria-hidden="true" />
+          <ChevronDown className="h-6 w-6 sm:h-8 sm:w-8" aria-hidden="true" />
+
         </motion.div>
       </motion.a>
     </section>
