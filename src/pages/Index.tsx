@@ -49,6 +49,14 @@ const Index = () => {
         <title>Belly Full — Multicuisine Restaurant in Kishoreganj</title>
         <meta name="description" content="Belly Full is Kishoreganj's first authentic multicuisine restaurant & cafe — Bengali, Indian and international flavors. Book a table today." />
         <link rel="canonical" href="https://bellyfull.lovable.app/" />
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imageSrcSet={heroAvifPreload}
+          imageSizes="100vw"
+          fetchpriority="high"
+        />
         <meta property="og:title" content="Belly Full — Multicuisine Restaurant in Kishoreganj" />
         <meta property="og:description" content="Kishoreganj's first authentic multicuisine restaurant & cafe." />
         <meta property="og:url" content="https://bellyfull.lovable.app/" />
