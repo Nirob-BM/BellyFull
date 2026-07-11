@@ -55,7 +55,7 @@ const Index = () => {
           type="image/avif"
           imageSrcSet={heroAvifPreload}
           imageSizes="100vw"
-          fetchpriority="high"
+          fetchPriority="high"
         />
         <meta property="og:title" content="Belly Full — Multicuisine Restaurant in Kishoreganj" />
         <meta property="og:description" content="Kishoreganj's first authentic multicuisine restaurant & cafe." />
