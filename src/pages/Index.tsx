@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import heroAvifPreload from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=avif&as=srcset";
+import heroWebpPreload from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=webp&as=srcset";
 import About from "@/components/About";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import PopularItems from "@/components/PopularItems";
