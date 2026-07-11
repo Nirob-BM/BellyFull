@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import heroAvifPreload from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=avif&as=srcset";
 import About from "@/components/About";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import PopularItems from "@/components/PopularItems";
@@ -47,6 +48,14 @@ const Index = () => {
         <title>Belly Full — Multicuisine Restaurant in Kishoreganj</title>
         <meta name="description" content="Belly Full is Kishoreganj's first authentic multicuisine restaurant & cafe — Bengali, Indian and international flavors. Book a table today." />
         <link rel="canonical" href="https://bellyfull.lovable.app/" />
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imageSrcSet={heroAvifPreload}
+          imageSizes="100vw"
+          fetchPriority="high"
+        />
         <meta property="og:title" content="Belly Full — Multicuisine Restaurant in Kishoreganj" />
         <meta property="og:description" content="Kishoreganj's first authentic multicuisine restaurant & cafe." />
         <meta property="og:url" content="https://bellyfull.lovable.app/" />
