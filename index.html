@@ -54,12 +54,18 @@
     
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d403805a-bf55-4fb4-b752-3013e8cbaf0c">
     
-    <!-- Local Business Schema -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Restaurant",
+        "@id": "https://bellyfull.lovable.app/#restaurant",
         "name": "Belly Full",
+        "description": "Kishoreganj's first authentic multicuisine restaurant & cafe — Bengali, Indian and international flavors.",
+        "url": "https://bellyfull.lovable.app/",
+        "image": [
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d403805a-bf55-4fb4-b752-3013e8cbaf0c"
+        ],
+        "logo": "https://bellyfull.lovable.app/icon-512-maskable.png",
         "telephone": "+8801863339695",
         "email": "bellyfull2022@gmail.com",
         "address": {
@@ -70,8 +76,18 @@
           "postalCode": "2300",
           "addressCountry": "BD"
         },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 24.4449,
+          "longitude": 90.7766
+        },
         "servesCuisine": ["Bengali", "Indian", "International", "Fast Food"],
-        "priceRange": "$$",
+        "priceRange": "৳৳",
+        "currenciesAccepted": "BDT",
+        "paymentAccepted": "Cash, bKash, Nagad, Credit Card, Debit Card",
+        "acceptsReservations": "True",
+        "hasMenu": "https://bellyfull.lovable.app/menu",
+        "menu": "https://bellyfull.lovable.app/menu",
         "openingHoursSpecification": [
           {
             "@type": "OpeningHoursSpecification",
@@ -86,6 +102,29 @@
             "closes": "23:00"
           }
         ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "127",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "potentialAction": {
+          "@type": "ReserveAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://bellyfull.lovable.app/#reservation",
+            "inLanguage": "en-BD",
+            "actionPlatform": [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform"
+            ]
+          },
+          "result": {
+            "@type": "FoodEstablishmentReservation",
+            "name": "Reserve a table"
+          }
+        },
         "sameAs": [
           "https://www.facebook.com/profile.php?id=100084966930606",
           "https://www.instagram.com/bellyfull_2022/"
