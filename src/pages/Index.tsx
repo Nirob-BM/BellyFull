@@ -1,19 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import heroAvifPreload from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=avif&as=srcset";
-import About from "@/components/About";
-import CategoryShowcase from "@/components/CategoryShowcase";
-import PopularItems from "@/components/PopularItems";
-import Menu from "@/components/Menu";
-import Reservation from "@/components/Reservation";
-import Testimonials from "@/components/Testimonials";
-import Location from "@/components/Location";
-import FAQ from "@/components/FAQ";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
+
+// Defer non-critical below-the-fold sections so the hero paints first.
+const About = lazy(() => import("@/components/About"));
+const CategoryShowcase = lazy(() => import("@/components/CategoryShowcase"));
+const PopularItems = lazy(() => import("@/components/PopularItems"));
+const Menu = lazy(() => import("@/components/Menu"));
+const Reservation = lazy(() => import("@/components/Reservation"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const Location = lazy(() => import("@/components/Location"));
+const FAQ = lazy(() => import("@/components/FAQ"));
+const Footer = lazy(() => import("@/components/Footer"));
+const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
+
+const SectionFallback = () => <div className="min-h-[200px]" aria-hidden="true" />;
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -70,17 +74,21 @@ const Index = () => {
       <Header />
       <main id="main-content">
         <Hero />
-        <About />
-        <CategoryShowcase />
-        <PopularItems />
-        <Menu />
-        <Reservation />
-        <Testimonials />
-        <Location />
-        <FAQ />
+        <Suspense fallback={<SectionFallback />}>
+          <About />
+          <CategoryShowcase />
+          <PopularItems />
+          <Menu />
+          <Reservation />
+          <Testimonials />
+          <Location />
+          <FAQ />
+        </Suspense>
       </main>
-      <Footer />
-      <WhatsAppButton />
+      <Suspense fallback={null}>
+        <Footer />
+        <WhatsAppButton />
+      </Suspense>
     </div>
   );
 };
