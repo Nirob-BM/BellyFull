@@ -74,17 +74,21 @@ const Index = () => {
       <Header />
       <main id="main-content">
         <Hero />
-        <About />
-        <CategoryShowcase />
-        <PopularItems />
-        <Menu />
-        <Reservation />
-        <Testimonials />
-        <Location />
-        <FAQ />
+        <Suspense fallback={<SectionFallback />}>
+          <About />
+          <CategoryShowcase />
+          <PopularItems />
+          <Menu />
+          <Reservation />
+          <Testimonials />
+          <Location />
+          <FAQ />
+        </Suspense>
       </main>
-      <Footer />
-      <WhatsAppButton />
+      <Suspense fallback={null}>
+        <Footer />
+        <WhatsAppButton />
+      </Suspense>
     </div>
   );
 };
