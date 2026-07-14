@@ -54,6 +54,7 @@ const Hero = () => {
           >
             <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-secondary fill-secondary shrink-0" />
             <span className="text-[11px] sm:text-sm font-medium text-primary-foreground leading-tight text-center">
+
               First Authentic Multicuisine Experience in Kishoreganj
             </span>
           </motion.div>
