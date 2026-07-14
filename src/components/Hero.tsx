@@ -54,6 +54,7 @@ const Hero = () => {
           >
             <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-secondary fill-secondary shrink-0" />
             <span className="text-[11px] sm:text-sm font-medium text-primary-foreground leading-tight text-center">
+
               First Authentic Multicuisine Experience in Kishoreganj
             </span>
           </motion.div>
@@ -73,7 +74,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-sm sm:text-lg md:text-xl text-primary-foreground/90 max-w-md md:max-w-2xl mx-auto px-2"
+            className="text-sm sm:text-lg md:text-xl text-primary-foreground max-w-md md:max-w-2xl mx-auto px-2"
           >
 
             Experience the finest multicuisine dining in the heart of Kishoreganj.
@@ -89,7 +90,7 @@ const Hero = () => {
           >
             <Button
               size="lg"
-              className="bg-gradient-gold hover:opacity-90 text-primary font-semibold text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 shadow-elegant-lg"
+              className="bg-gradient-gold hover:opacity-90 text-primary font-semibold text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 shadow-elegant-lg focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
               asChild
             >
               <a href="#reservation">Book Your Table</a>
@@ -97,12 +98,13 @@ const Hero = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-secondary/50 text-secondary hover:bg-secondary/10 text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6"
+              className="bg-primary/40 backdrop-blur-sm border-secondary text-secondary-foreground hover:bg-secondary hover:text-primary text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
               asChild
             >
               <a href="#menu">Explore Our Menu</a>
             </Button>
           </motion.div>
+
 
           {/* Stats */}
           <motion.div
@@ -118,7 +120,7 @@ const Hero = () => {
             ].map((stat) => (
               <div key={stat.label} className="text-center min-w-[80px]">
                 <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-secondary">{stat.value}</div>
-                <div className="text-xs sm:text-sm text-primary-foreground/70">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-primary-foreground/90">{stat.label}</div>
               </div>
             ))}
           </motion.div>
