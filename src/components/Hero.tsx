@@ -120,7 +120,7 @@ const Hero = () => {
             ].map((stat) => (
               <div key={stat.label} className="text-center min-w-[80px]">
                 <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-secondary">{stat.value}</div>
-                <div className="text-xs sm:text-sm text-primary-foreground/70">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-primary-foreground/90">{stat.label}</div>
               </div>
             ))}
           </motion.div>
