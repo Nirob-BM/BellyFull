@@ -8,11 +8,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download, Smartphone, QrCode, Info } from "lucide-react";
 import { useEffect, useState } from "react";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+import {
+  BeforeInstallPromptEvent,
+  getCachedInstallEvent,
+  isStandalone,
+  markInstalled,
+  subscribeInstallEvent,
+  wasInstalled,
+} from "@/pwa/installPrompt";
 
 interface AppDownloadModalProps {
   open: boolean;
@@ -20,8 +23,12 @@ interface AppDownloadModalProps {
 }
 
 const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(
+    () => getCachedInstallEvent(),
+  );
+  const [isInstalled, setIsInstalled] = useState<boolean>(
+    () => isStandalone() || wasInstalled(),
+  );
 
   const siteUrl =
     typeof window !== "undefined"
@@ -33,36 +40,32 @@ const AppDownloadModal = ({ open, onOpenChange }: AppDownloadModalProps) => {
   )}&bgcolor=ffffff&color=0d3b3a&margin=10`;
 
   useEffect(() => {
-    // Detect if already running as installed PWA
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true);
-    }
-
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e as BeforeInstallPromptEvent);
-    };
-
-    const installedHandler = () => {
-      setIsInstalled(true);
-      setInstallPrompt(null);
-    };
-
-    window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", installedHandler);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-      window.removeEventListener("appinstalled", installedHandler);
-    };
+    return subscribeInstallEvent((e) => {
+      if (!e) {
+        setIsInstalled(true);
+        setInstallPrompt(null);
+      } else {
+        setInstallPrompt(e);
+      }
+    });
   }, []);
 
   const handleInstall = async () => {
     if (!installPrompt) return;
-    await installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === "accepted") {
-      setIsInstalled(true);
+    try {
+      await installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+        markInstalled();
+        try {
+          localStorage.setItem("bf-install-completed", "1");
+        } catch {
+          /* ignore */
+        }
+      }
+    } catch {
+      /* ignore */
     }
     setInstallPrompt(null);
     onOpenChange(false);
