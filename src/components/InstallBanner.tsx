@@ -1,40 +1,24 @@
 import { useEffect, useState } from "react";
 import { Download, X, Share, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+import {
+  BeforeInstallPromptEvent,
+  getCachedInstallEvent,
+  isInAppBrowser,
+  isIosDevice,
+  isStandalone,
+  markInstalled,
+  subscribeInstallEvent,
+} from "@/pwa/installPrompt";
 
 const DISMISS_KEY = "bf-install-dismissed-at";
+const INSTALLED_KEY = "bf-install-completed";
 const DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const SHOW_DELAY_MS = 6000;
 
-function isStandalone(): boolean {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    // iOS Safari
-    (window.navigator as unknown as { standalone?: boolean }).standalone === true
-  );
-}
-
-function isIos(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent || "";
-  const isAppleDevice = /iPad|iPhone|iPod/.test(ua);
-  // iPadOS 13+ reports as Mac with touch
-  const isIpadOs =
-    navigator.platform === "MacIntel" &&
-    typeof navigator.maxTouchPoints === "number" &&
-    navigator.maxTouchPoints > 1;
-  const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-  return (isAppleDevice || isIpadOs) && isSafari;
-}
-
 function recentlyDismissed(): boolean {
   try {
+    if (localStorage.getItem(INSTALLED_KEY) === "1") return true;
     const v = localStorage.getItem(DISMISS_KEY);
     if (!v) return false;
     const ts = Number(v);
@@ -54,38 +38,50 @@ const InstallBanner = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (isStandalone()) return;
+    if (isInAppBrowser()) return;
     if (recentlyDismissed()) return;
 
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
-      window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
-    };
+    let showTimer: number | undefined;
+    let iosTimer: number | undefined;
 
-    const onInstalled = () => {
-      setVisible(false);
-      setInstallEvent(null);
-    };
+    // Pick up an event that arrived before React mounted.
+    const cached = getCachedInstallEvent();
+    if (cached) {
+      setInstallEvent(cached);
+      showTimer = window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
+    }
 
-    window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    window.addEventListener("appinstalled", onInstalled);
+    const unsub = subscribeInstallEvent((e) => {
+      if (!e) {
+        // appinstalled fired
+        try {
+          localStorage.setItem(INSTALLED_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+        setInstallEvent(null);
+        setVisible(false);
+        return;
+      }
+      setInstallEvent(e);
+      if (showTimer === undefined) {
+        showTimer = window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
+      }
+    });
 
-    // iOS Safari has no beforeinstallprompt — show manual hint banner
-    if (isIos()) {
-      const t = window.setTimeout(() => {
+    // iOS (any browser — iOS 16.4+ supports A2HS from Chrome/Firefox too).
+    // Show manual hint since beforeinstallprompt never fires on iOS.
+    if (isIosDevice()) {
+      iosTimer = window.setTimeout(() => {
         setIosHint(true);
         setVisible(true);
       }, SHOW_DELAY_MS);
-      return () => {
-        window.clearTimeout(t);
-        window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-        window.removeEventListener("appinstalled", onInstalled);
-      };
     }
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-      window.removeEventListener("appinstalled", onInstalled);
+      unsub();
+      if (showTimer !== undefined) window.clearTimeout(showTimer);
+      if (iosTimer !== undefined) window.clearTimeout(iosTimer);
     };
   }, []);
 
@@ -103,7 +99,17 @@ const InstallBanner = () => {
     setInstalling(true);
     try {
       await installEvent.prompt();
-      await installEvent.userChoice;
+      const choice = await installEvent.userChoice;
+      if (choice.outcome === "accepted") {
+        try {
+          localStorage.setItem(INSTALLED_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+        markInstalled();
+      }
+    } catch {
+      /* user gesture required or dismissed */
     } finally {
       setInstalling(false);
       setInstallEvent(null);
