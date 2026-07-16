@@ -98,7 +98,7 @@ const Hero = () => {
             <Button
               size="lg"
               variant="outline"
-              className="bg-primary/40 backdrop-blur-sm border-secondary text-secondary-foreground hover:bg-secondary hover:text-primary text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+              className="bg-primary/40 backdrop-blur-sm border-secondary text-secondary hover:bg-secondary hover:text-primary text-base sm:text-lg w-full max-w-sm sm:w-auto min-h-[48px] px-8 sm:py-6 focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
               asChild
             >
               <a href="#menu">Explore Our Menu</a>
