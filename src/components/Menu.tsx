@@ -72,6 +72,7 @@ const Menu = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [maxVisible, setMaxVisible] = useState(6);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
