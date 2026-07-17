@@ -60,10 +60,7 @@ const Hero = () => {
           </motion.div>
 
           {/* Main Heading */}
-          <h1
-            className="font-display font-bold text-primary-foreground leading-tight px-2"
-            style={{ fontSize: "clamp(1.75rem, 6vw + 0.5rem, 4.5rem)" }}
-          >
+          <h1 className="font-display font-bold text-primary-foreground leading-tight px-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl break-words">
             Belly Full — Multicuisine Restaurant in{" "}
             <span className="text-secondary">Kishoreganj</span>
           </h1>
