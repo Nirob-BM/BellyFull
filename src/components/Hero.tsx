@@ -71,7 +71,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-sm sm:text-lg md:text-xl text-primary-foreground max-w-md md:max-w-2xl mx-auto px-2"
+            className="text-base sm:text-lg md:text-xl leading-relaxed sm:leading-relaxed text-primary-foreground max-w-md md:max-w-2xl mx-auto px-2"
           >
 
             Experience the finest multicuisine dining in the heart of Kishoreganj.
