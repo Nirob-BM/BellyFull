@@ -72,6 +72,7 @@ const Menu = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [maxVisible, setMaxVisible] = useState(6);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
@@ -79,6 +80,18 @@ const Menu = () => {
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const updateMaxVisible = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setMaxVisible(8);      // desktop: 4 cols x 2 rows
+      else if (width >= 768) setMaxVisible(6);  // tablet: 3 cols x 2 rows
+      else setMaxVisible(6);                    // mobile: 2 cols (no 2-row limit)
+    };
+    updateMaxVisible();
+    window.addEventListener('resize', updateMaxVisible);
+    return () => window.removeEventListener('resize', updateMaxVisible);
   }, []);
 
   const fetchData = async () => {
@@ -105,8 +118,8 @@ const Menu = () => {
     if (menuResult.error) {
       console.error('Error fetching menu items:', menuResult.error);
     } else {
-      // Show only first 6 items on homepage (featured/new items)
-      setMenuItems((menuResult.data || []).slice(0, 6));
+      // Fetch enough items for responsive 2-row limits (desktop needs up to 8)
+      setMenuItems((menuResult.data || []).slice(0, 12));
     }
     setIsLoading(false);
   };
@@ -204,8 +217,8 @@ const Menu = () => {
 
         {/* Menu Grid */}
         {!isLoading && filteredItems.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
-            {filteredItems.map((item, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
+            {filteredItems.slice(0, maxVisible).map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 30 }}
