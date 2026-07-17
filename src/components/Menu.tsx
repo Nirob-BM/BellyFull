@@ -82,6 +82,18 @@ const Menu = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const updateMaxVisible = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setMaxVisible(8);      // desktop: 4 cols x 2 rows
+      else if (width >= 768) setMaxVisible(6);  // tablet: 3 cols x 2 rows
+      else setMaxVisible(6);                    // mobile: 2 cols (no 2-row limit)
+    };
+    updateMaxVisible();
+    window.addEventListener('resize', updateMaxVisible);
+    return () => window.removeEventListener('resize', updateMaxVisible);
+  }, []);
+
   const fetchData = async () => {
     // Fetch categories and menu items in parallel
     const [categoriesResult, menuResult] = await Promise.all([
@@ -106,8 +118,8 @@ const Menu = () => {
     if (menuResult.error) {
       console.error('Error fetching menu items:', menuResult.error);
     } else {
-      // Show only first 6 items on homepage (featured/new items)
-      setMenuItems((menuResult.data || []).slice(0, 6));
+      // Fetch enough items for responsive 2-row limits (desktop needs up to 8)
+      setMenuItems((menuResult.data || []).slice(0, 12));
     }
     setIsLoading(false);
   };
