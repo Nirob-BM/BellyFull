@@ -217,8 +217,8 @@ const Menu = () => {
 
         {/* Menu Grid */}
         {!isLoading && filteredItems.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
-            {filteredItems.map((item, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
+            {filteredItems.slice(0, maxVisible).map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 30 }}
