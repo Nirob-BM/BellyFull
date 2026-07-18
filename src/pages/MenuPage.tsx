@@ -417,7 +417,7 @@ const MenuPage = () => {
             <h2 className="sr-only">
               {activeCategory === "All" ? "All Dishes" : `${activeCategory} Dishes`}
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {filteredAndSortedItems.map((item, index) => (
                 <motion.div
                   key={item.id}
@@ -444,58 +444,59 @@ const MenuPage = () => {
                     <button
                       onClick={(e) => handleViewImage(item, e)}
                       aria-label={`View full image of ${item.name}`}
-                      className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
                       title="View full image"
                     >
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
 
                     {/* Badges */}
-                    <div className="absolute top-4 left-4 flex gap-2">
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-1.5 sm:gap-2 max-w-[75%]">
                       {item.is_popular && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
-                          <Star className="h-3 w-3 fill-current" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium">
+                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
                           Popular
                         </span>
                       )}
                       {item.is_spicy && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
-                          <Flame className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium">
+                          <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           Spicy
                         </span>
                       )}
                       {item.is_veg && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium">
-                          <Leaf className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500 text-white text-[10px] sm:text-xs font-medium">
+                          <Leaf className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           Veg
                         </span>
                       )}
                     </div>
 
                     {/* Price Badge */}
-                    <div className="absolute bottom-4 right-4">
-                      <span className="inline-block px-3 py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-lg font-bold text-secondary">
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
+                      <span className="inline-block px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-base sm:text-lg font-bold text-secondary">
                         ৳{item.price}
                       </span>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-secondary transition-colors">
+                  <div className="p-4 sm:p-5 lg:p-6">
+                    <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2">
+                      <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
                         {item.name}
                       </h3>
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                      <span className="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
                         {item.category}
                       </span>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
                       {item.description}
                     </p>
                     <Button 
                       onClick={() => handleItemClick(item)}
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                      size="sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Order Now
