@@ -85,3 +85,27 @@ export function isInAppBrowser(): boolean {
     ua,
   );
 }
+
+export type Platform =
+  | "ios"
+  | "android"
+  | "desktop-chromium"
+  | "desktop-firefox"
+  | "desktop-safari"
+  | "desktop-other"
+  | "in-app"
+  | "unknown";
+
+export function detectPlatform(): Platform {
+  if (typeof navigator === "undefined") return "unknown";
+  if (isInAppBrowser()) return "in-app";
+  if (isIosDevice()) return "ios";
+  const ua = navigator.userAgent || "";
+  if (/Android/i.test(ua)) return "android";
+  // Desktop
+  if (/Edg\//.test(ua) || /Chrome\//.test(ua) || /OPR\//.test(ua) || /Brave/.test(ua))
+    return "desktop-chromium";
+  if (/Firefox\//.test(ua)) return "desktop-firefox";
+  if (/Safari\//.test(ua)) return "desktop-safari";
+  return "desktop-other";
+}
