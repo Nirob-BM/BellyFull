@@ -451,22 +451,22 @@ const MenuPage = () => {
                     </button>
 
                     {/* Badges */}
-                    <div className="absolute top-4 left-4 flex gap-2">
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-1.5 sm:gap-2 max-w-[75%]">
                       {item.is_popular && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
-                          <Star className="h-3 w-3 fill-current" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium">
+                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
                           Popular
                         </span>
                       )}
                       {item.is_spicy && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
-                          <Flame className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium">
+                          <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           Spicy
                         </span>
                       )}
                       {item.is_veg && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500 text-white text-xs font-medium">
-                          <Leaf className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500 text-white text-[10px] sm:text-xs font-medium">
+                          <Leaf className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                           Veg
                         </span>
                       )}
