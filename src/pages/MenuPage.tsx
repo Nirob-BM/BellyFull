@@ -481,21 +481,22 @@ const MenuPage = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="font-display text-xl font-semibold text-foreground group-hover:text-secondary transition-colors">
+                  <div className="p-4 sm:p-5 lg:p-6">
+                    <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2">
+                      <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
                         {item.name}
                       </h3>
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                      <span className="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
                         {item.category}
                       </span>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
                       {item.description}
                     </p>
                     <Button 
                       onClick={() => handleItemClick(item)}
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                      size="sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Order Now
