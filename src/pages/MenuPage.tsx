@@ -473,8 +473,8 @@ const MenuPage = () => {
                     </div>
 
                     {/* Price Badge */}
-                    <div className="absolute bottom-4 right-4">
-                      <span className="inline-block px-3 py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-lg font-bold text-secondary">
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
+                      <span className="inline-block px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-base sm:text-lg font-bold text-secondary">
                         ৳{item.price}
                       </span>
                     </div>
