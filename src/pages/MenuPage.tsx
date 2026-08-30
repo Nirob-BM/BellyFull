@@ -79,6 +79,27 @@ interface Category {
   sort_order: number;
 }
 
+// Skeleton card that mirrors the real menu card layout for perceived speed
+const MenuCardSkeleton = () => (
+  <div
+    aria-hidden="true"
+    className="bg-card rounded-2xl overflow-hidden shadow-elegant border border-border animate-pulse"
+  >
+    <div className="aspect-[4/3] bg-muted" />
+    <div className="p-4 sm:p-5 lg:p-6 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="h-5 bg-muted rounded-md w-2/3" />
+        <div className="hidden sm:block h-5 bg-muted rounded-md w-14" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-3.5 bg-muted rounded-md w-full" />
+        <div className="h-3.5 bg-muted rounded-md w-4/5" />
+      </div>
+      <div className="h-9 bg-muted rounded-md w-full" />
+    </div>
+  </div>
+);
+
 const MenuPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
