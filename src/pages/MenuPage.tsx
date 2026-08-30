@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
-  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown,
+  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
   UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish as FishIcon, Soup, IceCream, Cookie, 
   Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
   GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon
