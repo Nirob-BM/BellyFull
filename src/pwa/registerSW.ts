@@ -75,7 +75,7 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
 
     // A new SW is installed and waiting (this tab), or another tab installed it.
     wb.addEventListener("waiting", showPrompt);
-    wb.addEventListener("externalwaiting", showPrompt);
+    wb.addEventListener("externalwaiting" as "waiting", showPrompt);
 
     const registration = await wb.register();
 
