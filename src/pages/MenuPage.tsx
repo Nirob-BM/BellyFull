@@ -452,12 +452,21 @@ const MenuPage = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 * index, duration: 0.5 }}
-                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg transition-all duration-300"
+                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg hover:-translate-y-1 hover:border-secondary/40 focus-within:shadow-elegant-lg focus-within:border-secondary/40 transition-all duration-300 ease-out"
                 >
                   {/* Image - Click to go to product details */}
                   <div 
-                    className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer"
+                    className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     onClick={() => handleImageClick(item)}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`View details of ${item.name}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleImageClick(item);
+                      }
+                    }}
                   >
                     <BlurImage
                       src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
