@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
-  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye, ArrowLeft, Search, ArrowUpDown,
+  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
   UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish as FishIcon, Soup, IceCream, Cookie, 
   Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
   GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon
@@ -78,6 +78,27 @@ interface Category {
   is_visible: boolean;
   sort_order: number;
 }
+
+// Skeleton card that mirrors the real menu card layout for perceived speed
+const MenuCardSkeleton = () => (
+  <div
+    aria-hidden="true"
+    className="bg-card rounded-2xl overflow-hidden shadow-elegant border border-border animate-pulse"
+  >
+    <div className="aspect-[4/3] bg-muted" />
+    <div className="p-4 sm:p-5 lg:p-6 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="h-5 bg-muted rounded-md w-2/3" />
+        <div className="hidden sm:block h-5 bg-muted rounded-md w-14" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-3.5 bg-muted rounded-md w-full" />
+        <div className="h-3.5 bg-muted rounded-md w-4/5" />
+      </div>
+      <div className="h-9 bg-muted rounded-md w-full" />
+    </div>
+  </div>
+);
 
 const MenuPage = () => {
   const navigate = useNavigate();
@@ -379,10 +400,17 @@ const MenuPage = () => {
             ))}
           </motion.div>
 
-          {/* Loading State */}
+          {/* Loading State — skeleton grid mirrors final layout */}
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+              role="status"
+              aria-label="Loading menu items"
+            >
+              {Array.from({ length: 8 }).map((_, i) => (
+                <MenuCardSkeleton key={i} />
+              ))}
+              <span className="sr-only">Loading menu…</span>
             </div>
           )}
 
@@ -424,27 +452,36 @@ const MenuPage = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 * index, duration: 0.5 }}
-                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg transition-all duration-300"
+                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg hover:-translate-y-1 hover:border-secondary/40 focus-within:shadow-elegant-lg focus-within:border-secondary/40 transition-all duration-300 ease-out"
                 >
                   {/* Image - Click to go to product details */}
                   <div 
-                    className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer"
+                    className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     onClick={() => handleImageClick(item)}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`View details of ${item.name}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleImageClick(item);
+                      }
+                    }}
                   >
                     <BlurImage
                       src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
                       fallbackSrc={getFallbackImage(item.name, item.category)}
                       alt={item.name}
                       wrapperClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300" />
                     
                     {/* Eye Icon - View Full Image */}
                     <button
                       onClick={(e) => handleViewImage(item, e)}
                       aria-label={`View full image of ${item.name}`}
-                      className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground hover:scale-110 focus-visible:scale-110 focus-visible:bg-secondary focus-visible:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary transition-all duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 shadow-lg"
                       title="View full image"
                     >
                       <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -483,7 +520,7 @@ const MenuPage = () => {
                   {/* Content */}
                   <div className="p-4 sm:p-5 lg:p-6">
                     <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2">
-                      <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
+                      <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary group-focus-within:text-secondary transition-colors duration-300 line-clamp-1">
                         {item.name}
                       </h3>
                       <span className="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
@@ -496,7 +533,7 @@ const MenuPage = () => {
                     <Button 
                       onClick={() => handleItemClick(item)}
                       size="sm"
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Order Now
