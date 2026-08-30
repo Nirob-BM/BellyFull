@@ -533,7 +533,7 @@ const MenuPage = () => {
                     <Button 
                       onClick={() => handleItemClick(item)}
                       size="sm"
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Order Now
