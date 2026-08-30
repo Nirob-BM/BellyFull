@@ -52,7 +52,10 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
     const { Workbox } = await import("workbox-window");
     const wb = new Workbox(SW_PATH);
 
+    let prompted = false;
     const showPrompt = () => {
+      if (prompted) return;
+      prompted = true;
       const updateSW = async (reload = true) => {
         const waiting = new Promise<void>((resolve) => {
           const onControlling = () => {
@@ -60,6 +63,8 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
             resolve();
           };
           wb.addEventListener("controlling", onControlling);
+          // Safety net: never hang the button if `controlling` never fires.
+          window.setTimeout(resolve, 3000);
         });
         wb.messageSkipWaiting();
         await waiting;
@@ -68,10 +73,30 @@ export async function registerPWA(onNeedRefresh: UpdateHandler) {
       onNeedRefresh(updateSW);
     };
 
+    // A new SW is installed and waiting (this tab), or another tab installed it.
     wb.addEventListener("waiting", showPrompt);
+    wb.addEventListener("externalwaiting", showPrompt);
 
-    await wb.register();
+    const registration = await wb.register();
+
+    // If a worker was already waiting before this page loaded, prompt now.
+    if (registration?.waiting && navigator.serviceWorker.controller) {
+      showPrompt();
+    }
+
+    // Check for updates when the tab regains focus and once an hour.
+    const checkForUpdate = () => {
+      registration?.update().catch(() => {
+        /* offline or transient failure */
+      });
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") checkForUpdate();
+    });
+    window.addEventListener("online", checkForUpdate);
+    window.setInterval(checkForUpdate, 60 * 60 * 1000);
   } catch (err) {
     console.warn("[pwa] registration failed", err);
   }
 }
+
