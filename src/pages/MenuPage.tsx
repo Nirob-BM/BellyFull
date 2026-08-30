@@ -473,9 +473,9 @@ const MenuPage = () => {
                       fallbackSrc={getFallbackImage(item.name, item.category)}
                       alt={item.name}
                       wrapperClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300" />
                     
                     {/* Eye Icon - View Full Image */}
                     <button
