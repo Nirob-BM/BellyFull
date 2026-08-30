@@ -400,10 +400,17 @@ const MenuPage = () => {
             ))}
           </motion.div>
 
-          {/* Loading State */}
+          {/* Loading State — skeleton grid mirrors final layout */}
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+              role="status"
+              aria-label="Loading menu items"
+            >
+              {Array.from({ length: 8 }).map((_, i) => (
+                <MenuCardSkeleton key={i} />
+              ))}
+              <span className="sr-only">Loading menu…</span>
             </div>
           )}
 
