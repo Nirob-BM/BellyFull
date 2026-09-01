@@ -3,6 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
+import DishDetailModal from "@/components/DishDetailModal";
 import BlurImage from "@/components/ui/blur-image";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -51,6 +52,10 @@ interface MenuItem {
   is_spicy: boolean | null;
   is_veg: boolean | null;
   is_active: boolean | null;
+  ingredients?: string[] | null;
+  allergens?: string[] | null;
+  spice_level?: number | null;
+  prep_time_minutes?: number | null;
 }
 
 interface Category {
