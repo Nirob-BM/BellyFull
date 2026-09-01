@@ -190,51 +190,63 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          allergens: string[] | null
           category: string
           created_at: string
           description: string | null
           id: string
           image_url: string | null
           images: string[] | null
+          ingredients: string[] | null
           is_active: boolean | null
           is_popular: boolean | null
           is_spicy: boolean | null
           is_veg: boolean | null
           name: string
+          prep_time_minutes: number | null
           price: number
           sort_order: number | null
+          spice_level: number
           updated_at: string
         }
         Insert: {
+          allergens?: string[] | null
           category: string
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
+          ingredients?: string[] | null
           is_active?: boolean | null
           is_popular?: boolean | null
           is_spicy?: boolean | null
           is_veg?: boolean | null
           name: string
+          prep_time_minutes?: number | null
           price: number
           sort_order?: number | null
+          spice_level?: number
           updated_at?: string
         }
         Update: {
+          allergens?: string[] | null
           category?: string
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
+          ingredients?: string[] | null
           is_active?: boolean | null
           is_popular?: boolean | null
           is_spicy?: boolean | null
           is_veg?: boolean | null
           name?: string
+          prep_time_minutes?: number | null
           price?: number
           sort_order?: number | null
+          spice_level?: number
           updated_at?: string
         }
         Relationships: []
