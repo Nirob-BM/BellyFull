@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
+import DishDetailModal from "@/components/DishDetailModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -69,6 +70,10 @@ interface MenuItem {
   is_spicy: boolean | null;
   is_veg: boolean | null;
   is_active: boolean | null;
+  ingredients?: string[] | null;
+  allergens?: string[] | null;
+  spice_level?: number | null;
+  prep_time_minutes?: number | null;
 }
 
 interface Category {
@@ -116,6 +121,10 @@ const MenuPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [dietFilters, setDietFilters] = useState({ veg: false, mildOnly: false, popular: false });
+  const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const { toast } = useToast();
   const { addItem } = useCart();
 
@@ -170,6 +179,13 @@ const MenuPage = () => {
     setIsLoading(false);
   };
 
+  // All allergens present across the menu, for exclusion filters
+  const allAllergens = useMemo(() => {
+    const set = new Set<string>();
+    menuItems.forEach(item => item.allergens?.forEach(a => set.add(a)));
+    return Array.from(set).sort();
+  }, [menuItems]);
+
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     let result = [...menuItems];
@@ -185,9 +201,30 @@ const MenuPage = () => {
       result = result.filter(item => 
         item.name.toLowerCase().includes(query) ||
         item.description?.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query)
+        item.category.toLowerCase().includes(query) ||
+        item.ingredients?.some(ing => ing.toLowerCase().includes(query))
       );
     }
+
+    // Dietary filters
+    if (dietFilters.veg) {
+      result = result.filter(item => item.is_veg);
+    }
+    if (dietFilters.mildOnly) {
+      result = result.filter(item => !item.is_spicy);
+    }
+    if (dietFilters.popular) {
+      result = result.filter(item => item.is_popular);
+    }
+
+    // Allergen exclusions
+    if (excludedAllergens.length > 0) {
+      result = result.filter(item =>
+        !item.allergens?.some(a => excludedAllergens.includes(a))
+      );
+    }
+    
+
     
     // Sorting
     switch (sortBy) {
@@ -206,7 +243,7 @@ const MenuPage = () => {
     }
     
     return result;
-  }, [menuItems, activeCategory, searchQuery, sortBy]);
+  }, [menuItems, activeCategory, searchQuery, sortBy, dietFilters, excludedAllergens]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedItem(item);
@@ -216,12 +253,34 @@ const MenuPage = () => {
 
   const handleViewImage = (item: MenuItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    setLightboxItem(item);
-    setIsLightboxOpen(true);
+    setDetailItem(item);
+    setIsDetailOpen(true);
   };
 
   const handleImageClick = (item: MenuItem) => {
-    navigate(`/product/${item.id}`);
+    setDetailItem(item);
+    setIsDetailOpen(true);
+  };
+
+  const handleDetailAddToCart = (item: MenuItem) => {
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image_url: item.image_url || undefined
+    });
+    toast({
+      title: "Added to Cart! 🎉",
+      description: `1x ${item.name} - ৳${item.price}`,
+    });
+    setIsDetailOpen(false);
+    setDetailItem(null);
+  };
+
+  const toggleAllergenExclusion = (allergen: string) => {
+    setExcludedAllergens(prev =>
+      prev.includes(allergen) ? prev.filter(a => a !== allergen) : [...prev, allergen]
+    );
   };
 
   const getItemImages = (item: MenuItem): string[] => {
@@ -350,6 +409,67 @@ const MenuPage = () => {
                 <SelectItem value="newest">Newest First</SelectItem>
               </SelectContent>
             </Select>
+          </motion.div>
+
+          {/* Dietary & Allergen Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.6 }}
+            className="flex flex-col items-center gap-3 mb-8"
+          >
+            <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Dietary filters">
+              <Button
+                size="sm"
+                variant={dietFilters.veg ? "default" : "outline"}
+                onClick={() => setDietFilters(f => ({ ...f, veg: !f.veg }))}
+                aria-pressed={dietFilters.veg}
+                className={dietFilters.veg ? "bg-green-600 hover:bg-green-600/90 text-white" : "border-border text-muted-foreground hover:text-foreground"}
+              >
+                <Leaf className="h-3.5 w-3.5 mr-1" /> Vegetarian
+              </Button>
+              <Button
+                size="sm"
+                variant={dietFilters.mildOnly ? "default" : "outline"}
+                onClick={() => setDietFilters(f => ({ ...f, mildOnly: !f.mildOnly }))}
+                aria-pressed={dietFilters.mildOnly}
+                className={dietFilters.mildOnly ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground"}
+              >
+                <Flame className="h-3.5 w-3.5 mr-1" /> Mild Only
+              </Button>
+              <Button
+                size="sm"
+                variant={dietFilters.popular ? "default" : "outline"}
+                onClick={() => setDietFilters(f => ({ ...f, popular: !f.popular }))}
+                aria-pressed={dietFilters.popular}
+                className={dietFilters.popular ? "bg-secondary text-secondary-foreground" : "border-border text-muted-foreground hover:text-foreground"}
+              >
+                <Star className="h-3.5 w-3.5 mr-1" /> Popular
+              </Button>
+            </div>
+
+            {allAllergens.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Exclude allergens">
+                <span className="text-xs text-muted-foreground">Exclude:</span>
+                {allAllergens.map((allergen) => {
+                  const active = excludedAllergens.includes(allergen);
+                  return (
+                    <button
+                      key={allergen}
+                      onClick={() => toggleAllergenExclusion(allergen)}
+                      aria-pressed={active}
+                      className={`px-2.5 py-1 rounded-full text-xs border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        active
+                          ? "bg-destructive text-destructive-foreground border-destructive"
+                          : "bg-card text-muted-foreground border-border hover:border-destructive/50 hover:text-foreground"
+                      }`}
+                    >
+                      No {allergen}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
 
           {/* Category Filters */}
@@ -600,6 +720,18 @@ const MenuPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Dish Detail Modal (ingredients, spice level, prep time, allergens) */}
+      <DishDetailModal
+        item={detailItem}
+        open={isDetailOpen}
+        onOpenChange={(open) => {
+          setIsDetailOpen(open);
+          if (!open) setDetailItem(null);
+        }}
+        fallbackImage={detailItem ? getFallbackImage(detailItem.name, detailItem.category) : dishButterChicken}
+        onAddToCart={handleDetailAddToCart}
+      />
 
       {/* Image Lightbox */}
       {lightboxItem && (

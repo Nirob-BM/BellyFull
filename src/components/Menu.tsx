@@ -3,6 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
+import DishDetailModal from "@/components/DishDetailModal";
 import BlurImage from "@/components/ui/blur-image";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -51,6 +52,10 @@ interface MenuItem {
   is_spicy: boolean | null;
   is_veg: boolean | null;
   is_active: boolean | null;
+  ingredients?: string[] | null;
+  allergens?: string[] | null;
+  spice_level?: number | null;
+  prep_time_minutes?: number | null;
 }
 
 interface Category {
@@ -72,6 +77,8 @@ const Menu = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [maxVisible, setMaxVisible] = useState(6);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -136,12 +143,28 @@ const Menu = () => {
 
   const handleViewImage = (item: MenuItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    setLightboxItem(item);
-    setIsLightboxOpen(true);
+    setDetailItem(item);
+    setIsDetailOpen(true);
   };
 
   const handleImageClick = (item: MenuItem) => {
-    navigate(`/product/${item.id}`);
+    setDetailItem(item);
+    setIsDetailOpen(true);
+  };
+
+  const handleDetailAddToCart = (item: MenuItem) => {
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image_url: item.image_url || undefined
+    });
+    toast({
+      title: "Added to Cart! 🎉",
+      description: `1x ${item.name} - ৳${item.price}`,
+    });
+    setIsDetailOpen(false);
+    setDetailItem(null);
   };
 
   const getItemImages = (item: MenuItem): string[] => {
@@ -373,6 +396,18 @@ const Menu = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Dish Detail Modal (ingredients, spice level, prep time, allergens) */}
+      <DishDetailModal
+        item={detailItem}
+        open={isDetailOpen}
+        onOpenChange={(open) => {
+          setIsDetailOpen(open);
+          if (!open) setDetailItem(null);
+        }}
+        fallbackImage={detailItem ? getFallbackImage(detailItem.name, detailItem.category) : dishButterChicken}
+        onAddToCart={handleDetailAddToCart}
+      />
 
       {/* Image Lightbox */}
       {lightboxItem && (
