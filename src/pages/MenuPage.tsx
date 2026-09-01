@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
+import DishDetailModal from "@/components/DishDetailModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -69,6 +70,10 @@ interface MenuItem {
   is_spicy: boolean | null;
   is_veg: boolean | null;
   is_active: boolean | null;
+  ingredients?: string[] | null;
+  allergens?: string[] | null;
+  spice_level?: number | null;
+  prep_time_minutes?: number | null;
 }
 
 interface Category {
