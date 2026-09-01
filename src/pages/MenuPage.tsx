@@ -121,6 +121,10 @@ const MenuPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState<MenuItem | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [dietFilters, setDietFilters] = useState({ veg: false, mildOnly: false, popular: false });
+  const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const { toast } = useToast();
   const { addItem } = useCart();
 
