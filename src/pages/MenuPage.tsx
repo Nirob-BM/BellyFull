@@ -243,7 +243,7 @@ const MenuPage = () => {
     }
     
     return result;
-  }, [menuItems, activeCategory, searchQuery, sortBy]);
+  }, [menuItems, activeCategory, searchQuery, sortBy, dietFilters, excludedAllergens]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedItem(item);
@@ -253,12 +253,34 @@ const MenuPage = () => {
 
   const handleViewImage = (item: MenuItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    setLightboxItem(item);
-    setIsLightboxOpen(true);
+    setDetailItem(item);
+    setIsDetailOpen(true);
   };
 
   const handleImageClick = (item: MenuItem) => {
-    navigate(`/product/${item.id}`);
+    setDetailItem(item);
+    setIsDetailOpen(true);
+  };
+
+  const handleDetailAddToCart = (item: MenuItem) => {
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image_url: item.image_url || undefined
+    });
+    toast({
+      title: "Added to Cart! 🎉",
+      description: `1x ${item.name} - ৳${item.price}`,
+    });
+    setIsDetailOpen(false);
+    setDetailItem(null);
+  };
+
+  const toggleAllergenExclusion = (allergen: string) => {
+    setExcludedAllergens(prev =>
+      prev.includes(allergen) ? prev.filter(a => a !== allergen) : [...prev, allergen]
+    );
   };
 
   const getItemImages = (item: MenuItem): string[] => {
