@@ -179,6 +179,13 @@ const MenuPage = () => {
     setIsLoading(false);
   };
 
+  // All allergens present across the menu, for exclusion filters
+  const allAllergens = useMemo(() => {
+    const set = new Set<string>();
+    menuItems.forEach(item => item.allergens?.forEach(a => set.add(a)));
+    return Array.from(set).sort();
+  }, [menuItems]);
+
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     let result = [...menuItems];
@@ -194,9 +201,30 @@ const MenuPage = () => {
       result = result.filter(item => 
         item.name.toLowerCase().includes(query) ||
         item.description?.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query)
+        item.category.toLowerCase().includes(query) ||
+        item.ingredients?.some(ing => ing.toLowerCase().includes(query))
       );
     }
+
+    // Dietary filters
+    if (dietFilters.veg) {
+      result = result.filter(item => item.is_veg);
+    }
+    if (dietFilters.mildOnly) {
+      result = result.filter(item => !item.is_spicy);
+    }
+    if (dietFilters.popular) {
+      result = result.filter(item => item.is_popular);
+    }
+
+    // Allergen exclusions
+    if (excludedAllergens.length > 0) {
+      result = result.filter(item =>
+        !item.allergens?.some(a => excludedAllergens.includes(a))
+      );
+    }
+    
+
     
     // Sorting
     switch (sortBy) {
