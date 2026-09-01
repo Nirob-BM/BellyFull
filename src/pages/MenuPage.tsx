@@ -721,6 +721,18 @@ const MenuPage = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dish Detail Modal (ingredients, spice level, prep time, allergens) */}
+      <DishDetailModal
+        item={detailItem}
+        open={isDetailOpen}
+        onOpenChange={(open) => {
+          setIsDetailOpen(open);
+          if (!open) setDetailItem(null);
+        }}
+        fallbackImage={detailItem ? getFallbackImage(detailItem.name, detailItem.category) : dishButterChicken}
+        onAddToCart={handleDetailAddToCart}
+      />
+
       {/* Image Lightbox */}
       {lightboxItem && (
         <ImageLightbox
