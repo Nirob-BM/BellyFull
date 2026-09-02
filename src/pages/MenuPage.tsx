@@ -210,12 +210,7 @@ const MenuPage = () => {
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     let result = [...menuItems];
-    
-    // Category filter
-    if (activeCategory !== "All") {
-      result = result.filter(item => item.category === activeCategory);
-    }
-    
+
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
