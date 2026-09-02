@@ -9,52 +9,52 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Helmet } from 'react-helmet-async';
 
 const navItems = [{
-  path: '/admin',
+  path: '/69',
   icon: LayoutDashboard,
   label: 'Dashboard',
   exact: true
 }, {
-  path: '/admin/categories',
+  path: '/69/categories',
   icon: Folder,
   label: 'Categories'
 }, {
-  path: '/admin/menu',
+  path: '/69/menu',
   icon: UtensilsCrossed,
   label: 'Menu Manager'
 }, {
-  path: '/admin/orders',
+  path: '/69/orders',
   icon: Package,
   label: 'Orders'
 }, {
-  path: '/admin/reservations',
+  path: '/69/reservations',
   icon: CalendarDays,
   label: 'Reservations'
 }, {
-  path: '/admin/contacts',
+  path: '/69/contacts',
   icon: MessageSquare,
   label: 'Contact Submissions'
 }, {
-  path: '/admin/hours',
+  path: '/69/hours',
   icon: Clock,
   label: 'Opening Hours'
 }, {
-  path: '/admin/blog',
+  path: '/69/blog',
   icon: FileText,
   label: 'Blog Posts'
 }, {
-  path: '/admin/events',
+  path: '/69/events',
   icon: Calendar,
   label: 'Events'
 }, {
-  path: '/admin/media',
+  path: '/69/media',
   icon: Image,
   label: 'Media Library'
 }, {
-  path: '/admin/settings',
+  path: '/69/settings',
   icon: Settings,
   label: 'Site Settings'
 }, {
-  path: '/admin/seo',
+  path: '/69/seo',
   icon: Search,
   label: 'SEO Health'
 }];

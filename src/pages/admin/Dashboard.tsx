@@ -380,7 +380,7 @@ const Dashboard = () => {
         <CardContent>
           <div className="grid sm:grid-cols-3 gap-3">
             <Button asChild variant="outline" className="h-auto py-3 justify-start">
-              <Link to="/admin/seo">
+              <Link to="/69/seo">
                 <FileCode className="h-4 w-4 mr-2 shrink-0" />
                 <span className="flex-1 text-left">
                   <span className="block font-medium">SEO Health Check</span>
