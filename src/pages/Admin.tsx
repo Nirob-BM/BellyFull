@@ -130,10 +130,10 @@ const Admin = () => {
         <title>Admin Dashboard — Belly Full</title>
         <meta name="description" content="Belly Full admin dashboard — manage menu, orders, reservations, blog and site settings." />
         <meta name="robots" content="noindex,nofollow" />
-        <link rel="canonical" href="https://bellyfull.lovable.app/admin" />
+        <link rel="canonical" href="https://bellyfull.lovable.app/69" />
         <meta property="og:title" content="Belly Full Admin" />
         <meta property="og:description" content="Internal admin dashboard for Belly Full restaurant." />
-        <meta property="og:url" content="https://bellyfull.lovable.app/admin" />
+        <meta property="og:url" content="https://bellyfull.lovable.app/69" />
       </Helmet>
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-card/95 backdrop-blur-md border-b border-border z-50 flex items-center justify-between px-4 shadow-sm">
