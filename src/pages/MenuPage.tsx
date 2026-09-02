@@ -259,7 +259,59 @@ const MenuPage = () => {
     }
     
     return result;
-  }, [menuItems, activeCategory, searchQuery, sortBy, dietFilters, excludedAllergens]);
+  }, [menuItems, searchQuery, sortBy, dietFilters, excludedAllergens]);
+
+  // Group the filtered items into their visible categories (in sort order)
+  const groupedItems = useMemo(() => {
+    const groups: { category: Category; items: MenuItem[] }[] = [];
+    for (const cat of categories) {
+      const items = filteredAndSortedItems.filter((i) => i.category === cat.name);
+      if (items.length > 0) groups.push({ category: cat, items });
+    }
+    // Items whose category isn't in the visible categories list
+    const known = new Set(categories.map((c) => c.name));
+    const other = filteredAndSortedItems.filter((i) => !known.has(i.category));
+    if (other.length > 0) {
+      groups.push({
+        category: { id: "other", name: "Other", icon_url: null, is_visible: true, sort_order: 999 },
+        items: other,
+      });
+    }
+    return groups;
+  }, [filteredAndSortedItems, categories]);
+
+  // Scroll-spy: highlight the tab for the section currently in view
+  useEffect(() => {
+    if (isLoading || groupedItems.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isProgrammaticScroll.current) return;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const cat = entry.target.getAttribute("data-category");
+            if (cat) setActiveCategory(cat);
+          }
+        }
+      },
+      { rootMargin: "-160px 0px -55% 0px", threshold: 0 }
+    );
+    Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [isLoading, groupedItems]);
+
+  // Keep the active tab scrolled into view inside the tab bar
+  useEffect(() => {
+    const tab = tabRefs.current[activeCategory];
+    tab?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [activeCategory]);
+
+  // Deep link: scroll to the category from the URL once data has loaded
+  useEffect(() => {
+    if (!isLoading && categoryFromUrl && categoryFromUrl !== "All") {
+      const t = window.setTimeout(() => scrollToCategory(categoryFromUrl), 150);
+      return () => window.clearTimeout(t);
+    }
+  }, [isLoading, categoryFromUrl, scrollToCategory]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedItem(item);
