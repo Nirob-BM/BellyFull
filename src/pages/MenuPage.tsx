@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
@@ -128,6 +128,23 @@ const MenuPage = () => {
   const { toast } = useToast();
   const { addItem } = useCart();
 
+  // Section refs for scroll-spy + smooth scroll navigation
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const isProgrammaticScroll = useRef(false);
+
+  const scrollToCategory = useCallback((category: string) => {
+    if (category === "All") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const el = sectionRefs.current[category];
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 150;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, []);
+
   // Sync URL param with state
   useEffect(() => {
     if (categoryFromUrl && categoryFromUrl !== activeCategory) {
@@ -135,15 +152,19 @@ const MenuPage = () => {
     }
   }, [categoryFromUrl]);
 
-  // Update URL when category changes
+  // Update URL + smooth scroll when a tab is tapped
   const handleCategoryChange = (category: string) => {
+    isProgrammaticScroll.current = true;
     setActiveCategory(category);
     if (category === "All") {
       searchParams.delete('category');
     } else {
       searchParams.set('category', category);
     }
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { preventScrollReset: true });
+    scrollToCategory(category);
+    // Re-enable scroll-spy shortly after the smooth scroll settles
+    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 900);
   };
 
   useEffect(() => {
@@ -189,12 +210,7 @@ const MenuPage = () => {
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     let result = [...menuItems];
-    
-    // Category filter
-    if (activeCategory !== "All") {
-      result = result.filter(item => item.category === activeCategory);
-    }
-    
+
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -243,7 +259,59 @@ const MenuPage = () => {
     }
     
     return result;
-  }, [menuItems, activeCategory, searchQuery, sortBy, dietFilters, excludedAllergens]);
+  }, [menuItems, searchQuery, sortBy, dietFilters, excludedAllergens]);
+
+  // Group the filtered items into their visible categories (in sort order)
+  const groupedItems = useMemo(() => {
+    const groups: { category: Category; items: MenuItem[] }[] = [];
+    for (const cat of categories) {
+      const items = filteredAndSortedItems.filter((i) => i.category === cat.name);
+      if (items.length > 0) groups.push({ category: cat, items });
+    }
+    // Items whose category isn't in the visible categories list
+    const known = new Set(categories.map((c) => c.name));
+    const other = filteredAndSortedItems.filter((i) => !known.has(i.category));
+    if (other.length > 0) {
+      groups.push({
+        category: { id: "other", name: "Other", icon_url: null, is_visible: true, sort_order: 999 },
+        items: other,
+      });
+    }
+    return groups;
+  }, [filteredAndSortedItems, categories]);
+
+  // Scroll-spy: highlight the tab for the section currently in view
+  useEffect(() => {
+    if (isLoading || groupedItems.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isProgrammaticScroll.current) return;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const cat = entry.target.getAttribute("data-category");
+            if (cat) setActiveCategory(cat);
+          }
+        }
+      },
+      { rootMargin: "-160px 0px -55% 0px", threshold: 0 }
+    );
+    Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [isLoading, groupedItems]);
+
+  // Keep the active tab scrolled into view inside the tab bar
+  useEffect(() => {
+    const tab = tabRefs.current[activeCategory];
+    tab?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [activeCategory]);
+
+  // Deep link: scroll to the category from the URL once data has loaded
+  useEffect(() => {
+    if (!isLoading && categoryFromUrl && categoryFromUrl !== "All") {
+      const t = window.setTimeout(() => scrollToCategory(categoryFromUrl), 150);
+      return () => window.clearTimeout(t);
+    }
+  }, [isLoading, categoryFromUrl, scrollToCategory]);
 
   const handleItemClick = (item: MenuItem) => {
     setSelectedItem(item);
@@ -317,6 +385,103 @@ const MenuPage = () => {
       setQuantity(1);
     }
   };
+
+  const renderMenuCard = (item: MenuItem, index: number) => (
+    <motion.div
+      key={item.id}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ delay: Math.min(index, 6) * 0.05, duration: 0.5 }}
+      className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg hover:-translate-y-1 hover:border-secondary/40 focus-within:shadow-elegant-lg focus-within:border-secondary/40 transition-all duration-300 ease-out"
+    >
+      {/* Image - Click to view dish details */}
+      <div
+        className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        onClick={() => handleImageClick(item)}
+        role="link"
+        tabIndex={0}
+        aria-label={`View details of ${item.name}`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleImageClick(item);
+          }
+        }}
+      >
+        <BlurImage
+          src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
+          fallbackSrc={getFallbackImage(item.name, item.category)}
+          alt={item.name}
+          wrapperClassName="absolute inset-0 w-full h-full"
+          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300" />
+
+        {/* Eye Icon - View Details */}
+        <button
+          onClick={(e) => handleViewImage(item, e)}
+          aria-label={`View full image of ${item.name}`}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground hover:scale-110 focus-visible:scale-110 focus-visible:bg-secondary focus-visible:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary transition-all duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 shadow-lg"
+          title="View full image"
+        >
+          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+        </button>
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-1.5 sm:gap-2 max-w-[75%]">
+          {item.is_popular && (
+            <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium">
+              <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
+              Popular
+            </span>
+          )}
+          {item.is_spicy && (
+            <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium">
+              <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              Spicy
+            </span>
+          )}
+          {item.is_veg && (
+            <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500 text-white text-[10px] sm:text-xs font-medium">
+              <Leaf className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              Veg
+            </span>
+          )}
+        </div>
+
+        {/* Price Badge */}
+        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
+          <span className="inline-block px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-base sm:text-lg font-bold text-secondary">
+            ৳{item.price}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 sm:p-5 lg:p-6">
+        <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2">
+          <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary group-focus-within:text-secondary transition-colors duration-300 line-clamp-1">
+            {item.name}
+          </h3>
+          <span className="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
+            {item.category}
+          </span>
+        </div>
+        <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
+          {item.description}
+        </p>
+        <Button
+          onClick={() => handleItemClick(item)}
+          size="sm"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+        >
+          <ShoppingBag className="h-4 w-4 mr-2" />
+          Order Now
+        </Button>
+      </div>
+    </motion.div>
+  );
 
   const menuSchema = {
     "@context": "https://schema.org",
