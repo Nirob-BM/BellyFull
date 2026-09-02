@@ -9,52 +9,52 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Helmet } from 'react-helmet-async';
 
 const navItems = [{
-  path: '/admin',
+  path: '/69',
   icon: LayoutDashboard,
   label: 'Dashboard',
   exact: true
 }, {
-  path: '/admin/categories',
+  path: '/69/categories',
   icon: Folder,
   label: 'Categories'
 }, {
-  path: '/admin/menu',
+  path: '/69/menu',
   icon: UtensilsCrossed,
   label: 'Menu Manager'
 }, {
-  path: '/admin/orders',
+  path: '/69/orders',
   icon: Package,
   label: 'Orders'
 }, {
-  path: '/admin/reservations',
+  path: '/69/reservations',
   icon: CalendarDays,
   label: 'Reservations'
 }, {
-  path: '/admin/contacts',
+  path: '/69/contacts',
   icon: MessageSquare,
   label: 'Contact Submissions'
 }, {
-  path: '/admin/hours',
+  path: '/69/hours',
   icon: Clock,
   label: 'Opening Hours'
 }, {
-  path: '/admin/blog',
+  path: '/69/blog',
   icon: FileText,
   label: 'Blog Posts'
 }, {
-  path: '/admin/events',
+  path: '/69/events',
   icon: Calendar,
   label: 'Events'
 }, {
-  path: '/admin/media',
+  path: '/69/media',
   icon: Image,
   label: 'Media Library'
 }, {
-  path: '/admin/settings',
+  path: '/69/settings',
   icon: Settings,
   label: 'Site Settings'
 }, {
-  path: '/admin/seo',
+  path: '/69/seo',
   icon: Search,
   label: 'SEO Health'
 }];
@@ -130,10 +130,10 @@ const Admin = () => {
         <title>Admin Dashboard — Belly Full</title>
         <meta name="description" content="Belly Full admin dashboard — manage menu, orders, reservations, blog and site settings." />
         <meta name="robots" content="noindex,nofollow" />
-        <link rel="canonical" href="https://bellyfull.lovable.app/admin" />
+        <link rel="canonical" href="https://bellyfull.lovable.app/69" />
         <meta property="og:title" content="Belly Full Admin" />
         <meta property="og:description" content="Internal admin dashboard for Belly Full restaurant." />
-        <meta property="og:url" content="https://bellyfull.lovable.app/admin" />
+        <meta property="og:url" content="https://bellyfull.lovable.app/69" />
       </Helmet>
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-card/95 backdrop-blur-md border-b border-border z-50 flex items-center justify-between px-4 shadow-sm">

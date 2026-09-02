@@ -26,7 +26,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/admin');
+      navigate('/69');
     }
   }, [user, navigate]);
 
@@ -64,7 +64,7 @@ const Auth = () => {
         toast({ title: 'Login Failed', description: 'Invalid credentials or unable to sign in.', variant: 'destructive' });
       } else {
         toast({ title: 'Welcome back!', description: 'You have successfully logged in.' });
-        navigate('/admin');
+        navigate('/69');
       }
     } finally {
       setIsSubmitting(false);
