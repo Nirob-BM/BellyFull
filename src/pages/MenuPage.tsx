@@ -152,15 +152,19 @@ const MenuPage = () => {
     }
   }, [categoryFromUrl]);
 
-  // Update URL when category changes
+  // Update URL + smooth scroll when a tab is tapped
   const handleCategoryChange = (category: string) => {
+    isProgrammaticScroll.current = true;
     setActiveCategory(category);
     if (category === "All") {
       searchParams.delete('category');
     } else {
       searchParams.set('category', category);
     }
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { preventScrollReset: true });
+    scrollToCategory(category);
+    // Re-enable scroll-spy shortly after the smooth scroll settles
+    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 900);
   };
 
   useEffect(() => {
