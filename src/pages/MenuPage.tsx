@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
   Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
@@ -127,6 +127,23 @@ const MenuPage = () => {
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const { toast } = useToast();
   const { addItem } = useCart();
+
+  // Section refs for scroll-spy + smooth scroll navigation
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const isProgrammaticScroll = useRef(false);
+
+  const scrollToCategory = useCallback((category: string) => {
+    if (category === "All") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const el = sectionRefs.current[category];
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 150;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, []);
 
   // Sync URL param with state
   useEffect(() => {
