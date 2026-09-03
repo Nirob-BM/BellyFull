@@ -24,6 +24,10 @@ interface MenuItem {
   is_veg: boolean | null;
   is_active: boolean | null;
   sort_order: number | null;
+  ingredients: string[] | null;
+  allergens: string[] | null;
+  spice_level: number | null;
+  prep_time_minutes: number | null;
 }
 
 interface Category {
@@ -33,6 +37,11 @@ interface Category {
   is_visible: boolean;
   sort_order: number;
 }
+
+const toList = (value: string): string[] | null => {
+  const items = value.split(',').map((v) => v.trim()).filter(Boolean);
+  return items.length > 0 ? items : null;
+};
 
 const MenuManager = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -53,6 +62,10 @@ const MenuManager = () => {
     is_spicy: false,
     is_veg: false,
     is_active: true,
+    ingredients: '',
+    allergens: '',
+    spice_level: '0',
+    prep_time_minutes: '',
   });
   const [isUploading, setIsUploading] = useState(false);
   const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
@@ -183,6 +196,10 @@ const MenuManager = () => {
       is_spicy: false,
       is_veg: false,
       is_active: true,
+      ingredients: '',
+      allergens: '',
+      spice_level: '0',
+      prep_time_minutes: '',
     });
     setIsDialogOpen(true);
   };
@@ -200,6 +217,10 @@ const MenuManager = () => {
       is_spicy: item.is_spicy || false,
       is_veg: item.is_veg || false,
       is_active: item.is_active ?? true,
+      ingredients: (item.ingredients || []).join(', '),
+      allergens: (item.allergens || []).join(', '),
+      spice_level: String(item.spice_level ?? 0),
+      prep_time_minutes: item.prep_time_minutes != null ? String(item.prep_time_minutes) : '',
     });
     setIsDialogOpen(true);
   };
@@ -218,6 +239,10 @@ const MenuManager = () => {
       is_spicy: formData.is_spicy,
       is_veg: formData.is_veg,
       is_active: formData.is_active,
+      ingredients: toList(formData.ingredients),
+      allergens: toList(formData.allergens),
+      spice_level: Math.min(3, Math.max(0, parseInt(formData.spice_level || '0', 10) || 0)),
+      prep_time_minutes: formData.prep_time_minutes ? parseInt(formData.prep_time_minutes, 10) : null,
     };
 
     if (editingItem) {
@@ -460,6 +485,57 @@ const MenuManager = () => {
                 </select>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ingredients">Ingredients (comma separated)</Label>
+              <Textarea
+                id="ingredients"
+                value={formData.ingredients}
+                onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
+                rows={2}
+                placeholder="Basmati rice, mutton, yogurt, saffron"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="allergens">Allergens (comma separated)</Label>
+              <Input
+                id="allergens"
+                value={formData.allergens}
+                onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                placeholder="dairy, gluten, nuts"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="spice_level">Spice level (0-3)</Label>
+                <select
+                  id="spice_level"
+                  value={formData.spice_level}
+                  onChange={(e) => setFormData({ ...formData, spice_level: e.target.value })}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                >
+                  <option value="0">0 — Not spicy</option>
+                  <option value="1">1 — Mild</option>
+                  <option value="2">2 — Medium</option>
+                  <option value="3">3 — Hot</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prep_time_minutes">Prep time (minutes)</Label>
+                <Input
+                  id="prep_time_minutes"
+                  type="number"
+                  min="0"
+                  value={formData.prep_time_minutes}
+                  onChange={(e) => setFormData({ ...formData, prep_time_minutes: e.target.value })}
+                  placeholder="25"
+                />
+              </div>
+            </div>
+
+
 
             {/* Multiple Images Section */}
             <div className="space-y-3">
