@@ -24,6 +24,10 @@ interface MenuItem {
   is_veg: boolean | null;
   is_active: boolean | null;
   sort_order: number | null;
+  ingredients: string[] | null;
+  allergens: string[] | null;
+  spice_level: number | null;
+  prep_time_minutes: number | null;
 }
 
 interface Category {
@@ -53,6 +57,10 @@ const MenuManager = () => {
     is_spicy: false,
     is_veg: false,
     is_active: true,
+    ingredients: '',
+    allergens: '',
+    spice_level: '0',
+    prep_time_minutes: '',
   });
   const [isUploading, setIsUploading] = useState(false);
   const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
