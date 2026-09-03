@@ -38,6 +38,11 @@ interface Category {
   sort_order: number;
 }
 
+const toList = (value: string): string[] | null => {
+  const items = value.split(',').map((v) => v.trim()).filter(Boolean);
+  return items.length > 0 ? items : null;
+};
+
 const MenuManager = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
