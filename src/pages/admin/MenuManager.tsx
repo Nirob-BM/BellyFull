@@ -191,6 +191,10 @@ const MenuManager = () => {
       is_spicy: false,
       is_veg: false,
       is_active: true,
+      ingredients: '',
+      allergens: '',
+      spice_level: '0',
+      prep_time_minutes: '',
     });
     setIsDialogOpen(true);
   };
@@ -208,6 +212,10 @@ const MenuManager = () => {
       is_spicy: item.is_spicy || false,
       is_veg: item.is_veg || false,
       is_active: item.is_active ?? true,
+      ingredients: (item.ingredients || []).join(', '),
+      allergens: (item.allergens || []).join(', '),
+      spice_level: String(item.spice_level ?? 0),
+      prep_time_minutes: item.prep_time_minutes != null ? String(item.prep_time_minutes) : '',
     });
     setIsDialogOpen(true);
   };
@@ -226,6 +234,10 @@ const MenuManager = () => {
       is_spicy: formData.is_spicy,
       is_veg: formData.is_veg,
       is_active: formData.is_active,
+      ingredients: toList(formData.ingredients),
+      allergens: toList(formData.allergens),
+      spice_level: Math.min(3, Math.max(0, parseInt(formData.spice_level || '0', 10) || 0)),
+      prep_time_minutes: formData.prep_time_minutes ? parseInt(formData.prep_time_minutes, 10) : null,
     };
 
     if (editingItem) {
