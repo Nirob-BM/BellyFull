@@ -486,6 +486,57 @@ const MenuManager = () => {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="ingredients">Ingredients (comma separated)</Label>
+              <Textarea
+                id="ingredients"
+                value={formData.ingredients}
+                onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
+                rows={2}
+                placeholder="Basmati rice, mutton, yogurt, saffron"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="allergens">Allergens (comma separated)</Label>
+              <Input
+                id="allergens"
+                value={formData.allergens}
+                onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                placeholder="dairy, gluten, nuts"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="spice_level">Spice level (0-3)</Label>
+                <select
+                  id="spice_level"
+                  value={formData.spice_level}
+                  onChange={(e) => setFormData({ ...formData, spice_level: e.target.value })}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                >
+                  <option value="0">0 — Not spicy</option>
+                  <option value="1">1 — Mild</option>
+                  <option value="2">2 — Medium</option>
+                  <option value="3">3 — Hot</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prep_time_minutes">Prep time (minutes)</Label>
+                <Input
+                  id="prep_time_minutes"
+                  type="number"
+                  min="0"
+                  value={formData.prep_time_minutes}
+                  onChange={(e) => setFormData({ ...formData, prep_time_minutes: e.target.value })}
+                  placeholder="25"
+                />
+              </div>
+            </div>
+
+
+
             {/* Multiple Images Section */}
             <div className="space-y-3">
               <Label>Product Images (up to 4)</Label>
