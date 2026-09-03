@@ -637,52 +637,65 @@ const MenuPage = () => {
             )}
           </motion.div>
 
-          {/* Category Filters */}
+          {/* Category Tabs — sticky, smooth-scroll to sections, scroll-spy highlight */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-3 mb-12"
+            className="sticky top-16 sm:top-20 z-30 -mx-4 px-4 py-3 mb-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50"
           >
-            <Button
-              variant={activeCategory === "All" ? "default" : "outline"}
-              onClick={() => handleCategoryChange("All")}
-              className={activeCategory === "All" 
-                ? "bg-primary text-primary-foreground" 
-                : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
-              }
+            <div
+              className="flex gap-2 sm:gap-3 overflow-x-auto sm:flex-wrap sm:justify-center scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="tablist"
+              aria-label="Menu categories"
             >
-              All
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={activeCategory === category.name ? "default" : "outline"}
-                onClick={() => handleCategoryChange(category.name)}
-                className={`gap-2 ${activeCategory === category.name 
-                  ? "bg-primary text-primary-foreground" 
-                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
+              <button
+                ref={(el) => { tabRefs.current["All"] = el; }}
+                role="tab"
+                aria-selected={activeCategory === "All"}
+                onClick={() => handleCategoryChange("All")}
+                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                  activeCategory === "All"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary"
                 }`}
               >
-                {category.icon_url && (
-                  category.icon_url.startsWith('preset:') ? (
-                    (() => {
-                      const iconName = category.icon_url.replace('preset:', '');
-                      const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
-                      return <IconComponent className="w-4 h-4" />;
-                    })()
-                  ) : (
-                    <img 
-                      src={category.icon_url} 
-                      alt="" 
-                      className="w-4 h-4 object-cover rounded"
-            loading="lazy"
-            decoding="async"/>
-                  )
-                )}
-                {category.name}
-              </Button>
-            ))}
+                All
+              </button>
+              {groupedItems.map(({ category }) => (
+                <button
+                  key={category.id}
+                  ref={(el) => { tabRefs.current[category.name] = el; }}
+                  role="tab"
+                  aria-selected={activeCategory === category.name}
+                  onClick={() => handleCategoryChange(category.name)}
+                  className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                    activeCategory === category.name
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary"
+                  }`}
+                >
+                  {category.icon_url && (
+                    category.icon_url.startsWith('preset:') ? (
+                      (() => {
+                        const iconName = category.icon_url.replace('preset:', '');
+                        const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
+                        return <IconComponent className="w-4 h-4" />;
+                      })()
+                    ) : (
+                      <img
+                        src={category.icon_url}
+                        alt=""
+                        className="w-4 h-4 object-cover rounded"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )
+                  )}
+                  {category.name}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           {/* Loading State — skeleton grid mirrors final layout */}
