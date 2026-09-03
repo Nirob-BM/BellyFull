@@ -637,52 +637,65 @@ const MenuPage = () => {
             )}
           </motion.div>
 
-          {/* Category Filters */}
+          {/* Category Tabs — sticky, smooth-scroll to sections, scroll-spy highlight */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-3 mb-12"
+            className="sticky top-16 sm:top-20 z-30 -mx-4 px-4 py-3 mb-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50"
           >
-            <Button
-              variant={activeCategory === "All" ? "default" : "outline"}
-              onClick={() => handleCategoryChange("All")}
-              className={activeCategory === "All" 
-                ? "bg-primary text-primary-foreground" 
-                : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
-              }
+            <div
+              className="flex gap-2 sm:gap-3 overflow-x-auto sm:flex-wrap sm:justify-center scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              role="tablist"
+              aria-label="Menu categories"
             >
-              All
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={activeCategory === category.name ? "default" : "outline"}
-                onClick={() => handleCategoryChange(category.name)}
-                className={`gap-2 ${activeCategory === category.name 
-                  ? "bg-primary text-primary-foreground" 
-                  : "border-border text-muted-foreground hover:text-foreground hover:border-primary"
+              <button
+                ref={(el) => { tabRefs.current["All"] = el; }}
+                role="tab"
+                aria-selected={activeCategory === "All"}
+                onClick={() => handleCategoryChange("All")}
+                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                  activeCategory === "All"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary"
                 }`}
               >
-                {category.icon_url && (
-                  category.icon_url.startsWith('preset:') ? (
-                    (() => {
-                      const iconName = category.icon_url.replace('preset:', '');
-                      const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
-                      return <IconComponent className="w-4 h-4" />;
-                    })()
-                  ) : (
-                    <img 
-                      src={category.icon_url} 
-                      alt="" 
-                      className="w-4 h-4 object-cover rounded"
-            loading="lazy"
-            decoding="async"/>
-                  )
-                )}
-                {category.name}
-              </Button>
-            ))}
+                All
+              </button>
+              {groupedItems.map(({ category }) => (
+                <button
+                  key={category.id}
+                  ref={(el) => { tabRefs.current[category.name] = el; }}
+                  role="tab"
+                  aria-selected={activeCategory === category.name}
+                  onClick={() => handleCategoryChange(category.name)}
+                  className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                    activeCategory === category.name
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary"
+                  }`}
+                >
+                  {category.icon_url && (
+                    category.icon_url.startsWith('preset:') ? (
+                      (() => {
+                        const iconName = category.icon_url.replace('preset:', '');
+                        const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
+                        return <IconComponent className="w-4 h-4" />;
+                      })()
+                    ) : (
+                      <img
+                        src={category.icon_url}
+                        alt=""
+                        className="w-4 h-4 object-cover rounded"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )
+                  )}
+                  {category.name}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           {/* Loading State — skeleton grid mirrors final layout */}
@@ -713,121 +726,76 @@ const MenuPage = () => {
             </div>
           )}
 
-          {/* Results Count */}
-          {!isLoading && filteredAndSortedItems.length > 0 && (searchQuery || activeCategory !== "All") && (
+          {/* Results Count (search/filter mode) */}
+          {!isLoading && filteredAndSortedItems.length > 0 && searchQuery && (
             <div className="text-center mb-6">
               <p className="text-sm text-muted-foreground">
                 Showing {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? 'item' : 'items'}
-                {searchQuery && ` for "${searchQuery}"`}
-                {activeCategory !== "All" && ` in ${activeCategory}`}
+                {` for "${searchQuery}"`}
               </p>
             </div>
           )}
 
-          {/* Menu Grid */}
-          {!isLoading && filteredAndSortedItems.length > 0 && (
+          {/* Flat grid while searching */}
+          {!isLoading && searchQuery && filteredAndSortedItems.length > 0 && (
             <>
-            <h2 className="sr-only">
-              {activeCategory === "All" ? "All Dishes" : `${activeCategory} Dishes`}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              {filteredAndSortedItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * index, duration: 0.5 }}
-                  className="group bg-card rounded-2xl overflow-hidden shadow-elegant border border-border hover:shadow-elegant-lg hover:-translate-y-1 hover:border-secondary/40 focus-within:shadow-elegant-lg focus-within:border-secondary/40 transition-all duration-300 ease-out"
+              <h2 className="sr-only">Search Results</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                {filteredAndSortedItems.map((item, index) => renderMenuCard(item, index))}
+              </div>
+            </>
+          )}
+
+          {/* Grouped menu sections with scroll-spy anchors */}
+          {!isLoading && !searchQuery && groupedItems.length > 0 && (
+            <div className="space-y-14">
+              {groupedItems.map(({ category, items }) => (
+                <section
+                  key={category.id}
+                  data-category={category.name}
+                  ref={(el) => { sectionRefs.current[category.name] = el; }}
+                  aria-labelledby={`menu-section-${category.id}`}
+                  className="scroll-mt-40"
                 >
-                  {/* Image - Click to go to product details */}
-                  <div 
-                    className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    onClick={() => handleImageClick(item)}
-                    role="link"
-                    tabIndex={0}
-                    aria-label={`View details of ${item.name}`}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleImageClick(item);
-                      }
-                    }}
-                  >
-                    <BlurImage
-                      src={resolveImageUrl(item.image_url, getFallbackImage(item.name, item.category))}
-                      fallbackSrc={getFallbackImage(item.name, item.category)}
-                      alt={item.name}
-                      wrapperClassName="absolute inset-0 w-full h-full"
-                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Eye Icon - View Full Image */}
-                    <button
-                      onClick={(e) => handleViewImage(item, e)}
-                      aria-label={`View full image of ${item.name}`}
-                      className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-card/90 backdrop-blur-sm text-foreground hover:bg-secondary hover:text-secondary-foreground hover:scale-110 focus-visible:scale-110 focus-visible:bg-secondary focus-visible:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary transition-all duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 shadow-lg"
-                      title="View full image"
+                  <div className="flex items-center gap-3 mb-6">
+                    {category.icon_url && (
+                      category.icon_url.startsWith('preset:') ? (
+                        (() => {
+                          const iconName = category.icon_url.replace('preset:', '');
+                          const IconComponent = presetIconMap[iconName] || UtensilsCrossed;
+                          return (
+                            <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-secondary/15 text-secondary">
+                              <IconComponent className="w-5 h-5" />
+                            </span>
+                          );
+                        })()
+                      ) : (
+                        <img
+                          src={category.icon_url}
+                          alt=""
+                          className="w-9 h-9 object-cover rounded-full"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )
+                    )}
+                    <h2
+                      id={`menu-section-${category.id}`}
+                      className="font-display text-2xl sm:text-3xl font-bold text-foreground"
                     >
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-                    </button>
-
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-1.5 sm:gap-2 max-w-[75%]">
-                      {item.is_popular && (
-                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-medium">
-                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
-                          Popular
-                        </span>
-                      )}
-                      {item.is_spicy && (
-                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-destructive text-destructive-foreground text-[10px] sm:text-xs font-medium">
-                          <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                          Spicy
-                        </span>
-                      )}
-                      {item.is_veg && (
-                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-green-500 text-white text-[10px] sm:text-xs font-medium">
-                          <Leaf className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                          Veg
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Price Badge */}
-                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
-                      <span className="inline-block px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-card/95 backdrop-blur-sm font-display text-base sm:text-lg font-bold text-secondary">
-                        ৳{item.price}
-                      </span>
-                    </div>
+                      {category.name}
+                    </h2>
+                    <span className="text-sm text-muted-foreground">
+                      {items.length} {items.length === 1 ? 'item' : 'items'}
+                    </span>
+                    <div className="flex-1 h-px bg-border" aria-hidden="true" />
                   </div>
-
-                  {/* Content */}
-                  <div className="p-4 sm:p-5 lg:p-6">
-                    <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2">
-                      <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground group-hover:text-secondary group-focus-within:text-secondary transition-colors duration-300 line-clamp-1">
-                        {item.name}
-                      </h3>
-                      <span className="hidden sm:inline text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
-                        {item.category}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-                    <Button 
-                      onClick={() => handleItemClick(item)}
-                      size="sm"
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:text-sm transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Order Now
-                    </Button>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {items.map((item, index) => renderMenuCard(item, index))}
                   </div>
-                </motion.div>
+                </section>
               ))}
             </div>
-            </>
           )}
         </div>
       </main>
