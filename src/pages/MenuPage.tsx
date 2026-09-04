@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import Header from "@/components/Header";
@@ -358,8 +359,13 @@ const MenuPage = () => {
       image_url: item.image_url || undefined
     });
     toast({
-      title: "Added to Cart! 🎉",
+      title: "Added to your order 🎉",
       description: `1x ${item.name} - ৳${item.price}`,
+      action: (
+        <ToastAction altText="Go to checkout" onClick={() => navigate('/checkout')}>
+          Checkout
+        </ToastAction>
+      ),
     });
     setIsDetailOpen(false);
     setDetailItem(null);
@@ -386,24 +392,35 @@ const MenuPage = () => {
     return allImages;
   };
 
-  const handleAddToOrder = () => {
-    if (selectedItem) {
-      for (let i = 0; i < quantity; i++) {
-        addItem({
-          id: selectedItem.id,
-          name: selectedItem.name,
-          price: selectedItem.price,
-          image_url: selectedItem.image_url || undefined
-        });
-      }
-      toast({
-        title: "Added to Cart! 🎉",
-        description: `${quantity}x ${selectedItem.name} - ৳${selectedItem.price * quantity}`,
-      });
+  const handleAddToOrder = (goToCheckout = false) => {
+    if (!selectedItem) return;
+    addItem({
+      id: selectedItem.id,
+      name: selectedItem.name,
+      price: selectedItem.price,
+      image_url: selectedItem.image_url || undefined
+    }, quantity);
+
+    if (goToCheckout) {
       setIsDialogOpen(false);
       setSelectedItem(null);
       setQuantity(1);
+      navigate('/checkout');
+      return;
     }
+
+    toast({
+      title: "Added to your order 🎉",
+      description: `${quantity}x ${selectedItem.name} - ৳${selectedItem.price * quantity}`,
+      action: (
+        <ToastAction altText="Go to checkout" onClick={() => navigate('/checkout')}>
+          Checkout
+        </ToastAction>
+      ),
+    });
+    setIsDialogOpen(false);
+    setSelectedItem(null);
+    setQuantity(1);
   };
 
   const renderMenuCard = (item: MenuItem, index: number) => (
@@ -865,10 +882,22 @@ const MenuPage = () => {
                 </div>
               </div>
 
-              <Button onClick={handleAddToOrder} className="w-full bg-primary text-primary-foreground">
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                Add to Order - ৳{selectedItem.price * quantity}
-              </Button>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Button
+                  onClick={() => handleAddToOrder(false)}
+                  variant="outline"
+                  className="w-full border-secondary/50"
+                >
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Add to Order
+                </Button>
+                <Button
+                  onClick={() => handleAddToOrder(true)}
+                  className="w-full bg-primary text-primary-foreground"
+                >
+                  Order Now - ৳{selectedItem.price * quantity}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
