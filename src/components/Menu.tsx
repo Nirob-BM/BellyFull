@@ -87,6 +87,25 @@ const Menu = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Live updates: refetch when admin edits menu items or categories
+    const channel = supabase
+      .channel('featured-menu-live-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchData())
+      .subscribe();
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchData();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
   }, []);
 
   useEffect(() => {
