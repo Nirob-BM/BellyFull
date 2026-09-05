@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import Header from "@/components/Header";
+import ComingSoonBanner from "@/components/ComingSoonBanner";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
 import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
