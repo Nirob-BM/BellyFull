@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import ComingSoonBanner from "@/components/ComingSoonBanner";
 import heroAvifPreload from "@/assets/cover-opt.jpg?w=480;800;1280;1920&format=avif&as=srcset";
 
 // Defer non-critical below-the-fold sections so the hero paints first.
@@ -13,6 +14,7 @@ const Menu = lazy(() => import("@/components/Menu"));
 const Reservation = lazy(() => import("@/components/Reservation"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const Location = lazy(() => import("@/components/Location"));
+const Hours = lazy(() => import("@/components/Hours"));
 const FAQ = lazy(() => import("@/components/FAQ"));
 const Footer = lazy(() => import("@/components/Footer"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
@@ -72,6 +74,7 @@ const Index = () => {
         Skip to main content
       </a>
       <Header />
+      <ComingSoonBanner />
       <main id="main-content">
         <Hero />
         <Suspense fallback={<SectionFallback />}>
@@ -81,6 +84,7 @@ const Index = () => {
           <Menu />
           <Reservation />
           <Testimonials />
+          <Hours />
           <Location />
           <FAQ />
         </Suspense>

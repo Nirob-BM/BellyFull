@@ -4,15 +4,19 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
+import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 
 const CartSheet = () => {
   const { items, totalItems, totalAmount } = useCart();
   const navigate = useNavigate();
+  const { isOpen: isRestaurantOpen, isLoading: hoursLoading, nextOpeningLabel } = useOpeningStatus();
+  const canOrder = hoursLoading || isRestaurantOpen;
   const [open, setOpen] = useState(false);
 
   if (totalItems === 0) return null;
 
   const handleCheckout = () => {
+    if (!canOrder) return;
     setOpen(false);
     navigate('/checkout');
   };
@@ -67,12 +71,18 @@ const CartSheet = () => {
                 <span>Total</span>
                 <span className="text-primary">৳{totalAmount.toFixed(0)}</span>
               </div>
+              {!canOrder && (
+                <p className="text-sm text-center text-destructive bg-destructive/10 rounded-lg px-3 py-2">
+                  We're closed right now. {nextOpeningLabel || "Ordering reopens with our next service."} Your cart is saved.
+                </p>
+              )}
               <Button 
                 className="w-full" 
                 size="lg"
                 onClick={handleCheckout}
+                disabled={!canOrder}
               >
-                Proceed to Checkout
+                {canOrder ? "Proceed to Checkout" : "Ordering closed"}
               </Button>
             </div>
           </div>
