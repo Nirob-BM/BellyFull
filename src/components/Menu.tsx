@@ -446,10 +446,17 @@ const Menu = () => {
                 </div>
               </div>
 
+              {!canOrder && (
+                <p className="text-sm text-center text-destructive bg-destructive/10 rounded-lg px-3 py-2 mb-2">
+                  We're closed right now. {closedReason}
+                </p>
+              )}
+
               <div className="grid gap-2 sm:grid-cols-2">
                 <Button
                   onClick={() => handleAddToOrder(false)}
                   variant="outline"
+                  disabled={!canOrder}
                   className="w-full border-secondary/50"
                 >
                   <ShoppingBag className="h-4 w-4 mr-2" />
@@ -457,9 +464,10 @@ const Menu = () => {
                 </Button>
                 <Button
                   onClick={() => handleAddToOrder(true)}
+                  disabled={!canOrder}
                   className="w-full bg-primary text-primary-foreground"
                 >
-                  Order Now - ৳{selectedItem.price * quantity}
+                  {canOrder ? `Order Now - ৳${selectedItem.price * quantity}` : "Ordering closed"}
                 </Button>
               </div>
             </div>
