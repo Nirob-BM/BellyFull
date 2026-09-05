@@ -2,15 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bellyfull.lovable.app/</loc>
-    <lastmod>2026-09-03</lastmod>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://bellyfull.lovable.app/menu</loc>
-    <lastmod>2026-09-03</lastmod>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bellyfull.lovable.app/product/f0d05035-7a58-47b8-b563-1f4f9a86208c</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bellyfull.lovable.app/product/8323e90a-fd13-4c63-ae8d-6ed856ab3176</loc>
@@ -50,12 +56,6 @@
   </url>
   <url>
     <loc>https://bellyfull.lovable.app/product/20f602fb-e519-42a6-bb05-e4e3859dbf67</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://bellyfull.lovable.app/product/f0d05035-7a58-47b8-b563-1f4f9a86208c</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
