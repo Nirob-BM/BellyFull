@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
+import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlurImage from "@/components/ui/blur-image";
@@ -128,6 +129,11 @@ const MenuPage = () => {
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const { toast } = useToast();
   const { addItem } = useCart();
+  const { isOpen: isRestaurantOpen, isLoading: hoursLoading, nextOpeningLabel } = useOpeningStatus();
+  const canOrder = hoursLoading || isRestaurantOpen;
+  const closedReason = nextOpeningLabel
+    ? `${nextOpeningLabel}. You can still browse the menu.`
+    : "Ordering reopens with our next service.";
 
   // Section refs for scroll-spy + smooth scroll navigation
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -352,6 +358,14 @@ const MenuPage = () => {
   };
 
   const handleDetailAddToCart = (item: MenuItem) => {
+    if (!canOrder) {
+      toast({
+        title: "We're closed right now",
+        description: closedReason,
+        variant: "destructive",
+      });
+      return;
+    }
     addItem({
       id: item.id,
       name: item.name,
@@ -394,6 +408,14 @@ const MenuPage = () => {
 
   const handleAddToOrder = (goToCheckout = false) => {
     if (!selectedItem) return;
+    if (!canOrder) {
+      toast({
+        title: "We're closed right now",
+        description: closedReason,
+        variant: "destructive",
+      });
+      return;
+    }
     addItem({
       id: selectedItem.id,
       name: selectedItem.name,

@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
+import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import { resolveImageUrl, sanitizeImageUrl } from "@/lib/imageUrl";
 
 // Import local dish images as fallbacks
@@ -85,6 +86,11 @@ const Menu = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { toast } = useToast();
   const { addItem } = useCart();
+  const { isOpen: isRestaurantOpen, isLoading: hoursLoading, nextOpeningLabel } = useOpeningStatus();
+  const canOrder = hoursLoading || isRestaurantOpen;
+  const closedReason = nextOpeningLabel
+    ? `${nextOpeningLabel}. You can still browse the menu.`
+    : "Ordering reopens with our next service.";
 
   useEffect(() => {
     fetchData();
@@ -173,6 +179,14 @@ const Menu = () => {
   };
 
   const handleDetailAddToCart = (item: MenuItem) => {
+    if (!canOrder) {
+      toast({
+        title: "We're closed right now",
+        description: closedReason,
+        variant: "destructive",
+      });
+      return;
+    }
     addItem({
       id: item.id,
       name: item.name,
@@ -209,6 +223,14 @@ const Menu = () => {
 
   const handleAddToOrder = (goToCheckout = false) => {
     if (!selectedItem) return;
+    if (!canOrder) {
+      toast({
+        title: "We're closed right now",
+        description: closedReason,
+        variant: "destructive",
+      });
+      return;
+    }
     addItem({
       id: selectedItem.id,
       name: selectedItem.name,
