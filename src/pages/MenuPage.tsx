@@ -573,6 +573,7 @@ const MenuPage = () => {
         <script type="application/ld+json">{JSON.stringify(menuSchema)}</script>
       </Helmet>
       <Header />
+      <ComingSoonBanner />
       
       
       <main className="pt-24 pb-16">

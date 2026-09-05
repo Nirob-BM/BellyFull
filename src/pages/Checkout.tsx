@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { BkashLogo, NagadLogo, CashOnDeliveryIcon } from "@/components/PaymentLogos";
@@ -40,6 +41,9 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { items, totalAmount, clearCart, updateQuantity, removeItem } = useCart();
+  const { isOpen: isRestaurantOpen, isLoading: hoursLoading, nextOpeningLabel } = useOpeningStatus();
+  const canOrder = hoursLoading || isRestaurantOpen;
+  const closedNotice = nextOpeningLabel || "Ordering reopens with our next service.";
   const [step, setStep] = useState<'details' | 'payment' | 'success'>('details');
   const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'cod' | null>(null);
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup');
@@ -119,6 +123,15 @@ const Checkout = () => {
 
   const handleSubmitOrder = async () => {
     try {
+      if (!canOrder) {
+        toast({
+          title: "We're closed right now",
+          description: closedNotice,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const validation = checkoutSchema.safeParse(formData);
       if (!validation.success) {
         toast({
@@ -465,10 +478,16 @@ const Checkout = () => {
               )}
             </div>
 
+            {!canOrder && (
+              <p className="text-sm text-center text-destructive bg-destructive/10 rounded-lg px-3 py-2">
+                We're closed right now. {closedNotice} Your cart is saved for later.
+              </p>
+            )}
+
             <Button 
               className="w-full" 
               size="lg"
-              disabled={!formData.fullName || !formData.phone || !paymentMethod}
+              disabled={!canOrder || !formData.fullName || !formData.phone || !paymentMethod}
               onClick={() => {
                 if (validateDelivery()) {
                   if (paymentMethod === 'cod') {
@@ -479,7 +498,7 @@ const Checkout = () => {
                 }
               }}
             >
-              {paymentMethod === 'cod' ? 'Place Order' : 'Continue to Payment'}
+              {!canOrder ? 'Ordering closed' : paymentMethod === 'cod' ? 'Place Order' : 'Continue to Payment'}
             </Button>
           </motion.div>
         )}
@@ -563,7 +582,7 @@ const Checkout = () => {
               <Button 
                 className="flex-1" 
                 onClick={handleSubmitOrder}
-                disabled={!formData.transactionId || isSubmitting}
+                disabled={!canOrder || !formData.transactionId || isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Order"}
               </Button>
