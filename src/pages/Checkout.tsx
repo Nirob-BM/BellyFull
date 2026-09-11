@@ -536,7 +536,7 @@ const Checkout = () => {
             {/* Payment Method Selection */}
             <div className="bg-card rounded-xl p-4 border space-y-4">
               <h3 className="font-semibold">Payment Method</h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <button
                   onClick={() => setPaymentMethod('bkash')}
                   className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
@@ -566,10 +566,24 @@ const Checkout = () => {
                     <span className="text-sm font-medium text-green-600">COD</span>
                   </button>
                 )}
+                <button
+                  onClick={() => setPaymentMethod('whatsapp')}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    paymentMethod === 'whatsapp' ? 'border-[#25D366] bg-[#25D366]/10 dark:bg-[#25D366]/20' : 'border-muted hover:border-[#25D366]/50'
+                  }`}
+                >
+                  <WhatsAppLogo className="w-12 h-12" />
+                  <span className="text-sm font-medium text-[#25D366]">WhatsApp</span>
+                </button>
               </div>
               {paymentMethod === 'cod' && (
                 <p className="text-sm text-muted-foreground text-center">
                   Pay cash when your order arrives
+                </p>
+              )}
+              {paymentMethod === 'whatsapp' && (
+                <p className="text-sm text-muted-foreground text-center">
+                  We'll save your order and open WhatsApp so you can send the details directly to us.
                 </p>
               )}
             </div>
