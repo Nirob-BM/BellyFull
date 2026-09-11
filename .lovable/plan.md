@@ -1,23 +1,22 @@
+## Plan: Optimize the Navigation Bar
 
+### Goal
+Make the selected header easier to scan and use across desktop, tablet, and mobile without changing Belly Full’s established visual identity.
 
-## Plan: Fix Popular Dishes Carousel Arrow Buttons
+### Changes
+- Refine header height, spacing, and logo sizing for a cleaner layout at every breakpoint.
+- Add a clear active state for the current page or homepage section.
+- Improve keyboard focus visibility and navigation semantics.
+- Replace the mobile menu control with the existing design-system button and make the opened menu feel more deliberate.
+- Keep the phone and reservation actions prominent without crowding smaller desktop widths.
+- Respect reduced-motion preferences and preserve smooth homepage section navigation.
 
-### Problem
-The continuous `requestAnimationFrame` auto-scroll (0.5px/frame) overrides manual `scrollBy` from the arrow buttons. When a user clicks an arrow, the auto-scroll immediately overwrites the scroll position, making arrows appear broken.
-
-### Solution
-Add a "paused" state that temporarily stops auto-scroll when arrow buttons are clicked (or when the user hovers over the carousel), then resumes after a short delay.
-
-### Changes — `src/components/PopularItems.tsx`
-
-1. **Add a `paused` ref** (`useRef<boolean>(false)`) to control auto-scroll
-2. **Modify the auto-scroll `step` function** to skip scrolling when `paused.current` is true
-3. **Update `scroll()` function** to set `paused.current = true` before scrolling, then use `setTimeout` (~2 seconds) to resume
-4. **Add hover pause** — attach `onMouseEnter` / `onMouseLeave` handlers on the carousel container to pause/resume auto-scroll when hovering
+### Verification
+- Check the header at mobile, tablet, and desktop widths.
+- Verify menu opening, closing, route navigation, section scrolling, focus states, and active indicators.
+- Confirm the site still builds without errors.
 
 ### Technical Details
-
-- Use a ref (not state) for `paused` to avoid re-renders and keep the animation frame loop stable
-- Clear any existing resume timeout when a new pause event occurs (debounce)
-- The timeout ref ensures cleanup on unmount
-
+- Limit implementation to `src/components/Header.tsx` unless verification exposes a directly related styling issue.
+- Derive active navigation state from the current route, URL hash, and visible homepage section.
+- Reuse existing semantic color tokens and the shared Button component.
