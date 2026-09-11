@@ -45,7 +45,7 @@ const Checkout = () => {
   const canOrder = hoursLoading || isRestaurantOpen;
   const closedNotice = nextOpeningLabel || "Ordering reopens with our next service.";
   const [step, setStep] = useState<'details' | 'payment' | 'success'>('details');
-  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'cod' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'cod' | 'whatsapp' | null>(null);
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentSettings, setPaymentSettings] = useState({ 
