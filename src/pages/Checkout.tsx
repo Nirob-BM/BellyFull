@@ -99,6 +99,102 @@ const Checkout = () => {
     toast({ title: "Copied!", description: "Payment number copied to clipboard" });
   };
 
+  const WHATSAPP_NUMBER = "8801308697630";
+
+  const buildWhatsAppMessage = () => {
+    const orderLines = items.map((item, index) => {
+      return `${index + 1}. ${item.name} × ${item.quantity} — ৳${(item.price * item.quantity).toFixed(0)}`;
+    }).join("\n");
+
+    const orderType = deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup';
+    const addressBlock = deliveryType === 'delivery' && formData.deliveryAddress
+      ? `\nDelivery Address:\n${formData.deliveryAddress} (${formData.deliveryArea})`
+      : "";
+
+    return `Hello Belly Full! I'd like to place an order.\n\n` +
+      `*Customer:* ${formData.fullName}\n` +
+      `*Phone:* ${formData.phone}\n` +
+      `${formData.email ? `*Email:* ${formData.email}\n` : ""}` +
+      `*Order Type:* ${orderType}${addressBlock}\n\n` +
+      `*Order Items:*\n${orderLines}\n\n` +
+      `*Subtotal:* ৳${totalAmount.toFixed(0)}\n` +
+      `${deliveryType === 'delivery' ? `*Delivery Charge:* ৳${deliveryCharge}\n` : ""}` +
+      `*Total:* ৳${finalTotal.toFixed(0)}\n\n` +
+      `Please confirm my order. Thank you!`;
+  };
+
+  const sendOrderViaWhatsApp = async () => {
+    try {
+      if (!canOrder) {
+        toast({
+          title: "We're closed right now",
+          description: closedNotice,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const validation = checkoutSchema.safeParse(formData);
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.errors[0].message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!validateDelivery()) return;
+
+      setIsSubmitting(true);
+
+      // Save order in the dashboard as COD so staff can track it
+      const { error } = await supabase.rpc('create_order', {
+        _user_name: formData.fullName,
+        _user_phone: formData.phone,
+        _user_email: formData.email || '',
+        _payment_method: 'cod',
+        _transaction_id: '',
+        _sender_phone: '',
+        _delivery_type: deliveryType,
+        _delivery_address: deliveryType === 'delivery' ? formData.deliveryAddress : '',
+        _delivery_area: deliveryType === 'delivery' ? formData.deliveryArea : '',
+        _cart_items: items.map(i => ({ id: i.id, quantity: i.quantity })),
+      });
+
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        let description = "Failed to place order. Please try again or contact us.";
+        if (msg.includes('item_unavailable')) {
+          description = "One of the items in your cart is no longer available.";
+        } else if (msg.includes('below_min_order')) {
+          description = `Minimum order for delivery is ৳${deliverySettings.min_order_amount}.`;
+        } else if (msg.includes('address_required')) {
+          description = "Please enter your delivery address.";
+        }
+        toast({ title: "Error", description, variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const message = buildWhatsAppMessage();
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+
+      setStep('success');
+      clearCart();
+    } catch (error: any) {
+      console.error("WhatsApp order error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send order. Please try again or contact us.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const validateDelivery = () => {
     if (deliveryType === 'delivery') {
       if (totalAmount < deliverySettings.min_order_amount) {
