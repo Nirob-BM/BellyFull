@@ -11,7 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
-import { BkashLogo, NagadLogo, CashOnDeliveryIcon } from "@/components/PaymentLogos";
+import { BkashLogo, NagadLogo, CashOnDeliveryIcon, WhatsAppLogo } from "@/components/PaymentLogos";
 import { Helmet } from "react-helmet-async";
 
 const checkoutSchema = z.object({
@@ -45,7 +45,7 @@ const Checkout = () => {
   const canOrder = hoursLoading || isRestaurantOpen;
   const closedNotice = nextOpeningLabel || "Ordering reopens with our next service.";
   const [step, setStep] = useState<'details' | 'payment' | 'success'>('details');
-  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'cod' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'cod' | 'whatsapp' | null>(null);
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentSettings, setPaymentSettings] = useState({ 
@@ -97,6 +97,102 @@ const Checkout = () => {
     const number = paymentMethod === 'bkash' ? paymentSettings.bkash_number : paymentSettings.nagad_number;
     navigator.clipboard.writeText(number);
     toast({ title: "Copied!", description: "Payment number copied to clipboard" });
+  };
+
+  const WHATSAPP_NUMBER = "8801308697630";
+
+  const buildWhatsAppMessage = () => {
+    const orderLines = items.map((item, index) => {
+      return `${index + 1}. ${item.name} × ${item.quantity} — ৳${(item.price * item.quantity).toFixed(0)}`;
+    }).join("\n");
+
+    const orderType = deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup';
+    const addressBlock = deliveryType === 'delivery' && formData.deliveryAddress
+      ? `\nDelivery Address:\n${formData.deliveryAddress} (${formData.deliveryArea})`
+      : "";
+
+    return `Hello Belly Full! I'd like to place an order.\n\n` +
+      `*Customer:* ${formData.fullName}\n` +
+      `*Phone:* ${formData.phone}\n` +
+      `${formData.email ? `*Email:* ${formData.email}\n` : ""}` +
+      `*Order Type:* ${orderType}${addressBlock}\n\n` +
+      `*Order Items:*\n${orderLines}\n\n` +
+      `*Subtotal:* ৳${totalAmount.toFixed(0)}\n` +
+      `${deliveryType === 'delivery' ? `*Delivery Charge:* ৳${deliveryCharge}\n` : ""}` +
+      `*Total:* ৳${finalTotal.toFixed(0)}\n\n` +
+      `Please confirm my order. Thank you!`;
+  };
+
+  const sendOrderViaWhatsApp = async () => {
+    try {
+      if (!canOrder) {
+        toast({
+          title: "We're closed right now",
+          description: closedNotice,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const validation = checkoutSchema.safeParse(formData);
+      if (!validation.success) {
+        toast({
+          title: "Validation Error",
+          description: validation.error.errors[0].message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!validateDelivery()) return;
+
+      setIsSubmitting(true);
+
+      // Save order in the dashboard as COD so staff can track it
+      const { error } = await supabase.rpc('create_order', {
+        _user_name: formData.fullName,
+        _user_phone: formData.phone,
+        _user_email: formData.email || '',
+        _payment_method: 'cod',
+        _transaction_id: '',
+        _sender_phone: '',
+        _delivery_type: deliveryType,
+        _delivery_address: deliveryType === 'delivery' ? formData.deliveryAddress : '',
+        _delivery_area: deliveryType === 'delivery' ? formData.deliveryArea : '',
+        _cart_items: items.map(i => ({ id: i.id, quantity: i.quantity })),
+      });
+
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        let description = "Failed to place order. Please try again or contact us.";
+        if (msg.includes('item_unavailable')) {
+          description = "One of the items in your cart is no longer available.";
+        } else if (msg.includes('below_min_order')) {
+          description = `Minimum order for delivery is ৳${deliverySettings.min_order_amount}.`;
+        } else if (msg.includes('address_required')) {
+          description = "Please enter your delivery address.";
+        }
+        toast({ title: "Error", description, variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const message = buildWhatsAppMessage();
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+
+      setStep('success');
+      clearCart();
+    } catch (error: any) {
+      console.error("WhatsApp order error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send order. Please try again or contact us.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const validateDelivery = () => {
@@ -440,7 +536,7 @@ const Checkout = () => {
             {/* Payment Method Selection */}
             <div className="bg-card rounded-xl p-4 border space-y-4">
               <h3 className="font-semibold">Payment Method</h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <button
                   onClick={() => setPaymentMethod('bkash')}
                   className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
@@ -470,10 +566,24 @@ const Checkout = () => {
                     <span className="text-sm font-medium text-green-600">COD</span>
                   </button>
                 )}
+                <button
+                  onClick={() => setPaymentMethod('whatsapp')}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    paymentMethod === 'whatsapp' ? 'border-[#25D366] bg-[#25D366]/10 dark:bg-[#25D366]/20' : 'border-muted hover:border-[#25D366]/50'
+                  }`}
+                >
+                  <WhatsAppLogo className="w-12 h-12" />
+                  <span className="text-sm font-medium text-[#25D366]">WhatsApp</span>
+                </button>
               </div>
               {paymentMethod === 'cod' && (
                 <p className="text-sm text-muted-foreground text-center">
                   Pay cash when your order arrives
+                </p>
+              )}
+              {paymentMethod === 'whatsapp' && (
+                <p className="text-sm text-muted-foreground text-center">
+                  We'll save your order and open WhatsApp so you can send the details directly to us.
                 </p>
               )}
             </div>
@@ -487,24 +597,32 @@ const Checkout = () => {
             <Button 
               className="w-full" 
               size="lg"
-              disabled={!canOrder || !formData.fullName || !formData.phone || !paymentMethod}
+              disabled={!canOrder || !formData.fullName || !formData.phone || !paymentMethod || isSubmitting}
               onClick={() => {
                 if (validateDelivery()) {
                   if (paymentMethod === 'cod') {
                     handleSubmitOrder();
+                  } else if (paymentMethod === 'whatsapp') {
+                    sendOrderViaWhatsApp();
                   } else {
                     setStep('payment');
                   }
                 }
               }}
             >
-              {!canOrder ? 'Ordering closed' : paymentMethod === 'cod' ? 'Place Order' : 'Continue to Payment'}
+              {!canOrder
+                ? 'Ordering closed'
+                : paymentMethod === 'cod'
+                ? 'Place Order'
+                : paymentMethod === 'whatsapp'
+                ? (isSubmitting ? 'Sending...' : 'Send Order via WhatsApp')
+                : 'Continue to Payment'}
             </Button>
           </motion.div>
         )}
 
         {/* Step 2: Payment & Verification (Combined) */}
-        {step === 'payment' && paymentMethod && paymentMethod !== 'cod' && (
+        {step === 'payment' && paymentMethod && paymentMethod !== 'cod' && paymentMethod !== 'whatsapp' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className={`rounded-xl p-6 ${paymentMethod === 'bkash' ? 'bg-pink-50 dark:bg-pink-950/30 border-pink-200' : 'bg-orange-50 dark:bg-orange-950/30 border-orange-200'} border`}>
               <div className="flex items-center gap-3 mb-4">
