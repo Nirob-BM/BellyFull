@@ -11,7 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
-import { BkashLogo, NagadLogo, CashOnDeliveryIcon } from "@/components/PaymentLogos";
+import { BkashLogo, NagadLogo, CashOnDeliveryIcon, WhatsAppLogo } from "@/components/PaymentLogos";
 import { Helmet } from "react-helmet-async";
 
 const checkoutSchema = z.object({
