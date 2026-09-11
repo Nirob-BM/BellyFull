@@ -622,7 +622,7 @@ const Checkout = () => {
         )}
 
         {/* Step 2: Payment & Verification (Combined) */}
-        {step === 'payment' && paymentMethod && paymentMethod !== 'cod' && (
+        {step === 'payment' && paymentMethod && paymentMethod !== 'cod' && paymentMethod !== 'whatsapp' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className={`rounded-xl p-6 ${paymentMethod === 'bkash' ? 'bg-pink-50 dark:bg-pink-950/30 border-pink-200' : 'bg-orange-50 dark:bg-orange-950/30 border-orange-200'} border`}>
               <div className="flex items-center gap-3 mb-4">
