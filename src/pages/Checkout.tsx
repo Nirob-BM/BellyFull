@@ -597,18 +597,26 @@ const Checkout = () => {
             <Button 
               className="w-full" 
               size="lg"
-              disabled={!canOrder || !formData.fullName || !formData.phone || !paymentMethod}
+              disabled={!canOrder || !formData.fullName || !formData.phone || !paymentMethod || isSubmitting}
               onClick={() => {
                 if (validateDelivery()) {
                   if (paymentMethod === 'cod') {
                     handleSubmitOrder();
+                  } else if (paymentMethod === 'whatsapp') {
+                    sendOrderViaWhatsApp();
                   } else {
                     setStep('payment');
                   }
                 }
               }}
             >
-              {!canOrder ? 'Ordering closed' : paymentMethod === 'cod' ? 'Place Order' : 'Continue to Payment'}
+              {!canOrder
+                ? 'Ordering closed'
+                : paymentMethod === 'cod'
+                ? 'Place Order'
+                : paymentMethod === 'whatsapp'
+                ? (isSubmitting ? 'Sending...' : 'Send Order via WhatsApp')
+                : 'Continue to Payment'}
             </Button>
           </motion.div>
         )}
