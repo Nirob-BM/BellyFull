@@ -753,19 +753,6 @@ const Checkout = () => {
         )}
       </main>
 
-      {/* Floating Continue Shopping Button */}
-      {step !== 'success' && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button 
-            onClick={() => navigate('/menu')} 
-            variant="outline"
-            className="shadow-lg rounded-full px-5 gap-2 bg-background hover:bg-accent"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            Continue Shopping
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
