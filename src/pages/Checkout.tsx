@@ -327,11 +327,25 @@ const Checkout = () => {
       </Helmet>
       <main className="max-w-2xl mx-auto p-4 py-8" id="checkout-main">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">Checkout</h1>
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">Checkout</h1>
+          </div>
+          {step !== 'success' && (
+            <Button
+              onClick={() => navigate('/menu')}
+              variant="outline"
+              className="gap-2 rounded-full"
+              aria-label="Continue shopping"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span className="hidden sm:inline">Continue Shopping</span>
+              <span className="sm:hidden">Shop More</span>
+            </Button>
+          )}
         </div>
         <h2 className="sr-only">Your order</h2>
 
@@ -739,19 +753,6 @@ const Checkout = () => {
         )}
       </main>
 
-      {/* Floating Continue Shopping Button */}
-      {step !== 'success' && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button 
-            onClick={() => navigate('/menu')} 
-            variant="outline"
-            className="shadow-lg rounded-full px-5 gap-2 bg-background hover:bg-accent"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            Continue Shopping
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

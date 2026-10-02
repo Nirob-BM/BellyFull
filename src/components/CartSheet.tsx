@@ -3,15 +3,19 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 
 const CartSheet = () => {
   const { items, totalItems, totalAmount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isOpen: isRestaurantOpen, isLoading: hoursLoading, nextOpeningLabel } = useOpeningStatus();
   const canOrder = hoursLoading || isRestaurantOpen;
   const [open, setOpen] = useState(false);
+
+  // Hide the floating cart on the checkout page — the order is already in review there.
+  if (location.pathname === '/checkout') return null;
 
   if (totalItems === 0) return null;
 
