@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, Phone, CalendarDays } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState("home");
   const navigate = useNavigate();
   const location = useLocation();
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -35,30 +36,33 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Keep the active navigation item in sync with the visible homepage section.
+  // Sections below the hero mount lazily, so resolve them at scroll time.
   useEffect(() => {
     if (location.pathname !== "/") return;
 
     const sectionIds = navLinks.flatMap((link) => (link.hash ? [link.hash] : []));
-    const sections = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => Boolean(section));
-
     const hashSection = location.hash.slice(1);
     if (hashSection && sectionIds.includes(hashSection)) setActiveSection(hashSection);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target.id) setActiveSection(visible.target.id);
-      },
-      { rootMargin: "-20% 0px -65%", threshold: [0, 0.2, 0.5] },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    let frame = 0;
+    const updateActive = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const threshold = window.innerHeight * 0.35;
+        const current = sectionIds.reduce((matched, id) => {
+          const section = document.getElementById(id);
+          return section && section.getBoundingClientRect().top <= threshold ? id : matched;
+        }, "home");
+        setActiveSection(current);
+      });
+    };
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+    };
   }, [location.hash, location.pathname]);
 
   // Lock body scroll when mobile menu open
@@ -82,7 +86,7 @@ const Header = () => {
       setTimeout(() => {
         const el = document.getElementById(hash);
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          el.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth", block: "start" });
           history.replaceState(null, "", `#${hash}`);
         }
       }, 50);
@@ -120,7 +124,7 @@ const Header = () => {
     >
       <div
         className={`container flex items-center justify-between gap-4 ${
-          isTransparent ? "[text-shadow:_0_1px_8px_rgba(0,0,0,0.5)]" : ""
+          isTransparent ? "drop-shadow-md" : ""
         }`}
       >
         {/* Logo */}
@@ -143,7 +147,7 @@ const Header = () => {
           />
           <span
             className={`truncate font-display text-lg font-semibold transition-colors duration-300 sm:text-xl ${
-              isTransparent ? "text-white" : "text-primary"
+              isTransparent ? "text-primary-foreground" : "text-primary"
             }`}
           >
             Belly Full
@@ -164,9 +168,7 @@ const Header = () => {
                   : "text-muted-foreground hover:bg-muted hover:text-primary"
             }`;
 
-            return (
-              
-            link.to ? (
+            return link.to ? (
               <Link
                 key={link.name}
                 to={link.to}
@@ -185,7 +187,7 @@ const Header = () => {
               >
                 {link.name}
               </a>
-            ));
+            );
           })}
         </nav>
 
@@ -233,10 +235,10 @@ const Header = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
+            initial={reduceMotion ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25 }}
             id="mobile-navigation"
             className="xl:hidden bg-card/98 border-t border-border shadow-elegant-md overflow-hidden [text-shadow:none]"
           >
@@ -247,8 +249,7 @@ const Header = () => {
                   active ? "bg-muted text-primary" : "text-foreground hover:bg-muted hover:text-primary"
                 }`;
 
-                return (
-                link.to ? (
+                return link.to ? (
                   <Link
                     key={link.name}
                     to={link.to}
@@ -268,7 +269,7 @@ const Header = () => {
                   >
                     {link.name}
                   </a>
-                ));
+                );
               })}
               <div className="mt-2 border-t border-border pt-3 flex flex-col gap-2">
                 <a
