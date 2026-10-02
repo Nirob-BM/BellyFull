@@ -30,6 +30,19 @@ interface DeliverySettings {
   delivery_areas: string[];
 }
 
+interface PlacedOrder {
+  items: { id: string; name: string; price: number; quantity: number }[];
+  subtotal: number;
+  deliveryCharge: number;
+  total: number;
+  deliveryType: 'pickup' | 'delivery';
+  address: string;
+  area: string;
+  customerName: string;
+  phone: string;
+  paymentMethod: 'bkash' | 'nagad' | 'cod' | 'whatsapp';
+}
+
 const defaultDeliverySettings: DeliverySettings = {
   enabled: true,
   delivery_charge: 50,
@@ -55,6 +68,8 @@ const Checkout = () => {
   });
   const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(defaultDeliverySettings);
   const [isEditing, setIsEditing] = useState(false);
+  const [orderSummary, setOrderSummary] = useState<PlacedOrder | null>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: "",
@@ -101,27 +116,68 @@ const Checkout = () => {
 
   const WHATSAPP_NUMBER = "8801308697630";
 
-  const buildWhatsAppMessage = () => {
-    const orderLines = items.map((item, index) => {
+  const buildMessageFromOrder = (order: PlacedOrder) => {
+    const orderLines = order.items.map((item, index) => {
       return `${index + 1}. ${item.name} × ${item.quantity} — ৳${(item.price * item.quantity).toFixed(0)}`;
     }).join("\n");
 
-    const orderType = deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup';
-    const addressBlock = deliveryType === 'delivery' && formData.deliveryAddress
-      ? `\nDelivery Address:\n${formData.deliveryAddress} (${formData.deliveryArea})`
+    const orderType = order.deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup';
+    const addressBlock = order.deliveryType === 'delivery' && order.address
+      ? `\nDelivery Address:\n${order.address} (${order.area})`
       : "";
 
     return `Hello Belly Full! I'd like to place an order.\n\n` +
-      `*Customer:* ${formData.fullName}\n` +
-      `*Phone:* ${formData.phone}\n` +
-      `${formData.email ? `*Email:* ${formData.email}\n` : ""}` +
+      `*Customer:* ${order.customerName}\n` +
+      `*Phone:* ${order.phone}\n` +
       `*Order Type:* ${orderType}${addressBlock}\n\n` +
       `*Order Items:*\n${orderLines}\n\n` +
-      `*Subtotal:* ৳${totalAmount.toFixed(0)}\n` +
-      `${deliveryType === 'delivery' ? `*Delivery Charge:* ৳${deliveryCharge}\n` : ""}` +
-      `*Total:* ৳${finalTotal.toFixed(0)}\n\n` +
+      `*Subtotal:* ৳${order.subtotal.toFixed(0)}\n` +
+      `${order.deliveryType === 'delivery' ? `*Delivery Charge:* ৳${order.deliveryCharge.toFixed(0)}\n` : ""}` +
+      `*Total:* ৳${order.total.toFixed(0)}\n\n` +
       `Please confirm my order. Thank you!`;
   };
+
+  const makeOrderSnapshot = (): PlacedOrder => ({
+    items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+    subtotal: totalAmount,
+    deliveryCharge,
+    total: finalTotal,
+    deliveryType,
+    address: formData.deliveryAddress,
+    area: formData.deliveryArea,
+    customerName: formData.fullName,
+    phone: formData.phone,
+    paymentMethod: paymentMethod!,
+  });
+
+  const paymentLabel = (m: PlacedOrder['paymentMethod']) =>
+    m === 'cod' ? 'Cash on Delivery' : m === 'whatsapp' ? 'WhatsApp' : m === 'bkash' ? 'bKash' : 'Nagad';
+
+  const getNextSteps = (order: PlacedOrder): string[] => {
+    if (order.paymentMethod === 'whatsapp') {
+      return [
+        "Your order details are ready in WhatsApp — just press Send so we receive them.",
+        "We'll reply on WhatsApp to confirm your order and prep time.",
+        order.deliveryType === 'delivery'
+          ? "Once confirmed, we'll deliver to your address."
+          : "Once confirmed, pick it up at Belly Full, Kishoreganj.",
+      ];
+    }
+    if (order.paymentMethod === 'cod') {
+      return [
+        `We'll call you at ${order.phone} to confirm your order.`,
+        `Keep ৳${order.total.toFixed(0)} in cash ready.`,
+        "Pay the delivery person when your food arrives. Enjoy!",
+      ];
+    }
+    return [
+      "We're verifying your transaction ID with our team.",
+      "You'll receive a confirmation call once your payment is approved.",
+      "Your food goes into preparation right after verification.",
+    ];
+  };
+
+  const nextSteps = orderSummary ? getNextSteps(orderSummary) : [];
 
   const sendOrderViaWhatsApp = async () => {
     try {
@@ -177,10 +233,13 @@ const Checkout = () => {
         return;
       }
 
-      const message = buildWhatsAppMessage();
+      const snapshot = makeOrderSnapshot();
+      const message = buildMessageFromOrder(snapshot);
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      setWhatsappUrl(url);
       window.open(url, "_blank");
 
+      setOrderSummary(snapshot);
       setStep('success');
       clearCart();
     } catch (error: any) {
@@ -286,6 +345,7 @@ const Checkout = () => {
         return;
       }
 
+      setOrderSummary(makeOrderSnapshot());
       setStep('success');
       clearCart();
     } catch (error: any) {
@@ -317,7 +377,7 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Checkout — Belly Full</title>
+        <title>{step === 'success' ? 'Order Confirmed — Belly Full' : 'Checkout — Belly Full'}</title>
         <meta name="description" content="Review your order and complete checkout securely with bKash, Nagad or cash on delivery at Belly Full Kishoreganj." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://bellyfull.lovable.app/checkout" />
