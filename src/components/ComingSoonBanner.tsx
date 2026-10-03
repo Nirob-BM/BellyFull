@@ -29,16 +29,7 @@ const ComingSoonBanner = () => {
               We're closed right now
             </span>
             <span className="text-xs sm:text-sm text-muted-foreground">
-              {nextOpeningLabel
-                ? `${nextOpeningLabel} — ordering opens then.`
-                : "Ordering reopens with our next service."}{" "}
-              <Link
-                to="/menu"
-                className="underline underline-offset-4 font-medium text-foreground hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded"
-              >
-                Browse the menu
-              </Link>{" "}
-              in the meantime.
+              — Order Next Day at 10:00 A.M.  Browse the menu in the meantime.
             </span>
           </div>
         </motion.div>
