@@ -155,10 +155,10 @@ const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav aria-label="Primary navigation" className="hidden xl:flex items-center gap-1">
+        <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {navLinks.map((link) => {
             const active = isLinkActive(link);
-            const linkClass = `relative rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+            const linkClass = `relative rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 ${
               isTransparent
                 ? active
                   ? "text-primary bg-secondary"
@@ -192,11 +192,11 @@ const Header = () => {
         </nav>
 
         {/* Desktop CTAs */}
-        <div className="hidden xl:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-2 xl:gap-3">
           <a
             href="tel:+8801863339695"
             aria-label="Call Belly Full at 01863-339695"
-            className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+            className={`hidden xl:flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
               isTransparent ? "text-primary-foreground/85 hover:text-primary-foreground" : "text-muted-foreground hover:text-primary"
             }`}
           >
@@ -223,7 +223,7 @@ const Header = () => {
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((v) => !v)}
-          className={`xl:hidden -mr-2 shrink-0 ${
+          className={`lg:hidden -mr-2 shrink-0 ${
             isTransparent ? "text-primary-foreground hover:bg-card/15 hover:text-primary-foreground" : "text-primary hover:bg-muted"
           }`}
         >
@@ -240,7 +240,7 @@ const Header = () => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.25 }}
             id="mobile-navigation"
-            className="xl:hidden bg-card/98 border-t border-border shadow-elegant-md overflow-hidden [text-shadow:none]"
+            className="lg:hidden bg-card/98 border-t border-border shadow-elegant-md overflow-hidden [text-shadow:none]"
           >
             <nav aria-label="Mobile navigation" className="container py-3 flex flex-col gap-1 max-h-[calc(100dvh-4rem)] overflow-y-auto">
               {navLinks.map((link) => {
