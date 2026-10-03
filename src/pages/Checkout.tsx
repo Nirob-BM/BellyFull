@@ -782,31 +782,110 @@ const Checkout = () => {
           </motion.div>
         )}
 
-        {/* Step 3: Success */}
-        {step === 'success' && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+        {/* Step 3: Confirmation */}
+        {step === 'success' && orderSummary && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 py-6"
+            aria-live="polite"
+          >
+            <div className="text-center space-y-3">
+              <div className="w-20 h-20 bg-green-100 dark:bg-green-950/50 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold">Thank you, {orderSummary.customerName.split(' ')[0]}!</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Your order has been saved. Here's a summary and what happens next.
+              </p>
+            </div>
+
+            {/* Order summary */}
+            <div className="bg-card rounded-xl border p-4 sm:p-5 space-y-4">
+              <h3 className="font-semibold">Order Summary</h3>
+              <ul className="space-y-2">
+                {orderSummary.items.map(item => (
+                  <li key={item.id} className="flex justify-between gap-3 text-sm">
+                    <span className="min-w-0">
+                      {item.name} <span className="text-muted-foreground">× {item.quantity}</span>
+                    </span>
+                    <span className="font-medium shrink-0">৳{(item.price * item.quantity).toFixed(0)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-t pt-3 space-y-2 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>৳{orderSummary.subtotal.toFixed(0)}</span>
+                </div>
+                {orderSummary.deliveryType === 'delivery' && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Delivery Charge</span>
+                    <span>৳{orderSummary.deliveryCharge.toFixed(0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-base">
+                  <span>Total</span>
+                  <span className="text-primary">৳{orderSummary.total.toFixed(0)}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 pt-2 text-muted-foreground">
+                  <span><span className="font-medium text-foreground">Type:</span> {orderSummary.deliveryType === 'delivery' ? 'Home Delivery' : 'Pickup'}</span>
+                  <span><span className="font-medium text-foreground">Payment:</span> {paymentLabel(orderSummary.paymentMethod)}</span>
+                </div>
+                {orderSummary.deliveryType === 'delivery' && orderSummary.address && (
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-foreground">Address:</span> {orderSummary.address} ({orderSummary.area})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Next steps */}
+            <div className="bg-card rounded-xl border p-4 sm:p-5">
+              <h3 className="font-semibold mb-3">What happens next?</h3>
+              <ol className="space-y-3">
+                {nextSteps.map((text, i) => (
+                  <li key={i} className="flex gap-3 text-sm">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0" aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <span className="text-muted-foreground">{text}</span>
+                  </li>
+                ))}
+              </ol>
+              {orderSummary.paymentMethod === 'whatsapp' && whatsappUrl && (
+                <Button
+                  onClick={() => window.open(whatsappUrl, "_blank")}
+                  className="w-full mt-4"
+                >
+                  Open WhatsApp Again
+                </Button>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={() => navigate('/menu')} className="flex-1">
+                Continue Shopping
+              </Button>
+              <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
+                Back to Home
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Fallback: should not normally happen */}
+        {step === 'success' && !orderSummary && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-6 py-12"
           >
             <div className="w-20 h-20 bg-green-100 dark:bg-green-950/50 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Order Placed Successfully!</h2>
-              <p className="text-muted-foreground">
-                {paymentMethod === 'cod' 
-                  ? "Your order will be delivered soon. Please keep cash ready."
-                  : "Your order is being verified. You'll receive a confirmation soon."
-                }
-              </p>
-            </div>
-            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 rounded-lg p-4">
-              <p className="text-amber-800 dark:text-amber-200 text-sm">
-                <strong>Status:</strong> {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Waiting for admin approval'}
-              </p>
-            </div>
-            <Button onClick={() => navigate('/')} className="mt-4">
+            <h2 className="text-2xl font-bold">Order Placed Successfully!</h2>
+            <Button onClick={() => navigate('/')}>
               Back to Home
             </Button>
           </motion.div>
