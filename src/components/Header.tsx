@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, Phone, CalendarDays } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useOpeningStatus } from "@/hooks/useOpeningStatus";
 import logo from "@/assets/logo.jpg";
 
 type NavLinkDef = { name: string; hash?: string; to?: string };
@@ -111,8 +112,13 @@ const Header = () => {
     }
   };
 
-  // On non-home routes always use solid styling so text is readable
-  const isTransparent = location.pathname === "/" && !isScrolled && !isMobileMenuOpen;
+  // On non-home routes always use solid styling so text is readable.
+  // Also stay solid while the closed banner shows — it sits behind the header
+  // on a light background where transparent (white) text would be unreadable.
+  const { isOpen, isLoading: hoursLoading } = useOpeningStatus();
+  const bannerShowing = !hoursLoading && !isOpen;
+  const isTransparent =
+    location.pathname === "/" && !isScrolled && !isMobileMenuOpen && !bannerShowing;
 
   return (
     <header
