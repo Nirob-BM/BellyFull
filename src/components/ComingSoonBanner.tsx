@@ -21,7 +21,7 @@ const ComingSoonBanner = () => {
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.35 }}
           role="status"
-          className="bg-secondary/15 border-b border-secondary/40"
+          className="bg-secondary/15 border-b border-secondary/40 pt-16 sm:pt-20"
         >
           <div className="container py-2.5 sm:py-3 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 text-center">
             <span className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-foreground">
