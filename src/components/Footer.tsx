@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Smartphone } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { useSiteSettings, useOpeningHours } from "@/hooks/useSiteSettings";
 import AppDownloadModal from "./AppDownloadModal";
@@ -165,7 +166,15 @@ const Footer = () => {
       <div className="border-t border-primary-foreground/10">
         <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} {settings.general.restaurantName}. All rights reserved.
+            <Link
+              to="/69"
+              aria-label="Open the Belly Full admin dashboard"
+              title="Admin dashboard"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-sm font-semibold text-primary-foreground/80 transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            >
+              ©
+            </Link>{" "}
+            {new Date().getFullYear()} {settings.general.restaurantName}. All rights reserved.
           </p>
           <p className="text-sm text-primary-foreground/60">
             Made with ❤️ in Kishoreganj, Bangladesh
