@@ -77,21 +77,21 @@ const Location = () => {
             className="bg-card rounded-2xl p-4 md:p-6 shadow-elegant border border-border flex flex-col"
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
-              <div className="flex items-center gap-3 mr-auto">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
+              <div className="flex items-center gap-2.5 md:gap-3 mr-auto min-w-0">
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-4.5 w-4.5 md:h-5 md:w-5 text-secondary" />
                 </div>
-                <h3 className="font-display text-lg md:text-xl font-semibold text-foreground">
+                <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground whitespace-nowrap">
                   Opening Hours
                 </h3>
               </div>
               <span
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs md:text-sm font-semibold ${
+                className={`inline-flex items-center gap-1.5 md:gap-2 px-2.5 py-1 md:px-3 rounded-full text-xs lg:text-sm font-semibold whitespace-nowrap ${
                   isOpen ? "bg-primary/15 text-primary" : "bg-destructive/10 text-destructive"
                 }`}
               >
                 <span
-                  className={`h-2 w-2 md:h-2.5 md:w-2.5 rounded-full ${
+                  className={`h-2 w-2 lg:h-2.5 lg:w-2.5 rounded-full ${
                     isOpen ? "bg-primary animate-pulse" : "bg-destructive"
                   }`}
                   aria-hidden="true"
@@ -100,7 +100,8 @@ const Location = () => {
               </span>
             </div>
 
-            <p className="text-xs md:text-sm text-muted-foreground mb-3">{statusNote}</p>
+            <p className="text-xs lg:text-sm text-muted-foreground mb-3">{statusNote}</p>
+
 
             <ul className="flex-1">
               {hoursLoading ? (
