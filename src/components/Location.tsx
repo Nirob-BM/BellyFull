@@ -48,7 +48,7 @@ const Location = () => {
         </motion.div>
 
         {/* Top row: Map + Opening Hours side by side on desktop, stacked on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 md:mb-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 md:mb-6 items-stretch">
           {/* Map */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -179,7 +179,7 @@ const Location = () => {
         </div>
 
         {/* Bottom row: Contact + Address side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left">
           {/* Address Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
