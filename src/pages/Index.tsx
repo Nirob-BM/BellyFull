@@ -14,7 +14,6 @@ const Menu = lazy(() => import("@/components/Menu"));
 const Reservation = lazy(() => import("@/components/Reservation"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const Location = lazy(() => import("@/components/Location"));
-const Hours = lazy(() => import("@/components/Hours"));
 const FAQ = lazy(() => import("@/components/FAQ"));
 const Footer = lazy(() => import("@/components/Footer"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
@@ -84,7 +83,6 @@ const Index = () => {
           <Menu />
           <Reservation />
           <Testimonials />
-          <Hours />
           <Location />
           <FAQ />
         </Suspense>
