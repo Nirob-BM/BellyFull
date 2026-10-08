@@ -79,7 +79,7 @@ const Location = () => {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
               <div className="flex items-center gap-2.5 md:gap-3 mr-auto min-w-0">
                 <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-4.5 w-4.5 md:h-5 md:w-5 text-secondary" />
+                  <Clock className="h-4 w-4 md:h-5 md:w-5 text-secondary" />
                 </div>
                 <h3 className="font-display text-base sm:text-lg lg:text-xl font-semibold text-foreground whitespace-nowrap">
                   Opening Hours
