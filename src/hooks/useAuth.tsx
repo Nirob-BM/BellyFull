@@ -44,6 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(session);
           return;
         }
+        // Mark loading synchronously so pages wait for the role check.
+        if (session?.user) setIsLoading(true);
+        setSession(session);
+        setUser(session?.user ?? null);
         setTimeout(() => { applySession(session); }, 0);
       }
     );
