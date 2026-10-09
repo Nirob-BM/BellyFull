@@ -20,41 +20,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => {
-            checkAdminRole(session.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-        }
-      }
-    );
+    let active = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const applySession = async (session: Session | null) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        // Keep loading until the admin check finishes so the dashboard
+        // doesn't redirect away before the role is known.
+        setIsLoading(true);
+        const admin = await checkAdminRole(session.user.id);
+        if (!active) return;
+        setIsAdmin(admin);
+      } else {
+        setIsAdmin(false);
       }
-      setIsLoading(false);
-    });
+      if (active) setIsLoading(false);
+    };
 
-    return () => subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'TOKEN_REFRESHED') {
+          setSession(session);
+          return;
+        }
+        setTimeout(() => { applySession(session); }, 0);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => applySession(session));
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const checkAdminRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-
-    setIsAdmin(!!data && !error);
+  const checkAdminRole = async (userId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      return !!data && !error;
+    } catch {
+      return false;
+    }
   };
 
   const signIn = async (email: string, password: string) => {
