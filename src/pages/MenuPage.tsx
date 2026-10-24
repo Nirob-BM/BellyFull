@@ -746,7 +746,11 @@ const MenuPage = () => {
                 <p className="text-xs text-muted-foreground sm:text-sm">
                   {filteredAndSortedItems.length}{" "}
                   {filteredAndSortedItems.length === 1 ? "dish" : "dishes"}
-                  {hasActiveFilters ? " match your filters" : " on the menu"}
+                  {hasActiveFilters
+                    ? filteredAndSortedItems.length === 1
+                      ? " matches your filters"
+                      : " match your filters"
+                    : " on the menu"}
                 </p>
                 {hasActiveFilters && (
                   <button
