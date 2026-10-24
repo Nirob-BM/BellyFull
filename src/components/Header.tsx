@@ -96,6 +96,24 @@ const Header = () => {
     }
   };
 
+  // Logo click: always land at the very top of the site.
+  const goToTop = () => {
+    const onHome = location.pathname === "/";
+    setIsMobileMenuOpen(false);
+    setActiveSection("home");
+    if (onHome) {
+      if (location.hash) history.replaceState(null, "", window.location.pathname);
+      // Defer so the menu close has re-enabled body scroll first.
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: reduceMotion ? "instant" : "smooth" });
+      }, 50);
+    } else {
+      navigate("/");
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 50);
+    }
+  };
+
+
   const isLinkActive = (link: NavLinkDef) => {
     if (link.to === "/menu") {
       return location.pathname === "/menu" || location.pathname.startsWith("/product/");
@@ -138,9 +156,9 @@ const Header = () => {
           to="/"
           aria-label="Belly Full home"
           className="flex min-w-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:gap-3"
-          onClick={() => {
-            setActiveSection("home");
-            setIsMobileMenuOpen(false);
+          onClick={(e) => {
+            e.preventDefault();
+            goToTop();
           }}
         >
           <img
