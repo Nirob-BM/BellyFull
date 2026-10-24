@@ -4,7 +4,8 @@ import {
   Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
   UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish as FishIcon, Soup, IceCream, Cookie, 
   Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
-  GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon
+  GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon,
+  SlidersHorizontal, ShieldCheck, X
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
@@ -392,6 +393,15 @@ const MenuPage = () => {
     );
   };
 
+  const hasActiveFilters =
+    dietFilters.veg || dietFilters.mildOnly || dietFilters.popular || excludedAllergens.length > 0;
+
+  const clearFilters = () => {
+    setDietFilters({ veg: false, mildOnly: false, popular: false });
+    setExcludedAllergens([]);
+  };
+
+
   const getItemImages = (item: MenuItem): string[] => {
     const allImages: string[] = [];
     if (item.images && item.images.length > 0) {
@@ -607,7 +617,7 @@ const MenuPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 mb-6 max-w-2xl mx-auto"
+            className="mx-auto mb-4 flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:gap-4"
           >
             {/* Search Bar */}
             <div className="relative flex-1">
@@ -703,10 +713,10 @@ const MenuPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="sticky top-16 sm:top-20 z-30 -mx-4 px-4 py-3 mb-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50"
+            className="sticky top-16 sm:top-20 z-30 -mx-4 px-4 py-2.5 sm:py-3 mb-8 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/50"
           >
             <div
-              className="flex gap-2 sm:gap-3 overflow-x-auto sm:flex-wrap sm:justify-center scrollbar-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mx-auto flex max-w-3xl gap-2 overflow-x-auto scrollbar-none sm:justify-center sm:gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="tablist"
               aria-label="Menu categories"
             >
