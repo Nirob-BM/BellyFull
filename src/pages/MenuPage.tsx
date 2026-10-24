@@ -714,7 +714,7 @@ const MenuPage = () => {
                       Allergen-free
                     </span>
                     <div
-                      className="flex flex-wrap gap-1.5 sm:gap-2"
+                      className="flex flex-wrap gap-1.5"
                       role="group"
                       aria-label="Exclude allergens"
                     >
