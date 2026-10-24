@@ -647,65 +647,117 @@ const MenuPage = () => {
             </Select>
           </motion.div>
 
-          {/* Dietary & Allergen Filters */}
+          {/* Filters — preferences and allergen exclusions in one tidy panel */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18, duration: 0.6 }}
-            className="flex flex-col items-center gap-3 mb-8"
+            className="mx-auto mb-6 w-full max-w-3xl"
           >
-            <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Dietary filters">
-              <Button
-                size="sm"
-                variant={dietFilters.veg ? "default" : "outline"}
-                onClick={() => setDietFilters(f => ({ ...f, veg: !f.veg }))}
-                aria-pressed={dietFilters.veg}
-                className={dietFilters.veg ? "bg-green-600 hover:bg-green-600/90 text-white" : "border-border text-muted-foreground hover:text-foreground"}
-              >
-                <Leaf className="h-3.5 w-3.5 mr-1" /> Vegetarian
-              </Button>
-              <Button
-                size="sm"
-                variant={dietFilters.mildOnly ? "default" : "outline"}
-                onClick={() => setDietFilters(f => ({ ...f, mildOnly: !f.mildOnly }))}
-                aria-pressed={dietFilters.mildOnly}
-                className={dietFilters.mildOnly ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground"}
-              >
-                <Flame className="h-3.5 w-3.5 mr-1" /> Mild Only
-              </Button>
-              <Button
-                size="sm"
-                variant={dietFilters.popular ? "default" : "outline"}
-                onClick={() => setDietFilters(f => ({ ...f, popular: !f.popular }))}
-                aria-pressed={dietFilters.popular}
-                className={dietFilters.popular ? "bg-secondary text-secondary-foreground" : "border-border text-muted-foreground hover:text-foreground"}
-              >
-                <Star className="h-3.5 w-3.5 mr-1" /> Popular
-              </Button>
-            </div>
-
-            {allAllergens.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Exclude allergens">
-                <span className="text-xs text-muted-foreground">Exclude:</span>
-                {allAllergens.map((allergen) => {
-                  const active = excludedAllergens.includes(allergen);
-                  return (
-                    <button
-                      key={allergen}
-                      onClick={() => toggleAllergenExclusion(allergen)}
-                      aria-pressed={active}
-                      className={`px-2.5 py-1 rounded-full text-xs border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                        active
-                          ? "bg-destructive text-destructive-foreground border-destructive"
-                          : "bg-card text-muted-foreground border-border hover:border-destructive/50 hover:text-foreground"
-                      }`}
-                    >
-                      No {allergen}
-                    </button>
-                  );
-                })}
+            <div className="rounded-2xl border border-border bg-card/70 p-3 shadow-elegant sm:p-4">
+              {/* Preferences */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-28 sm:justify-end sm:text-xs">
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  Preferences
+                </span>
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Dietary filters">
+                  <Button
+                    size="sm"
+                    variant={dietFilters.veg ? "default" : "outline"}
+                    onClick={() => setDietFilters((f) => ({ ...f, veg: !f.veg }))}
+                    aria-pressed={dietFilters.veg}
+                    className={
+                      dietFilters.veg
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:text-foreground"
+                    }
+                  >
+                    <Leaf className="mr-1 h-3.5 w-3.5" /> Vegetarian
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dietFilters.mildOnly ? "default" : "outline"}
+                    onClick={() => setDietFilters((f) => ({ ...f, mildOnly: !f.mildOnly }))}
+                    aria-pressed={dietFilters.mildOnly}
+                    className={
+                      dietFilters.mildOnly
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:text-foreground"
+                    }
+                  >
+                    <Flame className="mr-1 h-3.5 w-3.5" /> Mild Only
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dietFilters.popular ? "default" : "outline"}
+                    onClick={() => setDietFilters((f) => ({ ...f, popular: !f.popular }))}
+                    aria-pressed={dietFilters.popular}
+                    className={
+                      dietFilters.popular
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:text-foreground"
+                    }
+                  >
+                    <Star className="mr-1 h-3.5 w-3.5" /> Popular
+                  </Button>
+                </div>
               </div>
-            )}
+
+              {allAllergens.length > 0 && (
+                <>
+                  <div className="my-3 border-t border-border/60" aria-hidden="true" />
+                  {/* Allergen exclusions */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+                    <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-28 sm:justify-end sm:pt-1.5 sm:text-xs">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Allergen-free
+                    </span>
+                    <div
+                      className="flex flex-wrap gap-1.5 sm:gap-2"
+                      role="group"
+                      aria-label="Exclude allergens"
+                    >
+                      {allAllergens.map((allergen) => {
+                        const active = excludedAllergens.includes(allergen);
+                        return (
+                          <button
+                            key={allergen}
+                            onClick={() => toggleAllergenExclusion(allergen)}
+                            aria-pressed={active}
+                            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                              active
+                                ? "border-destructive bg-destructive text-destructive-foreground"
+                                : "border-border bg-background text-muted-foreground hover:border-destructive/50 hover:text-foreground"
+                            }`}
+                          >
+                            {active && <X className="h-3 w-3" />}
+                            No {allergen}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Match count + one-tap reset */}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
+                <p className="text-xs text-muted-foreground sm:text-sm">
+                  {filteredAndSortedItems.length}{" "}
+                  {filteredAndSortedItems.length === 1 ? "dish" : "dishes"}
+                  {hasActiveFilters ? " match your filters" : " on the menu"}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="h-3 w-3" /> Clear filters
+                  </button>
+                )}
+              </div>
+            </div>
           </motion.div>
 
           {/* Category Tabs — sticky, smooth-scroll to sections, scroll-spy highlight */}
