@@ -657,7 +657,7 @@ const MenuPage = () => {
             <div className="rounded-2xl border border-border bg-card/70 p-3 shadow-elegant sm:p-4">
               {/* Preferences */}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-28 sm:justify-end sm:text-xs">
+                <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-32 sm:justify-end sm:text-xs">
                   <SlidersHorizontal className="h-3.5 w-3.5" />
                   Preferences
                 </span>
@@ -709,7 +709,7 @@ const MenuPage = () => {
                   <div className="my-3 border-t border-border/60" aria-hidden="true" />
                   {/* Allergen exclusions */}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-                    <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-28 sm:justify-end sm:pt-1.5 sm:text-xs">
+                    <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:w-32 sm:justify-end sm:pt-1.5 sm:text-xs">
                       <ShieldCheck className="h-3.5 w-3.5" />
                       Allergen-free
                     </span>
