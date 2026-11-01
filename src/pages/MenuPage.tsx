@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { 
-  Flame, Leaf, Star, Plus, Minus, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
+  Flame, Leaf, Star, ShoppingBag, Eye, ArrowLeft, Search, ArrowUpDown,
   UtensilsCrossed, Coffee, Pizza, Salad, Beef, Fish as FishIcon, Soup, IceCream, Cookie, 
   Sandwich, Drumstick, Egg, Croissant, Apple, Cherry, Grape, Cake, Wine, Beer, 
   GlassWater, CupSoda, Milk, Wheat, ChefHat, LucideIcon,
@@ -10,10 +10,10 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import DishDetailModal from "@/components/DishDetailModal";
+import OrderDialog from "@/components/OrderDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";

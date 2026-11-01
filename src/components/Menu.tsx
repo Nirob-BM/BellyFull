@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
+import { Flame, Leaf, Star, ShoppingBag, Loader2, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import DishDetailModal from "@/components/DishDetailModal";
 import BlurImage from "@/components/ui/blur-image";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import OrderDialog from "@/components/OrderDialog";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";
