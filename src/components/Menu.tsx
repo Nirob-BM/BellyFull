@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { Flame, Leaf, Star, Plus, Minus, ShoppingBag, Loader2, Eye } from "lucide-react";
+import { Flame, Leaf, Star, ShoppingBag, Loader2, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ImageLightbox from "@/components/ImageLightbox";
 import DishDetailModal from "@/components/DishDetailModal";
 import BlurImage from "@/components/ui/blur-image";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import OrderDialog from "@/components/OrderDialog";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -403,77 +403,18 @@ const Menu = () => {
         </motion.div>
       </div>
 
-      {/* Order Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-2xl">{selectedItem?.name}</DialogTitle>
-          </DialogHeader>
-          {selectedItem && (
-            <div className="space-y-4">
-              <BlurImage
-                src={resolveImageUrl(selectedItem.image_url, getFallbackImage(selectedItem.name, selectedItem.category))}
-                fallbackSrc={getFallbackImage(selectedItem.name, selectedItem.category)}
-                alt={selectedItem.name}
-                wrapperClassName="block w-full h-48 rounded-lg"
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <p className="text-muted-foreground">{selectedItem.description}</p>
-              
-              <div className="flex items-center justify-between">
-                <span className="font-display text-2xl font-bold text-secondary">
-                  ৳{selectedItem.price * quantity}
-                </span>
-                <div className="flex items-center gap-3">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="h-4 w-4" aria-hidden="true" />
-                  </Button>
-                  <span className="font-semibold text-lg w-8 text-center" aria-live="polite" aria-atomic="true">{quantity}</span>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setQuantity(quantity + 1)}
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-
-              {!canOrder && (
-                <p className="text-sm text-center text-destructive bg-destructive/10 rounded-lg px-3 py-2 mb-2">
-                  We're closed right now. {closedReason}
-                </p>
-              )}
-
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Button
-                  onClick={() => handleAddToOrder(false)}
-                  variant="outline"
-                  disabled={!canOrder}
-                  className="w-full border-secondary/50"
-                >
-                  <ShoppingBag className="h-4 w-4 mr-2" />
-                  Add to Order
-                </Button>
-                <Button
-                  onClick={() => handleAddToOrder(true)}
-                  disabled={!canOrder}
-                  className="w-full bg-primary text-primary-foreground"
-                >
-                  {canOrder ? `Order Now - ৳${selectedItem.price * quantity}` : "Ordering closed"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Order Dialog (responsive product popup) */}
+      <OrderDialog
+        item={selectedItem}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        quantity={quantity}
+        onQuantityChange={setQuantity}
+        canOrder={canOrder}
+        closedReason={closedReason}
+        onAddToOrder={handleAddToOrder}
+        fallbackImage={selectedItem ? getFallbackImage(selectedItem.name, selectedItem.category) : dishButterChicken}
+      />
 
       {/* Dish Detail Modal (ingredients, spice level, prep time, allergens) */}
       <DishDetailModal
