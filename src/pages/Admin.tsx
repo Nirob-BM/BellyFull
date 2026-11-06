@@ -1,107 +1,159 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, UtensilsCrossed, CalendarDays, MessageSquare, Clock, Settings, Image, FileText, Calendar, LogOut, Menu, X, ChefHat, Home, Package, Folder, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Helmet } from 'react-helmet-async';
+import { useEffect, useState } from "react";
+import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard,
+  UtensilsCrossed,
+  CalendarDays,
+  MessageSquare,
+  Clock,
+  Settings,
+  Image,
+  FileText,
+  Calendar,
+  LogOut,
+  Menu,
+  X,
+  ChefHat,
+  Home,
+  Package,
+  Folder,
+  Search,
+  Users,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Helmet } from "react-helmet-async";
 
-const navItems = [{
-  path: '/69',
-  icon: LayoutDashboard,
-  label: 'Dashboard',
-  exact: true
-}, {
-  path: '/69/categories',
-  icon: Folder,
-  label: 'Categories'
-}, {
-  path: '/69/menu',
-  icon: UtensilsCrossed,
-  label: 'Menu Manager'
-}, {
-  path: '/69/orders',
-  icon: Package,
-  label: 'Orders'
-}, {
-  path: '/69/reservations',
-  icon: CalendarDays,
-  label: 'Reservations'
-}, {
-  path: '/69/contacts',
-  icon: MessageSquare,
-  label: 'Contact Submissions'
-}, {
-  path: '/69/hours',
-  icon: Clock,
-  label: 'Opening Hours'
-}, {
-  path: '/69/blog',
-  icon: FileText,
-  label: 'Blog Posts'
-}, {
-  path: '/69/events',
-  icon: Calendar,
-  label: 'Events'
-}, {
-  path: '/69/media',
-  icon: Image,
-  label: 'Media Library'
-}, {
-  path: '/69/settings',
-  icon: Settings,
-  label: 'Site Settings'
-}, {
-  path: '/69/seo',
-  icon: Search,
-  label: 'SEO Health'
-}];
+const navItems = [
+  {
+    path: "/69",
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    exact: true,
+  },
+  {
+    path: "/69/categories",
+    icon: Folder,
+    label: "Categories",
+  },
+  {
+    path: "/69/menu",
+    icon: UtensilsCrossed,
+    label: "Menu Manager",
+  },
+  {
+    path: "/69/orders",
+    icon: Package,
+    label: "Orders",
+  },
+  {
+    path: "/69/reservations",
+    icon: CalendarDays,
+    label: "Reservations",
+  },
+  {
+    path: "/69/contacts",
+    icon: MessageSquare,
+    label: "Contact Submissions",
+  },
+  {
+    path: "/69/hours",
+    icon: Clock,
+    label: "Opening Hours",
+  },
+  {
+    path: "/69/blog",
+    icon: FileText,
+    label: "Blog Posts",
+  },
+  {
+    path: "/69/events",
+    icon: Calendar,
+    label: "Events",
+  },
+  {
+    path: "/69/media",
+    icon: Image,
+    label: "Media Library",
+  },
+  {
+    path: "/69/settings",
+    icon: Settings,
+    label: "Site Settings",
+  },
+  {
+    path: "/69/seo",
+    icon: Search,
+    label: "SEO Health",
+  },
+];
 
+const navGroups = [
+  { label: "Sales", paths: ["/69", "/69/orders", "/69/customers", "/69/reservations", "/69/contacts"] },
+  { label: "Menu", paths: ["/69/menu", "/69/categories"] },
+  { label: "Content", paths: ["/69/blog", "/69/events", "/69/media"] },
+  { label: "Setup", paths: ["/69/hours", "/69/settings", "/69/seo"] },
+];
+navItems.push({ path: "/69/customers", icon: Users, label: "Customers" });
 const Admin = () => {
-  const {
-    user,
-    isAdmin,
-    isLoading,
-    signOut
-  } = useAuth();
+  const { user, isAdmin, isLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
-      navigate('/auth');
+      navigate("/auth");
       return;
     }
     if (!isAdmin) {
-      navigate('/');
+      navigate("/");
     }
   }, [user, isAdmin, isLoading, navigate]);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
     setIsSidebarOpen(false);
-  }, [location.pathname]);
+  }, [location.key]);
+
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsSidebarOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const media = window.matchMedia("(min-width: 1024px)");
+    const onResize = () => {
+      if (media.matches) setIsSidebarOpen(false);
+    };
+    media.addEventListener("change", onResize);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("keydown", onKey);
+      media.removeEventListener("change", onResize);
+    };
+  }, [isSidebarOpen]);
 
   const handleSignOut = async () => {
     await signOut();
     toast({
-      title: 'Signed out',
-      description: 'You have been logged out successfully.'
+      title: "Signed out",
+      description: "You have been logged out successfully.",
     });
-    navigate('/');
+    navigate("/");
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <motion.div 
+        <motion.div
           className="flex flex-col items-center gap-4"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -128,7 +180,10 @@ const Admin = () => {
     <div className="min-h-screen bg-muted/30">
       <Helmet>
         <title>Admin Dashboard — Belly Full</title>
-        <meta name="description" content="Belly Full admin dashboard — manage menu, orders, reservations, blog and site settings." />
+        <meta
+          name="description"
+          content="Belly Full admin dashboard — manage menu, orders, reservations, blog and site settings."
+        />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://bellyfull.lovable.app/69" />
         <meta property="og:title" content="Belly Full Admin" />
@@ -146,9 +201,9 @@ const Admin = () => {
             <p className="text-[10px] text-muted-foreground -mt-0.5">Admin</p>
           </div>
         </div>
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="h-10 w-10 p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Toggle menu"
         >
           <motion.div
@@ -162,7 +217,9 @@ const Admin = () => {
       </header>
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-full w-[280px] lg:w-64 bg-card border-r border-border z-40 transform transition-transform duration-300 ease-out lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside
+        className={`fixed top-0 left-0 h-full w-[280px] lg:w-64 bg-card border-r border-border z-40 transform transition-transform duration-300 ease-out lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
         {/* Desktop Header */}
         <div className="p-5 border-b border-border hidden lg:block">
           <div className="flex items-center gap-3">
@@ -179,50 +236,60 @@ const Admin = () => {
         {/* Navigation */}
         <ScrollArea className="h-[calc(100vh-180px)] lg:h-[calc(100vh-160px)] mt-14 lg:mt-0">
           <nav className="p-3 space-y-1">
-            {navItems.map((item, index) => {
-              const isActive = isActiveRoute(item.path, item.exact);
-              return (
-                <motion.div
-                  key={item.path}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.03, duration: 0.2 }}
-                >
-                  <Link
-                    to={item.path}
-                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-primary rounded-lg"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    <item.icon className={`h-[18px] w-[18px] relative z-10 transition-transform duration-200 ${!isActive && 'group-hover:scale-110'}`} />
-                    <span className="font-medium text-sm relative z-10">{item.label}</span>
-                  </Link>
-                </motion.div>
-              );
-            })}
+            {navGroups.map((group) => (
+              <section key={group.label}>
+                <h2 className="px-3 pt-4 pb-2 text-xs font-semibold text-muted-foreground uppercase">
+                  {group.label}
+                </h2>
+                {group.paths.map((path, index) => {
+                  const item = navItems.find((item) => item.path === path)!;
+                  const isActive = isActiveRoute(item.path, item.exact);
+                  return (
+                    <motion.div
+                      key={item.path}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03, duration: 0.2 }}
+                    >
+                      <Link
+                        to={item.path}
+                        className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-md"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeNav"
+                            className="absolute inset-0 bg-primary rounded-lg"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                        <item.icon
+                          className={`h-[18px] w-[18px] relative z-10 transition-transform duration-200 ${!isActive && "group-hover:scale-110"}`}
+                        />
+                        <span className="font-medium text-sm relative z-10">{item.label}</span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </section>
+            ))}
           </nav>
         </ScrollArea>
 
         {/* Bottom Actions */}
         <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border bg-card/50 backdrop-blur-sm space-y-1.5">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 group"
           >
             <Home className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
             <span className="font-medium text-sm">Back To Website</span>
           </Link>
-          <button 
-            onClick={handleSignOut} 
+          <button
+            onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200 group"
           >
             <LogOut className="h-[18px] w-[18px] group-hover:scale-110 transition-transform" />
@@ -234,13 +301,13 @@ const Admin = () => {
       {/* Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden" 
-            onClick={() => setIsSidebarOpen(false)} 
+            className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
           />
         )}
       </AnimatePresence>
