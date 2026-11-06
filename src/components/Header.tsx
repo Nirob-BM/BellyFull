@@ -185,11 +185,11 @@ const Header = () => {
             const linkClass = `relative inline-flex min-h-10 items-center rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 after:pointer-events-none after:absolute after:bottom-1 after:left-2 after:right-2 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-secondary after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 motion-reduce:after:transition-none xl:after:left-3 xl:after:right-3 ${
               isTransparent
                 ? active
-                  ? "text-primary bg-secondary"
-                  : "text-primary-foreground/85 hover:bg-card/15 hover:text-primary-foreground"
-                : active
-                  ? "text-primary bg-muted"
-                  : "text-muted-foreground hover:bg-muted hover:text-primary"
+                  ? "text-primary-foreground after:scale-x-100"
+                  : "text-primary-foreground/85 hover:text-primary-foreground"
+              : active
+                  ? "text-primary after:scale-x-100"
+                  : "text-muted-foreground hover:text-primary"
             }`;
 
             return link.to ? (
