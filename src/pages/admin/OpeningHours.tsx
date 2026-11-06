@@ -18,10 +18,21 @@ interface OpeningHour {
   is_closed: boolean | null;
 }
 
+/** Returns an error message for an open day, or '' when valid. Close earlier than open = overnight (allowed). */
+export const validateHour = (hour: Pick<OpeningHour, 'is_closed' | 'open_time' | 'close_time'>): string => {
+  if (hour.is_closed) return '';
+  const open = hour.open_time?.slice(0, 5);
+  const close = hour.close_time?.slice(0, 5);
+  if (!open || !close) return 'Enter both opening and closing times.';
+  if (open === close) return 'Opening and closing times must be different.';
+  return '';
+};
+
 const OpeningHours = () => {
   const [hours, setHours] = useState<OpeningHour[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,42 +53,53 @@ const OpeningHours = () => {
     setIsLoading(false);
   };
 
-  const updateHour = (id: string, field: string, value: string | boolean) => {
-    setHours(hours.map(h => h.id === id ? { ...h, [field]: value } : h));
+  const updateHour = (id: string, field: keyof OpeningHour, value: string | boolean) => {
+    setHours((cur) => cur.map((h) => (h.id === id ? { ...h, [field]: value } : h)));
   };
 
+  const errors: Record<string, string> = {};
+  hours.forEach((h) => {
+    const msg = validateHour(h);
+    if (msg) errors[h.id] = msg;
+  });
+
   const saveHours = async () => {
-    setIsSaving(true);
-
-    for (const hour of hours) {
-      const { error } = await supabase
-        .from('opening_hours')
-        .update({
-          open_time: hour.open_time,
-          close_time: hour.close_time,
-          is_closed: hour.is_closed,
-        })
-        .eq('id', hour.id);
-
-      if (error) {
-        toast({ title: 'Error', description: `Failed to update ${hour.day_name}`, variant: 'destructive' });
-        setIsSaving(false);
-        return;
-      }
+    if (Object.keys(errors).length) {
+      setShowErrors(true);
+      toast({ title: 'Check opening hours', description: 'Fix the highlighted days before saving.', variant: 'destructive' });
+      return;
     }
-
-    toast({ title: 'Success', description: 'Opening hours updated successfully' });
+    setIsSaving(true);
+    // One request for all 7 days so it either all saves or nothing does.
+    const { error } = await supabase.from('opening_hours').upsert(
+      hours.map((h) => ({
+        id: h.id,
+        day_of_week: h.day_of_week,
+        day_name: h.day_name,
+        open_time: h.open_time || null,
+        close_time: h.close_time || null,
+        is_closed: !!h.is_closed,
+      })),
+      { onConflict: 'id' },
+    );
+    if (error) {
+      toast({ title: 'Nothing was saved', description: error.message || 'Failed to save opening hours.', variant: 'destructive' });
+    } else {
+      setShowErrors(false);
+      toast({ title: 'Success', description: 'Opening hours updated for all days' });
+    }
+    await fetchHours();
     setIsSaving(false);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="min-w-0 space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Opening Hours</h1>
           <p className="text-muted-foreground">Configure your restaurant's operating hours</p>
         </div>
-        <Button onClick={saveHours} disabled={isSaving} className="bg-primary text-primary-foreground">
+        <Button onClick={saveHours} disabled={isSaving || isLoading} className="h-10 self-start bg-primary text-primary-foreground sm:self-auto">
           <Save className="h-4 w-4 mr-2" />
           {isSaving ? 'Saving...' : 'Save Changes'}
         </Button>
@@ -92,49 +114,66 @@ const OpeningHours = () => {
               <Clock className="h-5 w-5" />
               Weekly Schedule
             </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              A closing time earlier than the opening time means it closes after midnight.
+            </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            {hours.map((hour, index) => (
-              <motion.div
-                key={hour.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg border ${
-                  hour.is_closed ? 'bg-muted/50' : 'bg-background'
-                }`}
-              >
-                <div className="w-32 font-medium text-foreground">{hour.day_name}</div>
-                
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={!hour.is_closed}
-                    onCheckedChange={(checked) => updateHour(hour.id, 'is_closed', !checked)}
-                  />
-                  <Label className="text-sm text-muted-foreground">
-                    {hour.is_closed ? 'Closed' : 'Open'}
-                  </Label>
-                </div>
+            {hours.map((hour, index) => {
+              const err = showErrors ? errors[hour.id] : '';
+              return (
+                <motion.div
+                  key={hour.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`flex flex-col gap-3 rounded-lg border p-4 ${err ? 'border-destructive' : ''} ${
+                    hour.is_closed ? 'bg-muted/50' : 'bg-background'
+                  }`}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                    <div className="font-medium text-foreground sm:w-32">{hour.day_name}</div>
 
-                {!hour.is_closed && (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      type="time"
-                      value={hour.open_time || ''}
-                      onChange={(e) => updateHour(hour.id, 'open_time', e.target.value)}
-                      className="w-32"
-                    />
-                    <span className="text-muted-foreground">to</span>
-                    <Input
-                      type="time"
-                      value={hour.close_time || ''}
-                      onChange={(e) => updateHour(hour.id, 'close_time', e.target.value)}
-                      className="w-32"
-                    />
+                    <label className="flex h-10 cursor-pointer items-center gap-3">
+                      <Switch
+                        disabled={isSaving}
+                        checked={!hour.is_closed}
+                        onCheckedChange={(checked) => updateHour(hour.id, 'is_closed', !checked)}
+                        aria-label={`${hour.day_name} open`}
+                      />
+                      <Label className="cursor-pointer text-sm text-muted-foreground">
+                        {hour.is_closed ? 'Closed' : 'Open'}
+                      </Label>
+                    </label>
+
+                    {!hour.is_closed && (
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <Input
+                          type="time"
+                          disabled={isSaving}
+                          value={hour.open_time || ''}
+                          onChange={(e) => updateHour(hour.id, 'open_time', e.target.value)}
+                          aria-label={`${hour.day_name} opening time`}
+                          aria-invalid={!!err}
+                          className="h-10 min-w-0 flex-1 sm:w-32 sm:flex-none"
+                        />
+                        <span className="text-muted-foreground">to</span>
+                        <Input
+                          type="time"
+                          disabled={isSaving}
+                          value={hour.close_time || ''}
+                          onChange={(e) => updateHour(hour.id, 'close_time', e.target.value)}
+                          aria-label={`${hour.day_name} closing time`}
+                          aria-invalid={!!err}
+                          className="h-10 min-w-0 flex-1 sm:w-32 sm:flex-none"
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
-              </motion.div>
-            ))}
+                  {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
+                </motion.div>
+              );
+            })}
           </CardContent>
         </Card>
       )}

@@ -40,6 +40,19 @@
 
     --radius: 0.75rem;
 
+    /* Status + chart tokens (admin) */
+    --success: 152 55% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 45%;
+    --warning-foreground: 0 0% 100%;
+    --info: 200 65% 40%;
+    --info-foreground: 0 0% 100%;
+    --chart-1: 175 45% 28%;
+    --chart-2: 43 89% 55%;
+    --chart-3: 152 55% 38%;
+    --chart-4: 0 72% 55%;
+    --chart-5: 200 65% 45%;
+
     /* Custom brand tokens */
     --brand-gold: 43 89% 55%;
     --brand-gold-light: 43 80% 70%;

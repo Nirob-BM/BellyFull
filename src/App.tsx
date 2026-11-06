@@ -23,6 +23,7 @@ const MenuManager = lazy(() => import("./pages/admin/MenuManager"));
 const Categories = lazy(() => import("./pages/admin/Categories"));
 const Reservations = lazy(() => import("./pages/admin/Reservations"));
 const Orders = lazy(() => import("./pages/admin/Orders"));
+const Customers = lazy(() => import("./pages/admin/Customers"));
 const Contacts = lazy(() => import("./pages/admin/Contacts"));
 const OpeningHours = lazy(() => import("./pages/admin/OpeningHours"));
 const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
@@ -64,6 +65,7 @@ const App = () => (
                   <Route path="menu" element={<MenuManager />} />
                   <Route path="reservations" element={<Reservations />} />
                   <Route path="orders" element={<Orders />} />
+                  <Route path="customers" element={<Customers />} />
                   <Route path="contacts" element={<Contacts />} />
                   <Route path="hours" element={<OpeningHours />} />
                   <Route path="blog" element={<BlogPosts />} />

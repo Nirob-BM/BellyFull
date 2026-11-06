@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 interface BlogPost {
   id: string;
@@ -66,7 +67,13 @@ const BlogPosts = () => {
       .trim();
   };
 
+  const [titleError, setTitleError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const openAddDialog = () => {
+    setTitleError('');
     setEditingPost(null);
     setFormData({
       title: '',
@@ -80,6 +87,7 @@ const BlogPosts = () => {
   };
 
   const openEditDialog = (post: BlogPost) => {
+    setTitleError('');
     setEditingPost(post);
     setFormData({
       title: post.title,
@@ -94,15 +102,27 @@ const BlogPosts = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
+    const title = formData.title.trim();
+    if (!title) {
+      setTitleError('Title is required.');
+      return;
+    }
+    setTitleError('');
+    setIsSaving(true);
 
     const postData = {
-      title: formData.title,
-      slug: formData.slug || generateSlug(formData.title),
+      title,
+      slug: formData.slug || generateSlug(title),
       content: formData.content || null,
       excerpt: formData.excerpt || null,
       featured_image: formData.featured_image || null,
       is_published: formData.is_published,
-      published_at: formData.is_published ? new Date().toISOString() : null,
+      published_at: !formData.is_published
+        ? null
+        : editingPost?.is_published && editingPost.published_at
+          ? editingPost.published_at
+          : new Date().toISOString(),
     };
 
     if (editingPost) {
@@ -129,16 +149,19 @@ const BlogPosts = () => {
         setIsDialogOpen(false);
       }
     }
+    setIsSaving(false);
   };
 
-  const deletePost = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-
-    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+  const deletePost = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from('blog_posts').delete().eq('id', deleteId);
+    setIsDeleting(false);
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to delete post', variant: 'destructive' });
     } else {
+      setDeleteId(null);
       toast({ title: 'Success', description: 'Post deleted' });
       fetchPosts();
     }
@@ -150,7 +173,7 @@ const BlogPosts = () => {
       .from('blog_posts')
       .update({ 
         is_published: newStatus,
-        published_at: newStatus ? new Date().toISOString() : null,
+        published_at: newStatus ? post.published_at || new Date().toISOString() : post.published_at,
       })
       .eq('id', post.id);
 
@@ -167,7 +190,7 @@ const BlogPosts = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Blog Posts</h1>
@@ -221,7 +244,7 @@ const BlogPosts = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-lg text-foreground">{post.title}</h3>
-                        <Badge className={post.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                        <Badge className={post.is_published ? 'bg-success/15 text-success' : 'bg-muted text-muted-foreground'}>
                           {post.is_published ? 'Published' : 'Draft'}
                         </Badge>
                       </div>
@@ -230,22 +253,23 @@ const BlogPosts = () => {
                         Created: {new Date(post.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex shrink-0 flex-wrap gap-2">
                       <Button
-                        size="sm"
                         variant="outline"
+                        className="h-10 w-10 p-0"
+                        aria-label={post.is_published ? 'Unpublish post' : 'Publish post'}
                         onClick={() => togglePublish(post)}
                       >
                         {post.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => openEditDialog(post)}>
+                      <Button variant="outline" className="h-10 w-10 p-0" aria-label="Edit post" onClick={() => openEditDialog(post)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
-                        size="sm"
                         variant="ghost"
-                        className="text-destructive"
-                        onClick={() => deletePost(post.id)}
+                        className="h-10 w-10 p-0 text-destructive"
+                        aria-label="Delete post"
+                        onClick={() => setDeleteId(post.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -259,12 +283,12 @@ const BlogPosts = () => {
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={isDialogOpen} onOpenChange={(o) => !isSaving && setIsDialogOpen(o)}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPost ? 'Edit Post' : 'New Post'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form noValidate onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
               <Input
@@ -276,9 +300,14 @@ const BlogPosts = () => {
                     title: e.target.value,
                     slug: generateSlug(e.target.value),
                   });
+                  setTitleError('');
                 }}
-                required
+                aria-invalid={Boolean(titleError)}
+                aria-describedby={titleError ? 'post-title-error' : undefined}
               />
+              {titleError && (
+                <p id="post-title-error" role="alert" className="text-sm text-destructive">{titleError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -332,13 +361,22 @@ const BlogPosts = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary text-primary-foreground">
-                {editingPost ? 'Update' : 'Create'} Post
+              <Button type="submit" disabled={isSaving} className="bg-primary text-primary-foreground">
+                {isSaving ? 'Saving…' : `${editingPost ? 'Update' : 'Create'} Post`}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(o) => !o && setDeleteId(null)}
+        title="Delete this post?"
+        description="This action cannot be undone."
+        loading={isDeleting}
+        onConfirm={deletePost}
+      />
     </div>
   );
 };

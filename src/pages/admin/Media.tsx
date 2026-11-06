@@ -5,16 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 interface MediaItem {
   id: string;
@@ -32,6 +23,7 @@ const Media = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -55,69 +47,77 @@ const Media = () => {
   };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
     setIsUploading(true);
+    let uploaded = 0;
+    const failures: string[] = [];
 
-    for (const file of Array.from(files)) {
+    for (const file of files) {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `uploads/${fileName}`;
+      const filePath = `uploads/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('media')
         .upload(filePath, file, { cacheControl: '2592000' });
-
       if (uploadError) {
-        toast({ title: 'Upload failed', description: uploadError.message, variant: 'destructive' });
+        failures.push(`${file.name}: ${uploadError.message}`);
         continue;
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
-
-      // Save to media_library table
       const { error: dbError } = await supabase.from('media_library').insert({
         name: file.name,
         url: urlData.publicUrl,
         type: file.type.split('/')[0] || 'file',
         size: file.size,
       });
-
       if (dbError) {
-        toast({ title: 'Error saving media', description: dbError.message, variant: 'destructive' });
+        failures.push(`${file.name}: ${dbError.message}`);
+        // Don't leave an orphaned file behind.
+        await supabase.storage.from('media').remove([filePath]);
+        continue;
       }
+      uploaded++;
     }
 
-    toast({ title: 'Upload complete', description: `${files.length} file(s) uploaded successfully` });
-    fetchMedia();
+    const failed = failures.length;
+    toast({
+      title: failed ? `${uploaded} uploaded, ${failed} failed` : 'Upload complete',
+      description: failed ? failures.join('\n') : `${uploaded} file(s) uploaded`,
+      variant: failed ? 'destructive' : undefined,
+    });
+    await fetchMedia();
     setIsUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleDelete = async (id: string) => {
-    const item = media.find(m => m.id === id);
+  const handleDelete = async () => {
+    const item = media.find(m => m.id === deleteId);
     if (!item) return;
+    setIsDeleting(true);
 
-    // Extract file path from URL
-    const urlParts = item.url.split('/media/');
-    const filePath = urlParts[urlParts.length - 1];
-
-    // Delete from storage
-    await supabase.storage.from('media').remove([filePath]);
-
-    // Delete from database
-    const { error } = await supabase.from('media_library').delete().eq('id', id);
-
+    // Remove the record first so the list never shows a file that no longer exists.
+    const { error } = await supabase.from('media_library').delete().eq('id', item.id);
     if (error) {
+      setIsDeleting(false);
       toast({ title: 'Error deleting', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setMedia(cur => cur.filter(m => m.id !== item.id));
+    setDeleteId(null);
+
+    const filePath = decodeURIComponent(item.url.split('/media/').pop() || '');
+    const { error: storageError } = filePath
+      ? await supabase.storage.from('media').remove([filePath])
+      : { error: null };
+    setIsDeleting(false);
+    if (storageError) {
+      toast({ title: 'Removed from library', description: 'The record is gone, but the stored file could not be cleaned up.', variant: 'destructive' });
     } else {
       toast({ title: 'Deleted', description: 'Media file removed successfully' });
-      setMedia(media.filter(m => m.id !== id));
     }
-    setDeleteId(null);
   };
 
   const copyToClipboard = (url: string) => {
@@ -254,14 +254,14 @@ const Media = () => {
       ) : (
         <Card>
           <CardContent className="p-0">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">File</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">Type</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden sm:table-cell">Size</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground hidden md:table-cell">Uploaded</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="w-28 text-right py-3 px-2 sm:px-4 font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -269,9 +269,9 @@ const Media = () => {
                   const IconComponent = getIcon(item.type);
                   return (
                     <tr key={item.id} className="border-b border-border/50 hover:bg-muted/50">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded bg-muted flex items-center justify-center overflow-hidden">
+                      <td className="py-3 px-2 sm:px-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="h-10 w-10 shrink-0 rounded bg-muted flex items-center justify-center overflow-hidden">
                             {item.type === 'image' ? (
                               <img src={item.url} alt="" className="w-full h-full object-cover"
             loading="lazy"
@@ -280,7 +280,7 @@ const Media = () => {
                               <IconComponent className="h-5 w-5 text-muted-foreground" />
                             )}
                           </div>
-                          <span className="font-medium truncate max-w-[200px]">{item.name}</span>
+                          <span className="min-w-0 flex-1 truncate font-medium" title={item.name}>{item.name}</span>
                         </div>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground capitalize hidden sm:table-cell">{item.type}</td>
@@ -288,12 +288,12 @@ const Media = () => {
                       <td className="py-3 px-4 text-muted-foreground hidden md:table-cell">
                         {new Date(item.created_at).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="flex justify-end gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => copyToClipboard(item.url)}>
+                      <td className="py-3 px-2 sm:px-4">
+                        <div className="flex justify-end gap-1">
+                          <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0" aria-label="Copy link" onClick={() => copyToClipboard(item.url)}>
                             <Copy className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={() => setDeleteId(item.id)}>
+                          <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0" aria-label="Delete file" onClick={() => setDeleteId(item.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
@@ -308,22 +308,14 @@ const Media = () => {
       )}
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this file?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The file will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(o) => !o && setDeleteId(null)}
+        title="Delete this file?"
+        description="This action cannot be undone. The file will be permanently deleted."
+        loading={isDeleting}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

@@ -1,26 +1,30 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CalendarDays, MessageSquare, UtensilsCrossed, Clock, TrendingUp, Users, Eye, Package, Search, Globe, FileCode, ExternalLink } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Search, Globe, FileCode, ExternalLink } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  CartesianGrid,
+} from "recharts";
 
-interface Stats {
-  totalReservations: number;
-  pendingReservations: number;
-  confirmedReservations: number;
-  cancelledReservations: number;
-  totalMenuItems: number;
-  unreadMessages: number;
-  totalEvents: number;
-  totalBlogPosts: number;
-  totalOrders: number;
-  pendingOrders: number;
-}
-
-interface Reservation {
+type Sale = {
+  id: string;
+  created_at: string;
+  order_status: string;
+  total_amount: number;
+  product_details: unknown;
+};
+type Booking = {
   id: string;
   name: string;
   date: string;
@@ -28,340 +32,375 @@ interface Reservation {
   guests: number;
   status: string;
   created_at: string;
-}
-
-interface ReservationsByDay {
-  day: string;
-  count: number;
-}
-
-interface CategoryData {
-  name: string;
-  count: number;
-}
-
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+};
+const statuses = [
+  "pending",
+  "approved",
+  "preparing",
+  "out_for_delivery",
+  "ready_for_pickup",
+  "delivered",
+  "rejected",
+];
+const colors = [1, 2, 3, 4, 5].map((n) => `hsl(var(--chart-${n}))`);
+const statusColors: Record<string, string> = {
+  pending: "hsl(var(--warning))",
+  approved: "hsl(var(--info))",
+  preparing: "hsl(var(--chart-2))",
+  out_for_delivery: "hsl(var(--chart-4))",
+  ready_for_pickup: "hsl(var(--chart-5))",
+  delivered: "hsl(var(--success))",
+  rejected: "hsl(var(--destructive))",
+};
+const dayKey = (value: Date | string) =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(value));
+const money = (n: number) => `৳${n.toLocaleString("en-BD", { maximumFractionDigits: 2 })}`;
+const tooltipStyle = {
+  backgroundColor: "hsl(var(--card))",
+  borderColor: "hsl(var(--border))",
+  color: "hsl(var(--foreground))",
+};
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<Stats>({
-    totalReservations: 0,
-    pendingReservations: 0,
-    confirmedReservations: 0,
-    cancelledReservations: 0,
-    totalMenuItems: 0,
-    unreadMessages: 0,
-    totalEvents: 0,
-    totalBlogPosts: 0,
-    totalOrders: 0,
-    pendingOrders: 0,
-  });
-  const [recentReservations, setRecentReservations] = useState<Reservation[]>([]);
-  const [reservationsByDay, setReservationsByDay] = useState<ReservationsByDay[]>([]);
-  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-  const [statusData, setStatusData] = useState<{ name: string; value: number }[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [data, setData] = useState<{
+    orders: Sale[];
+    bookings: Booking[];
+    menu: number;
+    messages: number;
+    events: number;
+    posts: number;
+    categories: { name: string; count: number }[];
+  } | null>(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  const fetchAllData = async () => {
-    await Promise.all([
-      fetchStats(),
-      fetchRecentReservations(),
-      fetchReservationsByDay(),
-      fetchCategoryData(),
-    ]);
-    setIsLoading(false);
-  };
-
-  const fetchStats = async () => {
-    try {
-      const [reservationsRes, menuRes, contactsRes, eventsRes, blogRes, ordersRes] = await Promise.all([
-        supabase.from('reservations').select('status'),
-        supabase.from('menu_items').select('id', { count: 'exact' }).eq('is_active', true),
-        supabase.from('contact_submissions').select('id', { count: 'exact' }).eq('is_read', false),
-        supabase.from('events').select('id', { count: 'exact' }).eq('is_active', true),
-        supabase.from('blog_posts').select('id', { count: 'exact' }).eq('is_published', true),
-        supabase.from('orders').select('order_status'),
-      ]);
-
-      const reservations = reservationsRes.data || [];
-      const pendingCount = reservations.filter(r => r.status === 'pending').length;
-      const confirmedCount = reservations.filter(r => r.status === 'confirmed').length;
-      const cancelledCount = reservations.filter(r => r.status === 'cancelled').length;
-
-      const orders = ordersRes.data || [];
-      const pendingOrdersCount = orders.filter(o => o.order_status === 'pending').length;
-
-      setStats({
-        totalReservations: reservations.length,
-        pendingReservations: pendingCount,
-        confirmedReservations: confirmedCount,
-        cancelledReservations: cancelledCount,
-        totalMenuItems: menuRes.count || 0,
-        unreadMessages: contactsRes.count || 0,
-        totalEvents: eventsRes.count || 0,
-        totalBlogPosts: blogRes.count || 0,
-        totalOrders: orders.length,
-        pendingOrders: pendingOrdersCount,
-      });
-
-      setStatusData([
-        { name: 'Pending', value: pendingCount },
-        { name: 'Confirmed', value: confirmedCount },
-        { name: 'Cancelled', value: cancelledCount },
-      ]);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
-  const fetchRecentReservations = async () => {
-    const { data } = await supabase
-      .from('reservations')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
-    setRecentReservations(data || []);
-  };
-
-  const fetchReservationsByDay = async () => {
-    const { data } = await supabase
-      .from('reservations')
-      .select('date')
-      .gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-
-    if (data) {
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const counts: Record<string, number> = {};
-      
-      // Initialize all days with 0
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-        const dayName = days[date.getDay()];
-        counts[dayName] = 0;
+    let alive = true;
+    let running = false;
+    let queued = false;
+    const load = async () => {
+      if (running) {
+        queued = true;
+        return;
       }
-      
-      data.forEach(r => {
-        const date = new Date(r.date);
-        const dayName = days[date.getDay()];
-        counts[dayName] = (counts[dayName] || 0) + 1;
-      });
+      running = true;
+      try {
+        // Explicit pagination avoids Supabase's default 1,000-row truncation.
+        const orders: Sale[] = [];
+        const bookings: Booking[] = [];
+        for (let start = 0; ; start += 1000) {
+          const result = await supabase
+            .from("orders")
+            .select("id,created_at,order_status,total_amount,product_details")
+            .order("id")
+            .range(start, start + 999);
+          if (result.error) throw result.error;
+          orders.push(...result.data);
+          if (result.data.length < 1000) break;
+        }
+        for (let start = 0; ; start += 1000) {
+          const result = await supabase
+            .from("reservations")
+            .select("id,name,date,time,guests,status,created_at")
+            .order("id")
+            .range(start, start + 999);
+          if (result.error) throw result.error;
+          bookings.push(...result.data);
+          if (result.data.length < 1000) break;
+        }
+        const results = await Promise.all([
+          supabase.from("menu_items").select("id", { count: "exact", head: true }).eq("is_active", true),
+          supabase
+            .from("contact_submissions")
+            .select("id", { count: "exact", head: true })
+            .eq("is_read", false),
+          supabase.from("events").select("id", { count: "exact", head: true }).eq("is_active", true),
+          supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("is_published", true),
+        ]);
+        for (const result of results) if (result.error) throw result.error;
+        const categoryCounts = new Map<string, number>();
+        for (let start = 0; ; start += 1000) {
+          const result = await supabase
+            .from("menu_items")
+            .select("id,category")
+            .eq("is_active", true)
+            .order("id")
+            .range(start, start + 999);
+          if (result.error) throw result.error;
+          result.data.forEach((item) =>
+            categoryCounts.set(item.category, (categoryCounts.get(item.category) || 0) + 1),
+          );
+          if (result.data.length < 1000) break;
+        }
+        if (alive) {
+          setData({
+            orders,
+            bookings,
+            menu: results[0].count || 0,
+            messages: results[1].count || 0,
+            events: results[2].count || 0,
+            posts: results[3].count || 0,
+            categories: [...categoryCounts].map(([name, count]) => ({ name, count })),
+          });
+          setError(false);
+        }
+      } catch {
+        if (alive) setError(true);
+      } finally {
+        running = false;
+        if (alive) setLoading(false);
+        if (queued && alive) {
+          queued = false;
+          void load();
+        }
+      }
+    };
+    void load();
+    const timer = window.setInterval(() => void load(), 60000);
+    const channel = supabase
+      .channel("dashboard-refresh")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "reservations" }, () => void load())
+      .subscribe();
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      void supabase.removeChannel(channel);
+    };
+  }, [retry]);
 
-      setReservationsByDay(
-        Object.entries(counts).map(([day, count]) => ({ day, count }))
-      );
-    }
-  };
-
-  const fetchCategoryData = async () => {
-    const { data } = await supabase
-      .from('menu_items')
-      .select('category')
-      .eq('is_active', true);
-
-    if (data) {
-      const counts: Record<string, number> = {};
-      data.forEach(item => {
-        counts[item.category] = (counts[item.category] || 0) + 1;
-      });
-      setCategoryData(
-        Object.entries(counts).map(([name, count]) => ({ name, count }))
-      );
-    }
-  };
-
-  const statCards = [
-    { title: 'Total Orders', value: stats.totalOrders, icon: Package, color: 'bg-emerald-500/10 text-emerald-500' },
-    { title: 'Pending Orders', value: stats.pendingOrders, icon: Clock, color: 'bg-yellow-500/10 text-yellow-500' },
-    { title: 'Total Reservations', value: stats.totalReservations, icon: CalendarDays, color: 'bg-blue-500/10 text-blue-500' },
-    { title: 'Active Menu Items', value: stats.totalMenuItems, icon: UtensilsCrossed, color: 'bg-green-500/10 text-green-500' },
-    { title: 'Unread Messages', value: stats.unreadMessages, icon: MessageSquare, color: 'bg-purple-500/10 text-purple-500' },
-    { title: 'Published Posts', value: stats.totalBlogPosts, icon: Eye, color: 'bg-cyan-500/10 text-cyan-500' },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your restaurant overview.</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        {statCards.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
+  if (error)
+    return (
+      <Card role="alert">
+        <CardHeader>
+          <CardTitle>Unable to load dashboard</CardTitle>
+          <CardDescription>Numbers could not be refreshed. Please try again.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={() => {
+              setError(false);
+              setLoading(true);
+              setRetry((n) => n + 1);
+            }}
           >
-            <Card className="h-full">
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-2">
-                  <div className={`p-2 rounded-lg w-fit ${stat.color}`}>
-                    <stat.icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {isLoading ? '...' : stat.value}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{stat.title}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  if (loading || !data)
+    return (
+      <p role="status" className="text-muted-foreground">
+        Loading dashboard…
+      </p>
+    );
+  const today = dayKey(new Date());
+  const calendar = (offset: number) => {
+    const date = new Date(`${today}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() - offset);
+    return date.toISOString().slice(0, 10);
+  };
+  const days = Array.from({ length: 7 }, (_, i) => calendar(6 - i));
+  const eligible = data.orders.filter((o) => o.order_status !== "rejected" && dayKey(o.created_at) <= today);
+  const revenue = (length: number) =>
+    eligible
+      .filter((o) => dayKey(o.created_at) >= calendar(length - 1))
+      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+  const daily = days.map((day) => ({
+    day: day.slice(5),
+    sales: eligible
+      .filter((o) => dayKey(o.created_at) === day)
+      .reduce((sum, o) => sum + Number(o.total_amount), 0),
+    reservations: data.bookings.filter((b) => b.date === day).length,
+  }));
+  const statusData = statuses.map((status) => ({
+    name: status.replace(/_/g, " "),
+    value: data.orders.filter((o) => o.order_status === status).length,
+  }));
+  const dishes = new Map<string, { name: string; quantity: number }>();
+  eligible.forEach((order) => {
+    if (!Array.isArray(order.product_details)) return;
+    order.product_details.forEach((item) => {
+      if (!item || typeof item !== "object" || typeof item.name !== "string") return;
+      const quantity = Number(item.quantity);
+      if (!Number.isFinite(quantity) || quantity <= 0) return;
+      const key = String(item.id || item.name);
+      const previous = dishes.get(key);
+      dishes.set(key, { name: item.name, quantity: (previous?.quantity || 0) + quantity });
+    });
+  });
+  const best = [...dishes.values()].sort((a, b) => b.quantity - a.quantity).slice(0, 5);
+  const stats = [
+    ["Total Orders", data.orders.length],
+    ["Pending Orders", data.orders.filter((o) => o.order_status === "pending").length],
+    ["Total Reservations", data.bookings.length],
+    ["Active Menu Items", data.menu],
+    ["Unread Messages", data.messages],
+    ["Published Posts", data.posts],
+    ["Active Events", data.events],
+  ];
+  return (
+    <div className="space-y-6 min-w-0">
+      <div className="flex flex-wrap justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Restaurant overview · Asia/Dhaka · refreshes every 60 seconds
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => setRetry((n) => n + 1)}>
+          Refresh
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {stats.map(([title, value]) => (
+          <Card key={title}>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold">{value}</p>
+              <p className="text-sm text-muted-foreground">{title}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
-
-      {/* Charts Row */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Reservations by Day */}
-        <Card className="lg:col-span-2">
+      <div className="grid sm:grid-cols-3 gap-3">
+        {[1, 7, 30].map((n) => (
+          <Card key={n}>
+            <CardHeader>
+              <CardTitle className="text-base">Revenue {n === 1 ? "today" : `last ${n} days`}</CardTitle>
+              <CardDescription>Excluding rejected; includes pending</CardDescription>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold">{money(revenue(n))}</CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        {(["sales", "reservations"] as const).map((metric) => (
+          <Card key={metric} className="min-w-0">
+            <CardHeader>
+              <CardTitle className="text-lg">
+                {metric === "sales" ? "Daily sales" : "Reservations"} · last 7 days
+              </CardTitle>
+              <CardDescription>
+                {metric === "sales"
+                  ? "Excluding rejected; includes pending"
+                  : "Booking dates, today and previous six days only"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-48 sm:h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={daily} margin={{ left: 0, right: 8 }}>
+                    <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                    <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                    <YAxis
+                      width={48}
+                      allowDecimals={metric === "sales"}
+                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                    />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey={metric} fill={colors[metric === "sales" ? 0 : 1]} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        <Card className="min-w-0">
           <CardHeader>
-            <CardTitle className="text-lg">Reservations This Week</CardTitle>
-            <CardDescription>Daily reservation trends</CardDescription>
+            <CardTitle className="text-lg">Order status</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={reservationsByDay}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="day" className="text-xs" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                  <YAxis className="text-xs" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Reservation Status Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Reservation Status</CardTitle>
-            <CardDescription>Distribution by status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[250px]">
+            <div className="h-44 sm:h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                  >
-                    {statusData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Pie data={statusData} dataKey="value" innerRadius="50%" outerRadius="85%" label={false}>
+                    {statusData.map((s, i) => (
+                      <Cell key={s.name} fill={statusColors[statuses[i]] || colors[i % colors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }} 
-                  />
+                  <Tooltip contentStyle={tooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
+            <ul className="grid grid-cols-2 gap-2 text-sm">
+              {statusData.map((s, i) => (
+                <li key={s.name} className="flex items-center gap-2 capitalize">
+                  <span
+                    className="w-3 h-3 shrink-0 rounded-full"
+                    style={{ background: statusColors[statuses[i]] || colors[i % colors.length] }}
+                  />
+                  {s.name}: {s.value}
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Menu Categories & Recent Reservations */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Menu Categories */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <UtensilsCrossed className="h-5 w-5" />
-              Menu by Category
-            </CardTitle>
+            <CardTitle className="text-lg">Best-selling dishes</CardTitle>
+            <CardDescription>
+              Top 5 by quantity · all time · excluding rejected; includes pending
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={80} 
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} 
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Reservations */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CalendarDays className="h-5 w-5" />
-              Recent Reservations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentReservations.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No reservations yet</p>
-            ) : (
-              <div className="space-y-3">
-                {recentReservations.map((reservation) => (
-                  <div 
-                    key={reservation.id} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Users className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{reservation.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(reservation.date).toLocaleDateString()} • {reservation.time} • {reservation.guests} guests
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      reservation.status === 'confirmed' 
-                        ? 'bg-green-500/10 text-green-600'
-                        : reservation.status === 'cancelled'
-                        ? 'bg-red-500/10 text-red-600'
-                        : 'bg-yellow-500/10 text-yellow-600'
-                    }`}>
-                      {reservation.status}
+            {best.length ? (
+              <ol className="space-y-3">
+                {best.map((dish, i) => (
+                  <li key={i} className="flex justify-between gap-3">
+                    <span>
+                      {i + 1}. {dish.name}
                     </span>
-                  </div>
+                    <strong>{dish.quantity}</strong>
+                  </li>
                 ))}
-              </div>
+              </ol>
+            ) : (
+              <p className="text-muted-foreground">No sales yet.</p>
             )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Menu by category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {data.categories.map((c) => (
+                <li key={c.name} className="flex justify-between">
+                  <span>{c.name}</span>
+                  <strong>{c.count}</strong>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recent reservations</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[...data.bookings]
+              .sort((a, b) => b.created_at.localeCompare(a.created_at))
+              .slice(0, 5)
+              .map((b) => (
+                <div key={b.id} className="flex flex-wrap justify-between gap-2 border-b pb-2">
+                  <span>
+                    {b.name} · {b.guests} guests
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {b.date} {b.time} · {b.status}
+                  </span>
+                </div>
+              ))}
+            <Button asChild variant="outline">
+              <Link to="/69/reservations">Manage reservations</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -422,5 +461,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;
