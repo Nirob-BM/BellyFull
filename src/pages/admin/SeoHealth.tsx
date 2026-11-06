@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SitemapUrl {
   loc: string;
@@ -52,10 +53,18 @@ const SeoHealth = () => {
   const [robotsRules, setRobotsRules] = useState<RobotsRule[]>([]);
   const [robotsSitemapDirective, setRobotsSitemapDirective] = useState<string | undefined>(undefined);
 
-  const [dbActiveMenuItems] = useState(0);
+  const [activeDishes, setActiveDishes] = useState<{ id: string; name: string }[]>([]);
+  const [menuError, setMenuError] = useState<string | undefined>(undefined);
 
   const fetchDbCounts = async () => {
-    // DB counts disabled to avoid TS deep type instantiation with Supabase client
+    setMenuError(undefined);
+    const { data, error } = await supabase.from("menu_items").select("id, name").eq("is_active", true);
+    if (error) {
+      setActiveDishes([]);
+      setMenuError(error.message);
+    } else {
+      setActiveDishes((data as { id: string; name: string }[]) || []);
+    }
   };
 
   const fetchSitemap = async () => {
@@ -68,6 +77,9 @@ const SeoHealth = () => {
       const text = await res.text();
       const parser = new DOMParser();
       const xml = parser.parseFromString(text, "application/xml");
+      if (xml.querySelector("parsererror") || xml.documentElement.localName !== "urlset") {
+        throw new Error("The sitemap isn't valid XML (expected a <urlset>).");
+      }
       const urlNodes = Array.from(xml.querySelectorAll("url"));
       const urls: SitemapUrl[] = urlNodes.map((node) => {
         const loc = node.querySelector("loc")?.textContent || "";
@@ -87,12 +99,18 @@ const SeoHealth = () => {
       setSitemapUrls(urls);
       setSitemapTotal(urls.length);
       setSitemapStaticCount(urls.filter((u) => u.isStatic).length);
-      setSitemapDynamicCount(urls.filter((u) => !u.isStatic).length);
+      setSitemapDynamicCount(urls.filter((u) => /\/product\/[^/]+\/?$/.test(u.loc)).length);
       setSitemapOldestLastmod(lastmods[0] || "");
       setSitemapNewestLastmod(lastmods[lastmods.length - 1] || "");
       setSitemapLoaded(true);
     } catch (err: any) {
-      setSitemapError(err.message);
+      setSitemapUrls([]);
+      setSitemapTotal(0);
+      setSitemapStaticCount(0);
+      setSitemapDynamicCount(0);
+      setSitemapOldestLastmod("");
+      setSitemapNewestLastmod("");
+      setSitemapError(err.message || "Could not load the sitemap");
       setSitemapLoaded(true);
     }
   };
@@ -143,7 +161,7 @@ const SeoHealth = () => {
 
   const runChecks = useCallback(async () => {
     setLoading(true);
-    await Promise.all([fetchSitemap(), fetchRobots()]);
+    await Promise.all([fetchSitemap(), fetchRobots(), fetchDbCounts()]);
     setLoading(false);
   }, []);
 
@@ -160,6 +178,19 @@ const SeoHealth = () => {
       setRegenerating(false);
     }
   };
+
+  const productIds = new Set(
+    sitemapUrls
+      .map((u) => u.loc.match(/\/product\/([^/?#]+)\/?$/)?.[1])
+      .filter((id): id is string => !!id)
+      .map((id) => decodeURIComponent(id)),
+  );
+  const activeIds = new Set(activeDishes.map((d) => d.id));
+  const missingDishes = activeDishes.filter((d) => !productIds.has(d.id));
+  const orphanUrls = sitemapUrls.filter((u) => {
+    const id = u.loc.match(/\/product\/([^/?#]+)\/?$/)?.[1];
+    return id && !activeIds.has(decodeURIComponent(id));
+  });
 
   const sitemapWarnings: string[] = [];
   if (sitemapLoaded && !sitemapError) {
@@ -180,7 +211,7 @@ const SeoHealth = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">SEO Health Check</h1>
@@ -188,7 +219,7 @@ const SeoHealth = () => {
             Verify sitemap generation and indexing settings.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={handleRegenerate} disabled={regenerating || loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${regenerating ? "animate-spin" : ""}`} />
             Refresh
@@ -214,12 +245,12 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${sitemapError ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
+                <div className={`p-2 rounded-lg ${sitemapError ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
                   {sitemapError ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : sitemapTotal}
+                    {loading ? "..." : sitemapError ? "Error" : sitemapTotal}
                   </p>
                   <p className="text-xs text-muted-foreground">Sitemap URLs</p>
                 </div>
@@ -232,7 +263,7 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${robotsError ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
+                <div className={`p-2 rounded-lg ${robotsError ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
                   {robotsError ? <AlertCircle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
                 </div>
                 <div>
@@ -250,12 +281,12 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                <div className="p-2 rounded-lg bg-info/10 text-info">
                   <BarChart3 className="h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : sitemapDynamicCount}
+                    {loading ? "..." : sitemapError ? "Error" : sitemapDynamicCount}
                   </p>
                   <p className="text-xs text-muted-foreground">Product URLs</p>
                 </div>
@@ -268,12 +299,12 @@ const SeoHealth = () => {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                <div className="p-2 rounded-lg bg-chart-1/10 text-chart-1">
                   <MapPin className="h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {loading ? "..." : sitemapNewestLastmod || "—"}
+                    {loading ? "..." : sitemapError ? "—" : sitemapNewestLastmod || "—"}
                   </p>
                   <p className="text-xs text-muted-foreground">Newest Lastmod</p>
                 </div>
@@ -283,11 +314,11 @@ const SeoHealth = () => {
         </motion.div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sitemap Panel */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="h-full min-w-0">
+            <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FileCode className="h-5 w-5" />
@@ -309,20 +340,20 @@ const SeoHealth = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                  <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Static Pages</p>
                       <p className="font-semibold">{sitemapStaticCount}</p>
                     </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Product Pages</p>
                       <p className="font-semibold">{sitemapDynamicCount}</p>
                     </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Oldest Lastmod</p>
                       <p className="font-semibold">{sitemapOldestLastmod || "—"}</p>
                     </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Newest Lastmod</p>
                       <p className="font-semibold">{sitemapNewestLastmod || "—"}</p>
                     </div>
@@ -331,7 +362,7 @@ const SeoHealth = () => {
                   {sitemapWarnings.length > 0 && (
                     <div className="space-y-2">
                       {sitemapWarnings.map((w, i) => (
-                        <div key={i} className="flex items-start gap-2 text-amber-600 bg-amber-500/10 p-3 rounded-lg text-sm">
+                        <div key={i} className="flex items-start gap-2 text-warning bg-warning/10 p-3 rounded-lg text-sm">
                           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                           {w}
                         </div>
@@ -371,8 +402,8 @@ const SeoHealth = () => {
 
         {/* Robots Panel */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="h-full min-w-0">
+            <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ShieldCheck className="h-5 w-5" />
@@ -394,8 +425,8 @@ const SeoHealth = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                  <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Sitemap Directive</p>
                       <p className="font-semibold truncate">
                         {robotsSitemapDirective ? (
@@ -412,7 +443,7 @@ const SeoHealth = () => {
                         )}
                       </p>
                     </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
+                    <div className="min-w-0 break-words bg-muted/50 p-3 rounded-lg">
                       <p className="text-muted-foreground text-xs">Blocked Paths (Wildcard)</p>
                       <p className="font-semibold">
                         {robotsRules.find((r) => r.userAgent === "*")?.disallows.length || 0}
@@ -423,7 +454,7 @@ const SeoHealth = () => {
                   {robotsWarnings.length > 0 && (
                     <div className="space-y-2">
                       {robotsWarnings.map((w, i) => (
-                        <div key={i} className="flex items-start gap-2 text-amber-600 bg-amber-500/10 p-3 rounded-lg text-sm">
+                        <div key={i} className="flex items-start gap-2 text-warning bg-warning/10 p-3 rounded-lg text-sm">
                           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                           {w}
                         </div>
@@ -441,12 +472,12 @@ const SeoHealth = () => {
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {rule.allows.map((a, i) => (
-                            <Badge key={`allow-${i}`} variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 text-[10px]">
+                            <Badge key={`allow-${i}`} variant="outline" className="text-success border-success/30 bg-success/10 text-[10px]">
                               Allow {a}
                             </Badge>
                           ))}
                           {rule.disallows.map((d, i) => (
-                            <Badge key={`disallow-${i}`} variant="outline" className="text-red-600 border-red-200 bg-red-50 text-[10px]">
+                            <Badge key={`disallow-${i}`} variant="outline" className="text-destructive border-destructive/30 bg-destructive/10 text-[10px]">
                               Disallow {d}
                             </Badge>
                           ))}
@@ -460,6 +491,45 @@ const SeoHealth = () => {
           </Card>
         </motion.div>
       </div>
+
+      {/* Menu vs sitemap */}
+      <Card className="min-w-0">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BarChart3 className="h-5 w-5" />
+            Menu vs sitemap
+          </CardTitle>
+          <CardDescription>Checks that every active dish has a page in the sitemap, and no removed dish is still listed.</CardDescription>
+        </CardHeader>
+        <CardContent className="min-w-0">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Checking…</p>
+          ) : sitemapError || menuError ? (
+            <p role="alert" className="break-words text-sm text-destructive">
+              Comparison unavailable: {sitemapError || menuError}
+            </p>
+          ) : (
+            <div className="grid min-w-0 grid-cols-1 gap-6 sm:grid-cols-2">
+              <section className="min-w-0">
+                <h3 className="font-medium">Dishes missing from sitemap ({missingDishes.length})</h3>
+                {missingDishes.length ? (
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {missingDishes.map((d) => <li key={d.id} className="break-words">{d.name}</li>)}
+                  </ul>
+                ) : <p className="mt-2 text-sm text-success">All {activeDishes.length} active dishes are listed.</p>}
+              </section>
+              <section className="min-w-0">
+                <h3 className="font-medium">Sitemap pages with no active dish ({orphanUrls.length})</h3>
+                {orphanUrls.length ? (
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {orphanUrls.map((u, i) => <li key={`${u.loc}-${i}`} className="break-all">{u.loc}</li>)}
+                  </ul>
+                ) : <p className="mt-2 text-sm text-success">None.</p>}
+              </section>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Submission Tools */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
