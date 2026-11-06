@@ -182,7 +182,7 @@ const Header = () => {
         <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {navLinks.map((link) => {
             const active = isLinkActive(link);
-            const linkClass = `relative inline-flex min-h-10 items-center rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 ${
+            const linkClass = `relative inline-flex min-h-10 items-center rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 after:pointer-events-none after:absolute after:bottom-1 after:left-2 after:right-2 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-secondary after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 motion-reduce:after:transition-none xl:after:left-3 xl:after:right-3 ${
               isTransparent
                 ? active
                   ? "text-primary bg-secondary"
