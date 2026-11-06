@@ -274,8 +274,8 @@ const Header = () => {
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
               {navLinks.map((link) => {
                 const active = isLinkActive(link);
-                const linkClass = `flex min-h-11 items-center rounded-md px-3 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  active ? "bg-muted text-primary border-l-4 border-secondary" : "text-foreground hover:bg-muted hover:text-primary"
+                const linkClass = `relative flex min-h-11 items-center rounded-md px-3 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-muted after:pointer-events-none after:absolute after:bottom-1.5 after:left-3 after:h-0.5 after:w-10 after:origin-left after:scale-x-0 after:rounded-full after:bg-secondary after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 active:after:scale-x-100 motion-reduce:after:transition-none ${
+                  active ? "text-primary font-semibold after:scale-x-100" : "text-foreground hover:text-primary"
                 }`;
 
                 return link.to ? (
