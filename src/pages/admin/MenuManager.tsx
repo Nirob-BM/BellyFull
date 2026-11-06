@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 interface MenuItem {
   id: string;
@@ -68,6 +69,11 @@ const MenuManager = () => {
     prep_time_minutes: '',
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const savingRef = useRef(false);
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; price?: string; category?: string }>({});
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const multiFileInputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +81,7 @@ const MenuManager = () => {
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, isMultiple: boolean = false) => {
     const files = event.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0 || isUploading) return;
 
     setIsUploading(true);
 
@@ -115,15 +121,12 @@ const MenuManager = () => {
       }
 
       if (uploadedUrls.length > 0) {
-        if (isMultiple) {
-          setFormData({ 
-            ...formData, 
-            images: [...formData.images, ...uploadedUrls],
-            image_url: formData.image_url || uploadedUrls[0] // Set first as primary if none set
-          });
-        } else {
-          setFormData({ ...formData, image_url: uploadedUrls[0] });
-        }
+        // Functional update: keeps anything typed while the upload was running.
+        setFormData((prev) =>
+          isMultiple
+            ? { ...prev, images: [...prev.images, ...uploadedUrls], image_url: prev.image_url || uploadedUrls[0] }
+            : { ...prev, image_url: uploadedUrls[0] },
+        );
         toast({ title: 'Uploaded', description: `${uploadedUrls.length} image(s) uploaded successfully` });
       }
     } catch (error: any) {
@@ -184,6 +187,7 @@ const MenuManager = () => {
   };
 
   const openAddDialog = () => {
+    setFieldErrors({});
     setEditingItem(null);
     setFormData({
       name: '',
@@ -205,6 +209,7 @@ const MenuManager = () => {
   };
 
   const openEditDialog = (item: MenuItem) => {
+    setFieldErrors({});
     setEditingItem(item);
     setFormData({
       name: item.name,
@@ -227,11 +232,24 @@ const MenuManager = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (savingRef.current || isUploading) return;
+
+    const name = formData.name.trim();
+    const price = Number(formData.price);
+    const errors: typeof fieldErrors = {};
+    if (!name) errors.name = 'Enter a dish name.';
+    if (!formData.price.trim() || !Number.isFinite(price) || price <= 0) errors.price = 'Enter a price above ৳0.';
+    if (!formData.category || !categories.some((c) => c.name === formData.category)) errors.category = 'Choose a category.';
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    savingRef.current = true;
+    setIsSaving(true);
 
     const itemData = {
-      name: formData.name,
-      description: formData.description || null,
-      price: parseFloat(formData.price),
+      name,
+      description: formData.description.trim() || null,
+      price,
       category: formData.category,
       image_url: formData.image_url || null,
       images: formData.images.length > 0 ? formData.images : null,
@@ -271,24 +289,33 @@ const MenuManager = () => {
         setIsDialogOpen(false);
       }
     }
+    savingRef.current = false;
+    setIsSaving(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this menu item?')) return;
-
-    const { error } = await supabase.from('menu_items').delete().eq('id', id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from('menu_items').delete().eq('id', deleteId);
+    setIsDeleting(false);
 
     if (error) {
       toast({ title: 'Error', description: 'Failed to delete menu item', variant: 'destructive' });
     } else {
+      setDeleteId(null);
       toast({ title: 'Success', description: 'Menu item deleted successfully' });
       fetchMenuItems();
     }
   };
 
   const removeImage = (index: number) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData({ ...formData, images: newImages });
+    setFormData((prev) => {
+      const removed = prev.images[index];
+      const images = prev.images.filter((_, i) => i !== index);
+      // If the main photo was removed, fall back to the next gallery photo (or none).
+      const image_url = prev.image_url === removed ? images[0] || '' : prev.image_url;
+      return { ...prev, images, image_url };
+    });
   };
 
   const handleDragStart = (index: number) => {
@@ -304,7 +331,7 @@ const MenuManager = () => {
     newImages.splice(draggedImageIndex, 1);
     newImages.splice(index, 0, draggedImage);
 
-    setFormData({ ...formData, images: newImages });
+    setFormData((prev) => ({ ...prev, images: newImages }));
     setDraggedImageIndex(index);
   };
 
@@ -313,7 +340,7 @@ const MenuManager = () => {
   };
 
   const setAsPrimaryImage = (url: string) => {
-    setFormData({ ...formData, image_url: url });
+    setFormData((prev) => ({ ...prev, image_url: url }));
     toast({ title: 'Primary image set', description: 'This image will be shown as the main product image' });
   };
 
@@ -411,17 +438,17 @@ const MenuManager = () => {
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{item.description}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs bg-muted px-2 py-0.5 rounded">{item.category}</span>
-                        {item.is_popular && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
-                        {item.is_spicy && <Flame className="h-4 w-4 text-red-500" />}
-                        {item.is_veg && <Leaf className="h-4 w-4 text-green-500" />}
+                        {item.is_popular && <Star className="h-4 w-4 text-secondary fill-secondary" />}
+                        {item.is_spicy && <Flame className="h-4 w-4 text-destructive" />}
+                        {item.is_veg && <Leaf className="h-4 w-4 text-success" />}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(item)}>
+                    <Button variant="outline" className="h-10 flex-1" onClick={() => openEditDialog(item)}>
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="text-destructive" onClick={() => handleDelete(item.id)}>
+                    <Button variant="outline" className="h-10 w-10 p-0 text-destructive" aria-label={`Delete ${item.name}`} onClick={() => setDeleteId(item.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -433,20 +460,22 @@ const MenuManager = () => {
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={isDialogOpen} onOpenChange={(o) => { if (!savingRef.current && !isUploading) setIsDialogOpen(o); }}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingItem ? 'Edit Menu Item' : 'Add Menu Item'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form noValidate onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                aria-invalid={Boolean(fieldErrors.name)}
+                aria-describedby={fieldErrors.name ? "name-error" : undefined}
               />
+              {fieldErrors.name && <p id="name-error" role="alert" className="text-sm text-destructive">{fieldErrors.name}</p>}
             </div>
 
             <div className="space-y-2">
@@ -454,12 +483,12 @@ const MenuManager = () => {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={3}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price">Price (৳) *</Label>
                 <Input
@@ -467,22 +496,26 @@ const MenuManager = () => {
                   type="number"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  required
+                  onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))}
+                  aria-invalid={Boolean(fieldErrors.price)}
+                  aria-describedby={fieldErrors.price ? "price-error" : undefined}
                 />
+                {fieldErrors.price && <p id="price-error" role="alert" className="text-sm text-destructive">{fieldErrors.price}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <select
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                  aria-invalid={Boolean(fieldErrors.category)}
                   className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 >
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
+                {fieldErrors.category && <p role="alert" className="text-sm text-destructive">{fieldErrors.category}</p>}
               </div>
             </div>
 
@@ -491,7 +524,7 @@ const MenuManager = () => {
               <Textarea
                 id="ingredients"
                 value={formData.ingredients}
-                onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
+                onChange={(e) => setFormData((prev) => ({ ...prev, ingredients: e.target.value }))}
                 rows={2}
                 placeholder="Basmati rice, mutton, yogurt, saffron"
               />
@@ -502,7 +535,7 @@ const MenuManager = () => {
               <Input
                 id="allergens"
                 value={formData.allergens}
-                onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                onChange={(e) => setFormData((prev) => ({ ...prev, allergens: e.target.value }))}
                 placeholder="dairy, gluten, nuts"
               />
             </div>
@@ -513,7 +546,7 @@ const MenuManager = () => {
                 <select
                   id="spice_level"
                   value={formData.spice_level}
-                  onChange={(e) => setFormData({ ...formData, spice_level: e.target.value })}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, spice_level: e.target.value }))}
                   className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 >
                   <option value="0">0 — Not spicy</option>
@@ -529,7 +562,7 @@ const MenuManager = () => {
                   type="number"
                   min="0"
                   value={formData.prep_time_minutes}
-                  onChange={(e) => setFormData({ ...formData, prep_time_minutes: e.target.value })}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, prep_time_minutes: e.target.value }))}
                   placeholder="25"
                 />
               </div>
@@ -558,7 +591,9 @@ const MenuManager = () => {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => setFormData({ ...formData, image_url: '' })}
+                    className="h-10 w-10"
+                    aria-label="Remove main photo"
+                    onClick={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -589,13 +624,14 @@ const MenuManager = () => {
                           }`}
             loading="lazy"
             decoding="async"/>
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
-                          <GripVertical className="h-4 w-4 text-white" />
+                        <div className="absolute inset-0 bg-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                          <GripVertical className="h-4 w-4 text-background" />
                         </div>
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="Remove photo"
+                          className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -603,7 +639,7 @@ const MenuManager = () => {
                           <button
                             type="button"
                             onClick={() => setAsPrimaryImage(img)}
-                            className="absolute bottom-1 left-1 right-1 bg-card/90 text-foreground text-xs py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute bottom-1 left-1 right-1 bg-card/90 text-foreground text-xs py-1.5 rounded transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                           >
                             Set Primary
                           </button>
@@ -671,7 +707,7 @@ const MenuManager = () => {
               </div>
               <Input
                 value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                onChange={(e) => setFormData((prev) => ({ ...prev, image_url: e.target.value }))}
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -682,7 +718,7 @@ const MenuManager = () => {
                 <Switch
                   id="is_popular"
                   checked={formData.is_popular}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_popular: checked })}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_popular: checked }))}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -690,7 +726,7 @@ const MenuManager = () => {
                 <Switch
                   id="is_spicy"
                   checked={formData.is_spicy}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_spicy: checked })}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_spicy: checked }))}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -698,7 +734,7 @@ const MenuManager = () => {
                 <Switch
                   id="is_veg"
                   checked={formData.is_veg}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_veg: checked })}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_veg: checked }))}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -706,22 +742,31 @@ const MenuManager = () => {
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
                 />
               </div>
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button type="button" variant="outline" disabled={isSaving || isUploading} onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-primary text-primary-foreground">
-                {editingItem ? 'Update' : 'Add'} Item
+              <Button type="submit" disabled={isSaving || isUploading} className="bg-primary text-primary-foreground">
+                {isUploading ? 'Uploading photo…' : isSaving ? 'Saving…' : `${editingItem ? 'Update' : 'Add'} Item`}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(o) => !o && setDeleteId(null)}
+        title="Delete this dish?"
+        description="It will disappear from the menu straight away. This cannot be undone."
+        loading={isDeleting}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };
