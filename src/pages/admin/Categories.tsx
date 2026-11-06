@@ -351,27 +351,25 @@ const Categories = () => {
     setDraggedIndex(index);
   };
 
+  // Saves the whole order and checks every write; on any failure, reload the real order.
+  const persistOrder = async (ordered: Category[]) => {
+    const results = await Promise.all(
+      ordered.map((category, index) =>
+        supabase.from('categories').update({ sort_order: index }).eq('id', category.id),
+      ),
+    );
+    if (results.some((r) => r.error)) {
+      toast({ title: 'Order not saved', description: 'Some categories could not be moved. Showing the saved order.', variant: 'destructive' });
+      fetchCategories();
+      return;
+    }
+    toast({ title: 'Success', description: 'Category order updated' });
+  };
+
   const handleDragEnd = async () => {
     if (draggedIndex === null) return;
-
-    // Update sort_order for all categories
-    const updates = categories.map((category, index) => ({
-      id: category.id,
-      sort_order: index,
-    }));
-
-    for (const update of updates) {
-      await supabase
-        .from('categories')
-        .update({ sort_order: update.sort_order })
-        .eq('id', update.id);
-    }
-
     setDraggedIndex(null);
-    toast({
-      title: 'Success',
-      description: 'Category order updated',
-    });
+    await persistOrder(categories);
   };
 
   const moveCategory = async (index: number, direction: 'up' | 'down') => {
@@ -381,22 +379,7 @@ const Categories = () => {
     const newCategories = [...categories];
     [newCategories[index], newCategories[newIndex]] = [newCategories[newIndex], newCategories[index]];
     setCategories(newCategories);
-
-    // Update sort_order for swapped categories
-    await supabase
-      .from('categories')
-      .update({ sort_order: newIndex })
-      .eq('id', categories[index].id);
-
-    await supabase
-      .from('categories')
-      .update({ sort_order: index })
-      .eq('id', categories[newIndex].id);
-
-    toast({
-      title: 'Success',
-      description: 'Category order updated',
-    });
+    await persistOrder(newCategories);
   };
 
   if (isLoading) {
@@ -445,13 +428,13 @@ const Categories = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead className="w-16">Icon</TableHead>
+                <TableHead className="hidden w-12 sm:table-cell"></TableHead>
+                <TableHead className="hidden w-16 sm:table-cell">Icon</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden md:table-cell">Description</TableHead>
-                <TableHead className="w-24 text-center">Visible</TableHead>
-                <TableHead className="w-32 text-center">Order</TableHead>
-                <TableHead className="w-32 text-right">Actions</TableHead>
+                <TableHead className="w-14 text-center">Visible</TableHead>
+                <TableHead className="hidden w-36 text-center sm:table-cell">Order</TableHead>
+                <TableHead className="w-24 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -464,10 +447,10 @@ const Categories = () => {
                   onDragEnd={handleDragEnd}
                   className={`cursor-move ${draggedIndex === index ? 'opacity-50' : ''}`}
                 >
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     {category.icon_url ? (
                       category.icon_url.startsWith('preset:') ? (
                         (() => {
@@ -496,7 +479,14 @@ const Categories = () => {
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <span className="break-words">{category.name}</span>
+                    <div className="mt-2 flex items-center gap-1 sm:hidden">
+                      <Button variant="outline" size="icon" className="h-10 w-10" aria-label={`Move ${category.name} up`} onClick={() => moveCategory(index, 'up')} disabled={index === 0}>↑</Button>
+                      <span className="w-6 text-center text-sm text-muted-foreground">{index + 1}</span>
+                      <Button variant="outline" size="icon" className="h-10 w-10" aria-label={`Move ${category.name} down`} onClick={() => moveCategory(index, 'down')} disabled={index === categories.length - 1}>↓</Button>
+                    </div>
+                  </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
                     {category.description || '-'}
                   </TableCell>
@@ -505,7 +495,8 @@ const Categories = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => toggleVisibility(category)}
-                      className={category.is_visible ? 'text-green-600' : 'text-muted-foreground'}
+                      aria-label={category.is_visible ? `Hide ${category.name}` : `Show ${category.name}`}
+                      className={category.is_visible ? 'h-10 w-10 text-success' : 'h-10 w-10 text-muted-foreground'}
                     >
                       {category.is_visible ? (
                         <Eye className="h-4 w-4" />
@@ -514,14 +505,14 @@ const Categories = () => {
                       )}
                     </Button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <div className="flex items-center justify-center gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => moveCategory(index, 'up')}
                         disabled={index === 0}
-                        className="h-8 w-8"
+                        className="h-10 w-10"
                       >
                         <span className="sr-only">Move up</span>
                         ↑
@@ -534,7 +525,7 @@ const Categories = () => {
                         size="icon"
                         onClick={() => moveCategory(index, 'down')}
                         disabled={index === categories.length - 1}
-                        className="h-8 w-8"
+                        className="h-10 w-10"
                       >
                         <span className="sr-only">Move down</span>
                         ↓
@@ -542,11 +533,13 @@ const Categories = () => {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-0.5">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(category)}
+                        aria-label={`Edit ${category.name}`}
+                        className="h-10 w-10"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -557,7 +550,8 @@ const Categories = () => {
                           setCategoryToDelete(category);
                           setIsDeleteDialogOpen(true);
                         }}
-                        className="text-destructive hover:text-destructive"
+                        aria-label={`Delete ${category.name}`}
+                        className="h-10 w-10 text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
