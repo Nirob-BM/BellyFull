@@ -324,7 +324,7 @@ const SeoHealth = () => {
                   <FileCode className="h-5 w-5" />
                   Sitemap Details
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="break-all">
                   {baseUrl}/sitemap.xml
                 </CardDescription>
               </div>
@@ -409,7 +409,7 @@ const SeoHealth = () => {
                   <ShieldCheck className="h-5 w-5" />
                   robots.txt
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="break-all">
                   {baseUrl}/robots.txt
                 </CardDescription>
               </div>

@@ -169,24 +169,24 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 max-w-2xl">
-          <TabsTrigger value="general" className="gap-2">
+        <TabsList className="grid h-auto w-full max-w-2xl grid-cols-5 p-1">
+          <TabsTrigger value="general" className="h-10 min-w-0 gap-2">
             <Building className="h-4 w-4" />
             <span className="hidden sm:inline">General</span>
           </TabsTrigger>
-          <TabsTrigger value="seo" className="gap-2">
+          <TabsTrigger value="seo" className="h-10 min-w-0 gap-2">
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">SEO</span>
           </TabsTrigger>
-          <TabsTrigger value="design" className="gap-2">
+          <TabsTrigger value="design" className="h-10 min-w-0 gap-2">
             <Palette className="h-4 w-4" />
             <span className="hidden sm:inline">Design</span>
           </TabsTrigger>
-          <TabsTrigger value="payment" className="gap-2">
+          <TabsTrigger value="payment" className="h-10 min-w-0 gap-2">
             <CreditCard className="h-4 w-4" />
             <span className="hidden sm:inline">Payment</span>
           </TabsTrigger>
-          <TabsTrigger value="delivery" className="gap-2">
+          <TabsTrigger value="delivery" className="h-10 min-w-0 gap-2">
             <Truck className="h-4 w-4" />
             <span className="hidden sm:inline">Delivery</span>
           </TabsTrigger>
@@ -506,7 +506,7 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-200">
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 text-sm text-foreground">
                 <p><strong>Note:</strong> These numbers will be displayed to customers during checkout for payment.</p>
               </div>
 
@@ -580,7 +580,7 @@ const Settings = () => {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">
+                  <div className="bg-info/10 border border-info/30 rounded-lg p-4 text-sm text-foreground">
                     <p><strong>Info:</strong> Orders below the minimum amount will not be eligible for home delivery. Customers can still choose pickup.</p>
                   </div>
                 </>
