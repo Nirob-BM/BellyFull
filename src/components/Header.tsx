@@ -10,8 +10,8 @@ type NavLinkDef = { name: string; hash?: string; to?: string };
 
 const navLinks: NavLinkDef[] = [
   { name: "Home", hash: "home" },
-  { name: "About", hash: "about" },
   { name: "Menu", to: "/menu" },
+  { name: "About", hash: "about" },
   { name: "Reviews", hash: "testimonials" },
   { name: "Location", hash: "location" },
   { name: "FAQ", hash: "faq" },
@@ -41,7 +41,7 @@ const Header = () => {
   useEffect(() => {
     if (location.pathname !== "/") return;
 
-    const sectionIds = navLinks.flatMap((link) => (link.hash ? [link.hash] : []));
+    const sectionIds = [...navLinks.flatMap((link) => (link.hash ? [link.hash] : [])), "reservation"];
     const hashSection = location.hash.slice(1);
     if (hashSection && sectionIds.includes(hashSection)) setActiveSection(hashSection);
     let frame = 0;
@@ -230,7 +230,10 @@ const Header = () => {
           <Button
             variant="default"
             size="default"
-            className="bg-gradient-gold text-primary font-semibold shadow-elegant hover:opacity-90"
+            aria-current={location.pathname === "/" && activeSection === "reservation" ? "location" : undefined}
+            className={`bg-gradient-gold text-primary font-semibold shadow-elegant hover:opacity-90 ${
+              location.pathname === "/" && activeSection === "reservation" ? "ring-2 ring-secondary ring-offset-2 ring-offset-background" : ""
+            }`}
             onClick={() => goToHash("reservation")}
           >
             <CalendarDays className="h-4 w-4" />
@@ -266,11 +269,13 @@ const Header = () => {
             id="mobile-navigation"
             className="lg:hidden bg-card/98 border-t border-border shadow-elegant-md overflow-hidden [text-shadow:none]"
           >
-            <nav aria-label="Mobile navigation" className="container py-3 flex flex-col gap-1 max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <nav aria-label="Mobile navigation" className="container py-3 flex flex-col gap-1 max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain">
+              <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Explore</p>
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
               {navLinks.map((link) => {
                 const active = isLinkActive(link);
                 const linkClass = `flex min-h-11 items-center rounded-md px-3 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  active ? "bg-muted text-primary" : "text-foreground hover:bg-muted hover:text-primary"
+                  active ? "bg-muted text-primary border-l-4 border-secondary" : "text-foreground hover:bg-muted hover:text-primary"
                 }`;
 
                 return link.to ? (
@@ -295,7 +300,8 @@ const Header = () => {
                   </a>
                 );
               })}
-              <div className="mt-2 border-t border-border pt-3 flex flex-col gap-2">
+              </div>
+              <div className="mt-2 border-t border-border pt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <a
                   href="tel:+8801863339695"
                   className="flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
