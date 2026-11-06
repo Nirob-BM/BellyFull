@@ -170,23 +170,23 @@ const Settings = () => {
 
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList className="grid h-auto w-full max-w-2xl grid-cols-5 p-1">
-          <TabsTrigger value="general" className="h-10 min-w-0 gap-2">
+          <TabsTrigger value="general" aria-label="General" className="h-10 min-w-0 gap-2">
             <Building className="h-4 w-4" />
             <span className="hidden sm:inline">General</span>
           </TabsTrigger>
-          <TabsTrigger value="seo" className="h-10 min-w-0 gap-2">
+          <TabsTrigger value="seo" aria-label="SEO" className="h-10 min-w-0 gap-2">
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">SEO</span>
           </TabsTrigger>
-          <TabsTrigger value="design" className="h-10 min-w-0 gap-2">
+          <TabsTrigger value="design" aria-label="Design" className="h-10 min-w-0 gap-2">
             <Palette className="h-4 w-4" />
             <span className="hidden sm:inline">Design</span>
           </TabsTrigger>
-          <TabsTrigger value="payment" className="h-10 min-w-0 gap-2">
+          <TabsTrigger value="payment" aria-label="Payment" className="h-10 min-w-0 gap-2">
             <CreditCard className="h-4 w-4" />
             <span className="hidden sm:inline">Payment</span>
           </TabsTrigger>
-          <TabsTrigger value="delivery" className="h-10 min-w-0 gap-2">
+          <TabsTrigger value="delivery" aria-label="Delivery" className="h-10 min-w-0 gap-2">
             <Truck className="h-4 w-4" />
             <span className="hidden sm:inline">Delivery</span>
           </TabsTrigger>
