@@ -7,7 +7,7 @@ import { useOpeningStatus } from "@/hooks/useOpeningStatus";
  * immediately know ordering is paused and when it resumes.
  */
 const ComingSoonBanner = () => {
-  const { isOpen, isLoading } = useOpeningStatus();
+  const { isOpen, isLoading, nextOpeningLabel } = useOpeningStatus();
   const reduceMotion = useReducedMotion();
 
   const show = !isLoading && !isOpen;
