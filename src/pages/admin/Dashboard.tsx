@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Search, Globe, FileCode, ExternalLink } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -394,6 +395,60 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* SEO & Indexing Tools */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            SEO & Indexing
+          </CardTitle>
+          <CardDescription>
+            Monitor and submit your sitemap to search engines.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Button asChild variant="outline" className="h-auto py-3 justify-start">
+              <Link to="/69/seo">
+                <FileCode className="h-4 w-4 mr-2 shrink-0" />
+                <span className="flex-1 text-left">
+                  <span className="block font-medium">SEO Health Check</span>
+                  <span className="block text-xs text-muted-foreground">Sitemap & robots.txt status</span>
+                </span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-auto py-3 justify-start">
+              <a
+                href="https://search.google.com/search-console/sitemaps?resource_id=https%3A%2F%2Fbellyfull.lovable.app%2F"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Globe className="h-4 w-4 mr-2 shrink-0" />
+                <span className="flex-1 text-left">
+                  <span className="block font-medium">Google Search Console</span>
+                  <span className="block text-xs text-muted-foreground">Submit sitemap</span>
+                </span>
+                <ExternalLink className="h-3 w-3 ml-2 shrink-0 opacity-60" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="h-auto py-3 justify-start">
+              <a
+                href="https://www.bing.com/webmasters/sitemaps?siteUrl=https://bellyfull.lovable.app"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Globe className="h-4 w-4 mr-2 shrink-0" />
+                <span className="flex-1 text-left">
+                  <span className="block font-medium">Bing Webmaster Tools</span>
+                  <span className="block text-xs text-muted-foreground">Submit sitemap</span>
+                </span>
+                <ExternalLink className="h-3 w-3 ml-2 shrink-0 opacity-60" />
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
