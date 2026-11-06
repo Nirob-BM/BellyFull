@@ -395,7 +395,7 @@ const Menu = () => {
           transition={{ delay: 0.6, duration: 0.5 }}
           className="text-center mt-12"
         >
-          <Link to="/menu">
+          <Link to="/menu" className="inline-block rounded-full">
             <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
               View Full Menu
             </Button>

@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { BkashLogo, NagadLogo, CashOnDeliveryIcon, WhatsAppLogo } from "@/components/PaymentLogos";
 import { Helmet } from "react-helmet-async";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -362,14 +364,24 @@ const Checkout = () => {
 
   if (items.length === 0 && step !== 'success') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-          <Button onClick={() => navigate('/')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Menu
-          </Button>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Helmet>
+          <title>Your Cart — Belly Full</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-4 pb-16 pt-28">
+          <div className="text-center">
+            <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" aria-hidden="true" />
+            <h1 className="font-display text-2xl font-bold mb-2">Your cart is empty</h1>
+            <p className="mb-6 text-muted-foreground">Pick a few dishes from our menu to get started.</p>
+            <Button className="h-11" onClick={() => navigate('/menu')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Browse the Menu
+            </Button>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }

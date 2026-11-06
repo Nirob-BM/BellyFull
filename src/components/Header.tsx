@@ -12,7 +12,7 @@ const navLinks: NavLinkDef[] = [
   { name: "Home", hash: "home" },
   { name: "About", hash: "about" },
   { name: "Menu", to: "/menu" },
-  { name: "Testimonials", hash: "testimonials" },
+  { name: "Reviews", hash: "testimonials" },
   { name: "Location", hash: "location" },
   { name: "FAQ", hash: "faq" },
 ];
@@ -182,7 +182,7 @@ const Header = () => {
         <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {navLinks.map((link) => {
             const active = isLinkActive(link);
-            const linkClass = `relative rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 ${
+            const linkClass = `relative inline-flex min-h-10 items-center rounded-md px-2 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary xl:px-3 ${
               isTransparent
                 ? active
                   ? "text-primary bg-secondary"
