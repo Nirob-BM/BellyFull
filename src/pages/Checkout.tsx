@@ -430,7 +430,7 @@ const Checkout = () => {
             {/* Order Summary - Editable */}
             <div className="bg-card rounded-xl p-4 border">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold">Order Summary</h3>
+                <h2 className="font-semibold">Order Summary</h2>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(!isEditing)}>
                   {isEditing ? "Done" : "Edit"}
                 </Button>
@@ -515,7 +515,7 @@ const Checkout = () => {
             {/* Delivery Type Selection */}
             {deliverySettings.enabled && (
               <div className="bg-card rounded-xl p-4 border space-y-4">
-                <h3 className="font-semibold">Order Type</h3>
+                <h2 className="font-semibold">Order Type</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     onClick={() => setDeliveryType('pickup')}
@@ -568,7 +568,7 @@ const Checkout = () => {
 
             {/* User Details Form */}
             <div className="bg-card rounded-xl p-4 border space-y-4">
-              <h3 className="font-semibold">Your Details</h3>
+              <h2 className="font-semibold">Your Details</h2>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="fullName">Full Name *</Label>
@@ -609,7 +609,7 @@ const Checkout = () => {
 
             {/* Payment Method Selection */}
             <div className="bg-card rounded-xl p-4 border space-y-4">
-              <h3 className="font-semibold">Payment Method</h3>
+              <h2 className="font-semibold">Payment Method</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <button
                   onClick={() => setPaymentMethod('bkash')}
@@ -701,9 +701,9 @@ const Checkout = () => {
             <div className={`rounded-xl p-6 ${paymentMethod === 'bkash' ? 'bg-pink-50 dark:bg-pink-950/30 border-pink-200' : 'bg-orange-50 dark:bg-orange-950/30 border-orange-200'} border`}>
               <div className="flex items-center gap-3 mb-4">
                 {paymentMethod === 'bkash' ? <BkashLogo className="w-10 h-10" /> : <NagadLogo className="w-10 h-10" />}
-                <h3 className="text-xl font-bold">
+                <h2 className="text-xl font-bold">
                   {paymentMethod === 'bkash' ? 'bKash' : 'Nagad'} Payment
-                </h3>
+                </h2>
               </div>
               
               <div className="space-y-4">
@@ -740,7 +740,7 @@ const Checkout = () => {
 
             {/* Transaction Verification */}
             <div className="bg-card rounded-xl p-6 border space-y-4">
-              <h3 className="text-lg font-semibold">Verify Payment</h3>
+              <h2 className="text-lg font-semibold">Verify Payment</h2>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="transactionId">Transaction ID *</Label>
