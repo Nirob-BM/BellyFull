@@ -226,7 +226,7 @@ const PopularItems = forwardRef<HTMLElement>((_, forwardedRef) => {
                       </span>
                       <Button
                         size="sm"
-                        className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-1 sm:gap-1.5 text-xs sm:text-sm h-7 sm:h-8 px-2.5 sm:px-3"
+                        className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-1 sm:gap-1.5 text-xs sm:text-sm h-10 px-3 sm:px-4"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();

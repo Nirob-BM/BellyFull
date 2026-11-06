@@ -131,7 +131,7 @@ const Auth = () => {
                   type="button"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -156,7 +156,7 @@ const Auth = () => {
           </div>
 
           <div className="mt-4 text-center">
-            <a href="/" className="text-sm text-secondary hover:underline">
+            <a href="/" className="inline-flex min-h-11 items-center px-3 text-sm text-secondary hover:underline">
               ← Back to website
             </a>
           </div>

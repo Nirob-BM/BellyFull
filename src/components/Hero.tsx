@@ -111,9 +111,9 @@ const Hero = () => {
             className="mt-8 sm:mt-12 w-full flex flex-wrap justify-around items-center gap-y-4 max-w-lg mx-auto"
           >
             {[
-              { value: "50+", label: "Dishes" },
-              { value: "2K+", label: "Happy Guests" },
-              { value: "5★", label: "Rating" },
+              { value: "4.0★", label: "Google Rating" },
+              { value: "224", label: "Google Reviews" },
+              { value: "3", label: "Cuisines" },
             ].map((stat) => (
               <div key={stat.label} className="text-center min-w-[80px]">
                 <div className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-secondary">{stat.value}</div>

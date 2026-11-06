@@ -7,7 +7,7 @@ import { useOpeningStatus } from "@/hooks/useOpeningStatus";
  * immediately know ordering is paused and when it resumes.
  */
 const ComingSoonBanner = () => {
-  const { isOpen, isLoading } = useOpeningStatus();
+  const { isOpen, isLoading, nextOpeningLabel } = useOpeningStatus();
   const reduceMotion = useReducedMotion();
 
   const show = !isLoading && !isOpen;
@@ -30,7 +30,7 @@ const ComingSoonBanner = () => {
                 We're closed right now
               </span>
               <span className="text-sm font-medium leading-5 text-foreground">
-                <span className="hidden sm:inline">— </span>Order Next Day at 10:00 A.M.
+                <span className="hidden sm:inline">— </span>{nextOpeningLabel ? `${nextOpeningLabel}.` : "Ordering reopens with our next service."}
               </span>
               <span className="text-xs leading-5 text-muted-foreground sm:text-sm">
                 Browse the menu in the meantime.

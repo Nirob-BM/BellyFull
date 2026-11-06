@@ -89,7 +89,7 @@ const Footer = () => {
                 { name: "About Us", href: "#about" },
                 { name: "Our Menu", href: "#menu" },
                 { name: "Reservations", href: "#reservation" },
-                { name: "Testimonials", href: "#testimonials" },
+                { name: "Reviews", href: "#testimonials" },
                 { name: "FAQ", href: "#faq" },
               ].map((link) => (
                 <li key={link.name}>

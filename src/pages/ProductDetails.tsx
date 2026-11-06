@@ -438,7 +438,7 @@ const ProductDetails = () => {
                   className="flex-1 bg-primary text-primary-foreground"
                 >
                   <ShoppingBag className="h-5 w-5 mr-2" />
-                  Add to Cart - ৳{item.price * quantity}
+                  Add to Order - ৳{item.price * quantity}
                 </Button>
               </div>
             </motion.div>
@@ -452,7 +452,7 @@ const ProductDetails = () => {
             className="mt-16"
           >
             <h2 className="font-display text-2xl font-bold text-foreground mb-8">
-              Customer Reviews ({reviews.length})
+              {reviews.length > 0 ? `Customer Reviews (${reviews.length})` : "Be the first to review this dish"}
             </h2>
 
             <div className="grid lg:grid-cols-2 gap-8">

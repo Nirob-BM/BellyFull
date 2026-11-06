@@ -588,11 +588,6 @@ const MenuPage = () => {
       
       <main className="pt-24 pb-16">
         <div className="container">
-          {/* Back Link */}
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
 
           {/* Page Header */}
           <motion.div
@@ -725,7 +720,7 @@ const MenuPage = () => {
                             key={allergen}
                             onClick={() => toggleAllergenExclusion(allergen)}
                             aria-pressed={active}
-                            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                            className={`inline-flex items-center gap-1 min-h-10 rounded-full border px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                               active
                                 ? "border-destructive bg-destructive text-destructive-foreground"
                                 : "border-border bg-background text-muted-foreground hover:border-destructive/50 hover:text-foreground"

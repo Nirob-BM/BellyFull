@@ -203,7 +203,7 @@ const CategoryShowcase = () => {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="text-center mt-10 md:mt-14"
         >
-          <Link to="/menu">
+          <Link to="/menu" className="inline-block rounded-full">
             <Button 
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8 py-6 text-base md:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
