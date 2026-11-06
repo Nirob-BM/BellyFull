@@ -321,7 +321,7 @@ const Dashboard = () => {
                 <PieChart>
                   <Pie data={statusData} dataKey="value" innerRadius="50%" outerRadius="85%" label={false}>
                     {statusData.map((s, i) => (
-                      <Cell key={s.name} fill={colors[i % colors.length]} />
+                      <Cell key={s.name} fill={statusColors[statuses[i]] || colors[i % colors.length]} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={tooltipStyle} />
@@ -333,7 +333,7 @@ const Dashboard = () => {
                 <li key={s.name} className="flex items-center gap-2 capitalize">
                   <span
                     className="w-3 h-3 shrink-0 rounded-full"
-                    style={{ background: colors[i % colors.length] }}
+                    style={{ background: statusColors[statuses[i]] || colors[i % colors.length] }}
                   />
                   {s.name}: {s.value}
                 </li>
