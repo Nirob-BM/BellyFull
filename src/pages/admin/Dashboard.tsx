@@ -43,6 +43,15 @@ const statuses = [
   "rejected",
 ];
 const colors = [1, 2, 3, 4, 5].map((n) => `hsl(var(--chart-${n}))`);
+const statusColors: Record<string, string> = {
+  pending: "hsl(var(--warning))",
+  approved: "hsl(var(--info))",
+  preparing: "hsl(var(--chart-2))",
+  out_for_delivery: "hsl(var(--chart-4))",
+  ready_for_pickup: "hsl(var(--chart-5))",
+  delivered: "hsl(var(--success))",
+  rejected: "hsl(var(--destructive))",
+};
 const dayKey = (value: Date | string) =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Dhaka",

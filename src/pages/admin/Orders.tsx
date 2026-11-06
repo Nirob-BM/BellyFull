@@ -344,7 +344,7 @@ const Orders = () => {
               onClick={() => setStatusFilter(status)}
               className="capitalize h-10"
             >
-              {status}
+              {status.replace(/_/g, " ")}
             </Button>
           ))}
         </div>
