@@ -305,6 +305,9 @@ const BlogPosts = () => {
                 aria-invalid={Boolean(titleError)}
                 aria-describedby={titleError ? 'post-title-error' : undefined}
               />
+              {titleError && (
+                <p id="post-title-error" role="alert" className="text-sm text-destructive">{titleError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
