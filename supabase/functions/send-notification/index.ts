@@ -552,7 +552,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { type, action, recipientEmail, recipientName, details }: NotificationRequest = await req.json();
 
-    console.log(`Sending ${type} notification: ${action} to ${recipientEmail}`);
+    console.log(`Sending ${type} notification: ${action}`);
 
     if (!recipientEmail) {
       return new Response(
@@ -571,7 +571,7 @@ const handler = async (req: Request): Promise<Response> => {
       emailContent.html
     );
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sent successfully");
 
     return new Response(
       JSON.stringify({ success: true, emailResponse }),

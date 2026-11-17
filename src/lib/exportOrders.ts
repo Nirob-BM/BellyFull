@@ -24,6 +24,13 @@ interface Order {
   created_at: string;
 }
 
+/** Quote a CSV cell and neutralise spreadsheet formulas (=, +, -, @, tab, CR). */
+export const csvCell = (value: unknown): string => {
+  let s = String(value ?? '');
+  if (/^[\s]*[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g, '""')}"`;
+};
+
 export const exportOrdersToCSV = (orders: Order[], filename: string = 'orders') => {
   const headers = [
     'Order ID',
@@ -53,7 +60,7 @@ export const exportOrdersToCSV = (orders: Order[], filename: string = 'orders') 
 
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ...rows.map(row => row.map(csvCell).join(','))
   ].join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
